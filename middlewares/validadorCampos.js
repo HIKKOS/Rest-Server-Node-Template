@@ -8,4 +8,4 @@ const validarCampos = (req, res,  next  ) => {
     //si llega a este punto pasa al siguiente middleware
     next();
 }
-module.exports = validarCampos
+module.exports = {validarCampos}

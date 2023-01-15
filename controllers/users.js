@@ -67,12 +67,15 @@ const usuariosPatch = (req, res = response) => {
 }
 
 const usuariosDelete = async (req, res = response) => {
-    const {id} = req.params
+    const { id } = req.params
     //borrar de manera FISICA NO HACER
     //const user = await Usuario.findByIdAndDelete(id)
+    const uid = req.uid
+    const userAuth = req.userAuth
     const user = await Usuario.findByIdAndUpdate(id, { status: false })
     res.json({
-        user
+        user,
+        userAuth,
     })    
 }
 module.exports = {
