@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Tutor {
+  Id              Int        @id @default(autoincrement())
+  Nombres         String     @db.VarChar(75)
+  ApellidoMaterno String     @db.VarChar(75)
+  ApellidoPaterno String     @db.VarChar(75)
+  Correo          String     @unique @db.VarChar(255)
+  Telefono        String     @unique @db.VarChar(20)
+  RFC             String     @unique @db.VarChar(15)
+  PasswordTutor   String     @db.VarChar(255)
+  Direccion       String     @db.VarChar(150)
+  CreatedAt       DateTime   @default(now())
+  Tutorado        Alumno[]
+  MetodoPago      MetodoPago @default(null)
+}
+
+model Alumno {
+  Id              Int        @id @default(autoincrement())
+  Nombres         String     @db.VarChar(75)
+  ApellidoMaterno String     @db.VarChar(75)
+  ApellidoPaterno String     @db.VarChar(75)
+  Servicio        Servicio[]
+  Grado           Int        @default(1)
+  Grupo           String     @default("A") @db.VarChar(20)
+  Genero          Genero     @default(MASCULINO)
+  CreatedAt       DateTime   @default(now())
+  Padre           Tutor      @relation(fields: [TutorId], references: [Id])
+  TutorId         Int
+}
+
+model Servicio {
+  Id          Int        @id @default(autoincrement())
+  Nombres     String     @db.VarChar(75)
+  Prioritario Boolean    @default(true)
+  Imagenes    ImgPaths[]
+  Descripcion String     @db.VarChar(500)
+  //TODO: Fecha corte
+  FechaPago   DateTime   @default(now())
+  Precio      Float      @default(0.0)
+  Alumno      Alumno     @relation(fields: [AlumnoId], references: [Id])
+  AlumnoId    Int
+}
+
+model Administrador {
+  Id              Int    @id @default(autoincrement())
+  Nombres         String @db.VarChar(75)
+  ApellidoMaterno String @db.VarChar(75)
+  ApellidoPaterno String @db.VarChar(75)
+  Correo          String @unique @db.VarChar(255)
+  PasswordAdmin   String @db.VarChar(255)
+}
+
+model ImgPaths {
+  Id       Int      @id
+  UserId   Int
+  Path     String
+  Servicio Servicio @relation(fields: [UserId], references: [Id])
+}
+
+enum MetodoPago {
+  PayPal
+  null
+}
+
+enum Genero {
+  MASCULINO
+  FEMENINO
+}

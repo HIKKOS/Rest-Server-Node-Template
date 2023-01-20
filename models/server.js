@@ -10,13 +10,16 @@ class Server{
             auth: '/api/users',
             usersPath : '/api/users',
             uploads : '/api/uploads',
+            servicios: '/api/servicios',
+            tutores: '/api/tutores',
+            alumnos: '/api/alumnos'
         }
         //Middlewares
         this.middlewares()
         //rutas de mi apliacion
         this.routes()
         //conectar a la base de datos
-        this.conectarDb()
+        //this.conectarDb()
     }
     async conectarDb() {
         await dbConnection();
@@ -38,6 +41,9 @@ class Server{
         this.app.use(this.paths.auth, require('../routes/auth'))
         this.app.use(this.paths.usersPath, require('../routes/users'))
         this.app.use(this.paths.uploads, require('../routes/uploads'))
+        this.app.use(this.paths.servicios, require('../routes/servicios'))
+        this.app.use(this.paths.tutores, require('../routes/tutores'))
+        this.app.use(this.paths.alumnos, require('../routes/alumnos'))
     }
     listen(){        
         this.app.listen(this.port, () =>{

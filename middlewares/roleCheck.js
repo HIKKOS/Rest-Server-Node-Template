@@ -2,7 +2,7 @@ const { request, response } = require("express")
 
 const verifyAdminRole = (req = request, res = response, next) => {
     if( !req.userAuth ) {
-        return res.status(500).json({
+        return res.status(400).json({
             msg:'se quiere verificar el rol sin validar token'
         })
     }
