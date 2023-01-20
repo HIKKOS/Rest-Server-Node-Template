@@ -5,21 +5,32 @@ const isValidRole = async (role = '' ) => {
     if(!existeRol){
         throw new Error(`El rol ${role} no esta registrado en la BD`)
     }
+    return true
 }
 const emailExist = async ( email ) => {
     const emailExiste = await User.findOne({ email })
     if(emailExiste){
         throw new Error(`el correo${ email } ya está registrado`)
     }
+    return true
 }
 const UserExistById = async ( id ) => {
     const existeUsuario = await User.findById( id )
     if(!existeUsuario){
         throw new Error(`el id${ id } no existe`)
     }
+    return true
+}
+const validarColecciones = (coleccion = '', colecciones = []) => {
+    const incluida = colecciones.includes(coleccion)
+    if( !incluida ){
+        throw new Error(`la collecion ${coleccion} no es permitida, colleciones: ${colecciones}`)
+    }
+    return true
 }
 module.exports = {
     isValidRole,
     emailExist,
-    UserExistById
+    UserExistById,
+    validarColecciones,
 }

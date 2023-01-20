@@ -29,9 +29,9 @@ const usuariosGet = async(req = request, res = response) => {
 const usuariosPost = async(req, res = response) => {
     //TODO: verificar esto
    
-    const { name, email, password, role} = req.body
+    const { name, email, password, role, img} = req.body
     //solo se graban los campos que se hayan declarado con mongoose
-    const user = new Usuario( { name, email, password, role } )
+    const user = new Usuario( { name, email, password, role,img } )
    
     //encriptar la contraseña
     //salt = numero de vueltas que bcrypt hara más vueltas = más encritado = más tiempo 
