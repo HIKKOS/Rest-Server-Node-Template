@@ -1,12 +1,12 @@
 const { Router } = require('express')
 const { check } = require('express-validator')
-const { cargarArchivo,  actualizarImagen, MostrarImagen } = require('../controllers/uploads')
+const { cargarArchivo,  actualizarImagen, MostrarImagen, deleteImagen } = require('../controllers/uploads')
 const { validarColecciones } = require('../helpers/DBvalidators')
 const {validarCampos, validarCargaArchivos, validarJWT} = require('../middlewares')
 
 const router = Router()
  router.get('/:coleccion/:Id',[
-   //validarJWT,
+    //validarJWT,
     check('Id','Debe ser numerico').isNumeric(),
     check('coleccion').custom(c => validarColecciones(c, ['servicios'])), 
     validarCampos,     
@@ -20,11 +20,18 @@ router.post('/:coleccion/:Id',[
 ], 
 cargarArchivo )
 
-router.put('/:coleccion/:Id', [
+router.put('/', [
     validarJWT,
     validarCargaArchivos,
-    check('coleccion').custom(c => validarColecciones(c, ['servicios'])), 
+    check('Id','Debe ser numerico').isNumeric(),
+    check('ServicioId','Debe ser numerico').isNumeric(),
     validarCampos,     
 ], actualizarImagen)
+router.delete('/',[
+    validarJWT,
+    check('Id','deber ser numerico').isNumeric(),
+    check('ServicioId','deber ser numerico').isNumeric(),
+    validarCampos,
+],deleteImagen)
 
 module.exports = router

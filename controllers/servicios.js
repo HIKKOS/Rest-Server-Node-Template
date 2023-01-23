@@ -17,11 +17,12 @@ const serviciosGet = async(req = request, res = response) => {
             const Id = PathsArray.map(p => {return p.Id})
             servicios[i].ImgIds = Id
         }
-
+        const total = await prisma.servicio.count()
         res.json({
             pagina,
             skip,
             limite,
+            total,
             servicios,            
         })
     } catch (error) {
@@ -40,9 +41,9 @@ const serviciosPost = async(req = request, res = response) => {
         FechaPago,
         Precio,
     } = req.body 
-    Prioritario.toLowerCase()
-    console.log(Prioritario);
-    if(Prioritario == 'false' || Prioritario ==  0){ Prioritario = false} else { Prioritario = true }
+    if( isNaN(Prioritario) ){
+        Prioritario = Prioritario.toLowerCase()        
+    }
 
     console.log(Prioritario);
     Precio = Number(Precio)

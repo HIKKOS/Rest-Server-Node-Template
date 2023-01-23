@@ -19,6 +19,7 @@ const login = async (req = request, res = response) =>{
                 msg:'no esta activo'
             })
         }
+        
         //verificar contraseña
         const validPassword = bcryptjs.compareSync((Password).toString(), user.PasswordAdmin)
         if( !validPassword ){
