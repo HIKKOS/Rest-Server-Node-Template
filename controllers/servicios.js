@@ -1,74 +1,75 @@
 const { response, request } = require('express')
+const  { PrismaClient } = require ("@prisma/client");
+const { evaluarPagina } = require('../helpers/paginacion');
+const prisma = new PrismaClient()
 
-const bcryptjs = require('bcryptjs')
-const  { PrismaClient, prisma } = require ("@prisma/client");
-const { now } = require('mongoose');
+const serviciosGet = async(req = request, res = response) => { 
+    const { page = 1, limit } = req.query
+    try {
+        const { skip, pagina , limite } = await evaluarPagina(page, limit)
+        let servicios = await prisma.servicio.findMany({
+            skip,
+            take: limite
+        })
+        for (let i = 0; i < servicios.length; i++) {
+            const ServicioId = servicios[i].Id        
+            const PathsArray = await prisma.imgPaths.findMany( { where : {ServicioId} } )
+            const Id = PathsArray.map(p => {return p.Id})
+            servicios[i].ImgIds = Id
+        }
 
-//const user = require('../models/user')
-
-const serviciosGet = async(req = request, res = response) => {        
-    res.json({
-        msg:'serviciosGet CAMBIARget',
-    })
+        res.json({
+            pagina,
+            skip,
+            limite,
+            servicios,            
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({
+            error
+        })
+    }
 }
 
 const serviciosPost = async(req = request, res = response) => {
-   /*--`Id` INTEGER NOT NULL AUTO_INCREMENT,
-    `Nombres` VARCHAR(75) NOT NULL,
-    `Prioritario` BOOLEAN NOT NULL DEFAULT true,
-    `Descripcion` VARCHAR(500) NOT NULL,
-    `FechaPago` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `Precio` DOUBLE NOT NULL DEFAULT 0.0,
-    `AlumnoId` INTEGER NOT NULL, */
-    const { Nombres,
-        Prioritario,
+    let { 
+        Nombre,
+        Prioritario = '',
         Descripcion,
         FechaPago,
         Precio,
     } = req.body 
+    Prioritario.toLowerCase()
+    console.log(Prioritario);
+    if(Prioritario == 'false' || Prioritario ==  0){ Prioritario = false} else { Prioritario = true }
 
+    console.log(Prioritario);
+    Precio = Number(Precio)
+    
+    const servicio = await prisma.servicio.create( {
+        data:{
+            Nombre,
+            Prioritario,
+            Descripcion,
+            FechaPago,
+            Precio,
+        }
+    })
     res.json({
         msg: 'serviciosPost - controlador',
+        servicio
     })    
 }
-/*
-
-const usuariosPut = async (req, res = response) => {
-    const id = req.params.id
-    const { _id, password, google, ...other } = req.body
-    //TODO: validar contra BD
-
-    if( password ){
-        const salt = bcryptjs.genSaltSync();
-        other.password = bcryptjs.hashSync(password, salt)
-    }
-     await Usuario.findByIdAndUpdate( id, other )
-    res.json({
-        id
-    })    
-}
-const usuariosPatch = (req, res = response) => {
-    res.json({
-        msg: 'patch API - controlador'
-    })    
+const serviciosPut = async (req = request, res = response) => {    
+    return res.json({
+        msg:`put ${req.params.Id}`
+    })
 }
 
-const usuariosDelete = async (req, res = response) => {
-    const { id } = req.params
-    //borrar de manera FISICA NO HACER
-    //const user = await Usuario.findByIdAndDelete(id)
-    const uid = req.uid
-    const userAuth = req.userAuth
-    const user = await Usuario.findByIdAndUpdate(id, { status: false })
-    res.json({
-        user,
-        userAuth,
-    })    
-} */
 module.exports = {
     serviciosGet,
     serviciosPost,
-    /*usuariosPut,
-    usuariosPatch,
-    usuariosDelete, */
+    serviciosPut,
+
 }

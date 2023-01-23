@@ -1,71 +1,87 @@
-
 const  path  = require('path')
 const  fs  = require('fs')
 
 const { response, request } = require("express")
-
 const { uploadFile } = require("../helpers")
-const Usuario = require('../models/user')
-
-const cargarArchivo = async (req= require, res = response) => {
-    try {
-        const nombre = await uploadFile(req.files, undefined)
-        res.status(201).json({ nombre })
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
+const cargarArchivo = async (req = require, res = response) => {
+    let Id = req.params.Id
+    const servicio = await prisma.servicio.findUnique( { where: { Id:Number(Id) } } )
+    if( !servicio ){
+        return res.status(404).json({
+            msg : `No existe un servicio con el id: ${Id}`
+        })
+    }
+    try {    
+        /*
+        Id       Int      @id
+        ServicioId   Int
+        Path     String
+        Servicio Servicio? @relation(fields: [ServicioId], references: [Id])
+        
+        */
+        const dir = await uploadFile(req.files, undefined)
+        await prisma.imgPaths.create({
+            data : { 
+                Path: dir,
+                ServicioId: Number(Id)
+            }
+        })
+        res.status(201).json({ 
+            msg:`se subio la foto ${ dir } del servicio: ${servicio.Nombre} `
+        })
     } catch (error) {
+        console.log(error);
       res.status(400).json({error})
     }
 }
 
 const actualizarImagen = async( req = request, res = response ) => {
-    const { id, coleccion } = req.params    
-    const modelo = await Usuario.findById(id);
-    if( !modelo ) {
+    const { Id, coleccion } = req.params    
+    
+    const servicio = await prisma.servicio.findUnique( { where: {Id:Number(Id)} } );
+    const path = await prisma.imgPaths
+    if( !servicio ) {
         return res.status(400).json({
-            msg:`El id ${id} no existe en la collecion: ${coleccion}`
+            msg:`El id ${Id} no existe en la collecion: ${coleccion}`
         })
     }
-    if( modelo.img ){
-        const pathImagen = path.join(__dirname, '../uploads', modelo.img )
-        if( fs.existsSync( pathImagen ) ){
-            fs.unlinkSync( pathImagen )
-        }
+    
+    const paths = prisma.imgPaths.findUnique( { where: { Servico } } )
+    const pathImagen = path.join(__dirname, '../uploads', servicio.img )
+    if( fs.existsSync( pathImagen ) ){
+        fs.unlinkSync( pathImagen )
     }
+
     const nombre = await uploadFile(req.files, undefined)
-    modelo.img = nombre
-    await modelo.save()
+    servicio.img = nombre
+
 
     return res.json({
-        msg: `${modelo.name} actualizo su foto con: ${nombre}`
+        msg: `${servicio.name} actualizo su foto con: ${nombre}`
     })
     
 }
-const mostrarImagen = async (req = request, res = response ) =>{
-    const { id, coleccion } = req.params    
-    const modelo = await Usuario.findById(id);
-    if( !modelo ) {
-        return res.status(400).json({
-            msg:`El id ${id} no existe en la collecion: ${coleccion}`
+const MostrarImagen = async (req = request, res = response ) =>{
+    const { Id, coleccion } = req.params        
+    const servicio = await prisma.servicio.findUnique( { where: {Id: Number(Id)} } )   
+    if( !servicio ){
+        return res.status(404).json({
+            msg: `no existe la coleccion: ${coleccion}`
         })
     }
-    if( modelo.img ){
-        const pathImagen = path.join(__dirname, '../uploads', modelo.img )
-        if( fs.existsSync( pathImagen ) ){
-            return res.sendFile(pathImagen)
-        }
-        
+    const img = await prisma.imgPaths.findUnique({ where: { Id: Number(Id) } })
+    if( !img ){
+        return res.sendFile('../assets/no-image.jpg')
     }
-    const pathNoImg = path.join(__dirname, '../assets/no-image.jpg') 
-    return res.sendFile(pathNoImg)
-
-  /*   return res.json({
-        id,
-        coleccion,
-    })
-     */
+    const pathImagen = path.join(__dirname,'../uploads/',img.Path)
+    return res.sendFile(pathImagen)      
+    
 }
+
 module.exports = {
     cargarArchivo,
     actualizarImagen,
-    mostrarImagen,
-
+    MostrarImagen,
 }

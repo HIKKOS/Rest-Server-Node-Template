@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `imgpaths` MODIFY `Id` INTEGER NOT NULL AUTO_INCREMENT;

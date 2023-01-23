@@ -1,18 +1,29 @@
 const { Router } = require('express')
 const { check } = require('express-validator')
-const { cargarArchivo,  actualizarImagen, mostrarImagen } = require('../controllers/uploads')
+const { cargarArchivo,  actualizarImagen, MostrarImagen } = require('../controllers/uploads')
 const { validarColecciones } = require('../helpers/DBvalidators')
-const {validarCampos, validarCargaArchivos} = require('../middlewares')
+const {validarCampos, validarCargaArchivos, validarJWT} = require('../middlewares')
 
 const router = Router()
-router.get('/:coleccion/:id',[
-    check('coleccion').custom(c => validarColecciones(c, ['users'])), 
+ router.get('/:coleccion/:Id',[
+   //validarJWT,
+    check('Id','Debe ser numerico').isNumeric(),
+    check('coleccion').custom(c => validarColecciones(c, ['servicios'])), 
     validarCampos,     
-],mostrarImagen)
-router.post('/',validarCargaArchivos, cargarArchivo )
-router.put('/:coleccion/:id', [
+],MostrarImagen) 
+router.post('/:coleccion/:Id',[
+    validarJWT,
     validarCargaArchivos,
-    check('coleccion').custom(c => validarColecciones(c, ['users'])), 
+    check('Id','Debe ser numerico').isNumeric(),
+    check('coleccion').custom(c => validarColecciones(c, ['servicios'])), 
+    validarCampos,
+], 
+cargarArchivo )
+
+router.put('/:coleccion/:Id', [
+    validarJWT,
+    validarCargaArchivos,
+    check('coleccion').custom(c => validarColecciones(c, ['servicios'])), 
     validarCampos,     
 ], actualizarImagen)
 

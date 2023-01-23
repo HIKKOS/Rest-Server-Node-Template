@@ -13,8 +13,7 @@ const tutoresGet = async(req = request, res = response) => {
     const allUsers = await prisma.tutor.findMany({
         skip,
         take: limite
-    })
-    
+    })    
     res.json({       
         total,
         skip,

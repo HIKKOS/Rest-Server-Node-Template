@@ -3,31 +3,34 @@ const { check } = require('express-validator')
 
 const { 
     validarCampos, 
-    verifyAdminRole, 
-    hasRole, 
-    validarJWT
+    validarJWT,
+    validarPaginacion,
+    validarCargaArchivos
 } = require('../middlewares')
 const { 
-    serviciosGet, serviciosPost,
-    /* usuariosPut, 
-    usuariosDelete,
-    usuariosPatch,
-    usuariosPost */
+    serviciosGet, serviciosPost, serviciosPut,
 } = require('../controllers/servicios')
-const { 
-    isValidRole, 
-    emailExist, 
-    UserExistById 
-} = require('../helpers/DBvalidators')
+const { actualizarImagen } = require('../controllers/uploads')
 
 const router = Router()
 
-router.get('/', serviciosGet)
+router.get('/', [
+    validarJWT,
+    validarPaginacion, 
+    validarCampos,
+],serviciosGet)
 router.post('/',[
     validarJWT,
-
+    check(['Nombre','Descripcion'],'Se requiere este campo').notEmpty(),
+    check('Prioritario','De ser booleano (true/false 1/0)').isBoolean(),
+    check('Precio','Debe ser numerico').isNumeric(),
+    validarCampos,
 ] ,serviciosPost)
 
+router.put('/:Id',[
+    validarJWT,
+    validarCampos
+],serviciosPut)
 
 /* router.put('/:id',[
     check('id','no es un id valido').isMongoId().bail().custom( UserExistById ),    

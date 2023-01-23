@@ -65,10 +65,10 @@ model Administrador {
 }
 
 model ImgPaths {
-  Id       Int      @id
-  UserId   Int
+  Id       Int      @id @default(autoincrement())
+  ServicioId   Int
   Path     String
-  Servicio Servicio @relation(fields: [UserId], references: [Id])
+  Servicio Servicio? @relation(fields: [ServicioId], references: [Id])
 }
 
 enum MetodoPago {
