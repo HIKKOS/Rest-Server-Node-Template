@@ -23,7 +23,11 @@ const {
 const router = Router()
 
 router.get('/', serviciosGet)
-router.post('/', serviciosPost)
+router.post('/',[
+    validarJWT,
+
+] ,serviciosPost)
+
 
 /* router.put('/:id',[
     check('id','no es un id valido').isMongoId().bail().custom( UserExistById ),    

@@ -1,14 +1,15 @@
 const { response, request } = require('express')
 
 const bcryptjs = require('bcryptjs')
-const  { PrismaClient, prisma } = require ("@prisma/client");
+const  { PrismaClient } = require ("@prisma/client");
 const { evaluarPagina } = require('../helpers/paginacion');
+const prisma = new PrismaClient()
 
 const tutoresGet = async(req = request, res = response) => { 
+    
     const { page, limit } = req.query
     const { skip, pagina, limite } = evaluarPagina(page, limit)
-    const prisma = new PrismaClient();    
-    const total = await prisma.tutor.count()
+    const total = await prisma.tutor.count()    
     const allUsers = await prisma.tutor.findMany({
         skip,
         take: limite
@@ -22,9 +23,23 @@ const tutoresGet = async(req = request, res = response) => {
         allUsers,
     })
 }
+const tutoresGetById = async(req = request, res = response) => { 
+    const id = req.params.id    
+    const user = await prisma.tutor.findUnique( {where: {Id:Number(id)}} )
+    if( !user ){
+        return res.status(404).json({
+            msg: `no existe un tutor con el id ${id}`
+        })
+    }
+    
+    res.json({    
+        id,   
+        user
+    })
+}
 const tutoresPut = async(req = request, res = response) => {
     const { id } = req.params
-    const prisma = new PrismaClient()
+    
     const user = await prisma.tutor.findUnique({where : { Id:Number(id) }})
     const { password } = req.body
     let uwu = false
@@ -42,7 +57,7 @@ const tutoresPut = async(req = request, res = response) => {
     })
 
 }
-const tutoresPost = async(req, res = response) => {
+const tutoresPost = async(req, res = response) => {    
     const { Nombres,   
         ApellidoMaterno,
         ApellidoPaterno,
@@ -51,8 +66,11 @@ const tutoresPost = async(req, res = response) => {
         RFC            ,
         PasswordTutor  ,
         Direccion       } =  req.body
-    const salt = bcryptjs.genSaltSync()
-    const prisma = new PrismaClient()
+    const existe = await prisma.tutor.findUnique({where: { Correo }})
+    if (existe){
+        return res.status(400).json({msg: `Ya existe el correo: ${Correo}`})
+    }
+    const salt = bcryptjs.genSaltSync()  
     const tutor = await prisma.tutor.create({
         data: {            
             Nombres        ,
@@ -66,7 +84,6 @@ const tutoresPost = async(req, res = response) => {
         },
       }); 
     res.json({
-        msg: 'post API tutores - controlador',
         tutor
     })    
 }
@@ -74,4 +91,5 @@ module.exports = {
    tutoresGet,
    tutoresPost,
    tutoresPut,
+   tutoresGetById
 }

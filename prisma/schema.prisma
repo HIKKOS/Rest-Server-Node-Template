@@ -14,22 +14,23 @@ model Tutor {
   Id              Int        @id @default(autoincrement())
   Nombres         String     @db.VarChar(75)
   ApellidoMaterno String     @db.VarChar(75)
-  ApellidoPaterno String     @db.VarChar(75)
+  ApellidoPaterno String?     @db.VarChar(75)
   Correo          String     @unique @db.VarChar(255)
   Telefono        String     @unique @db.VarChar(20)
   RFC             String     @unique @db.VarChar(15)
   PasswordTutor   String     @db.VarChar(255)
-  Direccion       String     @db.VarChar(150)
+  Direccion       String?     @db.VarChar(150)
   CreatedAt       DateTime   @default(now())
   Tutorado        Alumno[]
   MetodoPago      MetodoPago @default(null)
+  Activo Boolean @default(true)
 }
 
 model Alumno {
   Id              Int        @id @default(autoincrement())
   Nombres         String     @db.VarChar(75)
   ApellidoMaterno String     @db.VarChar(75)
-  ApellidoPaterno String     @db.VarChar(75)
+  ApellidoPaterno String?     @db.VarChar(75)
   Servicio        Servicio[]
   Grado           Int        @default(1)
   Grupo           String     @default("A") @db.VarChar(20)
@@ -37,28 +38,30 @@ model Alumno {
   CreatedAt       DateTime   @default(now())
   Padre           Tutor      @relation(fields: [TutorId], references: [Id])
   TutorId         Int
+  Activo Boolean @default(true)
 }
 
 model Servicio {
   Id          Int        @id @default(autoincrement())
-  Nombres     String     @db.VarChar(75)
+  Nombre      String     @db.VarChar(75)
   Prioritario Boolean    @default(true)
   Imagenes    ImgPaths[]
   Descripcion String     @db.VarChar(500)
   //TODO: Fecha corte
   FechaPago   DateTime   @default(now())
   Precio      Float      @default(0.0)
-  Alumno      Alumno     @relation(fields: [AlumnoId], references: [Id])
-  AlumnoId    Int
+  Alumno      Alumno[]     
+  Activo Boolean @default(true)
 }
 
 model Administrador {
   Id              Int    @id @default(autoincrement())
   Nombres         String @db.VarChar(75)
   ApellidoMaterno String @db.VarChar(75)
-  ApellidoPaterno String @db.VarChar(75)
+  ApellidoPaterno String? @db.VarChar(75)
   Correo          String @unique @db.VarChar(255)
   PasswordAdmin   String @db.VarChar(255)
+  Activo Boolean @default(true)
 }
 
 model ImgPaths {

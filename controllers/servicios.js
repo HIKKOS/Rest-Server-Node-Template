@@ -12,8 +12,21 @@ const serviciosGet = async(req = request, res = response) => {
     })
 }
 
-const serviciosPost = async(req, res = response) => {
-   
+const serviciosPost = async(req = request, res = response) => {
+   /*--`Id` INTEGER NOT NULL AUTO_INCREMENT,
+    `Nombres` VARCHAR(75) NOT NULL,
+    `Prioritario` BOOLEAN NOT NULL DEFAULT true,
+    `Descripcion` VARCHAR(500) NOT NULL,
+    `FechaPago` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `Precio` DOUBLE NOT NULL DEFAULT 0.0,
+    `AlumnoId` INTEGER NOT NULL, */
+    const { Nombres,
+        Prioritario,
+        Descripcion,
+        FechaPago,
+        Precio,
+    } = req.body 
+
     res.json({
         msg: 'serviciosPost - controlador',
     })    

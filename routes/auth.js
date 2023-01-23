@@ -5,8 +5,8 @@ const {validarCampos} = require('../middlewares/validadorCampos')
 const router = Router()
 
 router.post('/login',[
-    check('email','tiene que ser un correro').isEmail(),
-    check('password','contraseña incorrecta').not().isEmpty(),
+    check('Correo','tiene que ser un correro').isEmail(),
+    check('Password','debe escribir algo').not().isEmpty(),
     validarCampos
 ], login)
 module.exports = router

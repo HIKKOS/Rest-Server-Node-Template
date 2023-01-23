@@ -1,33 +1,33 @@
-const {req, response } = require('express')
+const {request, response } = require('express')
 const bcryptjs = require('bcryptjs')
-const User = require('../models/user')
 const { generarJWT } = require('../helpers/jwtGenerator')
-
-const login = async (req, res = response) =>{
-    const { email, password } = req.body
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
+const login = async (req = request, res = response) =>{
+    const { Correo, Password } = req.body  
     try {
         //verificar si el email existe
-        const user = await User.findOne({ email })
+        const user = await prisma.administrador.findUnique({where: { Correo }})
         if( !user ){
             return res.status(400).json({
                 msg:'usuario o contraseña invalidos'
             })
         }
         //el usuario esta activo?
-        if( !user.status ){
+        if( !user.Activo ){
             return res.status(400).json({
                 msg:'no esta activo'
             })
         }
         //verificar contraseña
-        const validPassword = bcryptjs.compareSync((password).toString(), user.password)
+        const validPassword = bcryptjs.compareSync((Password).toString(), user.PasswordAdmin)
         if( !validPassword ){
             return res.status(400).json({
                 msg:'no constraseña'
             })
         }
         //generar el JWT 
-        const jwt = await generarJWT(user.id);
+        const jwt = await generarJWT(user.Id);
         res.json({
             msg: 'login ok',
             jwt
