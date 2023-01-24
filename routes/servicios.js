@@ -5,12 +5,11 @@ const {
     validarCampos, 
     validarJWT,
     validarPaginacion,
-    validarCargaArchivos
 } = require('../middlewares')
 const { 
-    serviciosGet, serviciosPost, serviciosPut,
+    serviciosGet, serviciosPost, serviciosPut, serviciosDel,
 } = require('../controllers/servicios')
-const { actualizarImagen } = require('../controllers/uploads')
+const { ExisteNombreServicio, validarColecciones, ExisteServicio } = require('../helpers/DataBaseValidator')
 
 const router = Router()
 
@@ -21,7 +20,8 @@ router.get('/', [
 ],serviciosGet)
 router.post('/',[
     validarJWT,
-    check(['Nombre','Descripcion'],'Se requiere este campo').notEmpty(),
+    check('Nombre').custom( ExisteNombreServicio ),
+    check('Descripcion','Se requiere este campo').notEmpty(),
     check('Prioritario','De ser booleano (true/false 1/0)').isBoolean(),
     check('Precio','Debe ser numerico').isNumeric(),
     validarCampos,
@@ -29,9 +29,18 @@ router.post('/',[
 
 router.put('/:Id',[
     validarJWT,
+    check('Nombre','no debe ser vacio').notEmpty(),
+    check('Descripcion','Se requiere este campo').notEmpty(),
+    check(['Prioritario','Activo'],'De ser booleano (true/false 1/0)').isBoolean(),
+    check('Precio','Debe ser numerico').isNumeric(),
+    check('Id','No existe').custom(  ExisteServicio ),
     validarCampos
 ],serviciosPut)
-
+router.delete('/:Id',[
+    validarJWT,
+    check('Id','No existe').custom(  ExisteServicio ),
+    validarCampos
+],serviciosDel)
 /* router.put('/:id',[
     check('id','no es un id valido').isMongoId().bail().custom( UserExistById ),    
     check('role').custom( isValidRole ),

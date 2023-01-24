@@ -4,7 +4,9 @@ const  fs  = require('fs')
 const { response, request } = require("express")
 const { uploadFile } = require("../helpers")
 const { PrismaClient } = require('@prisma/client')
+
 const prisma = new PrismaClient()
+
 const cargarArchivo = async (req = require, res = response) => {
     let Id = req.params.Id
     const servicio = await prisma.servicio.findUnique( { where: { Id:Number(Id) } } )
@@ -14,7 +16,7 @@ const cargarArchivo = async (req = require, res = response) => {
         })
     }
     try {
-        const dir = await uploadFile(req.files, undefined)
+        const dir = await uploadFile(req.files, undefined, servicio.Nombre)
         const archivo = await prisma.imgPaths.create({
             data : { 
                 Path: dir,
@@ -30,63 +32,53 @@ const cargarArchivo = async (req = require, res = response) => {
     }
 }
 const actualizarImagen = async( req = request, res = response ) => {
-    const { Id, ServicioId } = req.query    
+    const { Id, Servicio } = req.params    
+    const imgPath = await prisma.imgPaths.findUnique({ where : { Id: Number(Id) } })
+    try {
+        const nombre = await uploadFile(req.files, undefined,Servicio)
+        await prisma.imgPaths.update({ 
+            data:{
+                Path: nombre
+            },
+            where: { Id:Number(Id) },
     
-    const servicio = await prisma.servicio.findUnique( { where: {Id:Number(ServicioId)} } );
-    if( !servicio ) {
-        return res.status(404).json({
-            msg:`El id serivicio con id: ${ServicioId} no existe`
         })
-    }
-    const imgPaths = await prisma.imgPaths.findMany({ where : { Id: Number(Id) } })
-    console.log(imgPaths);
-    if( imgPaths.length == 0 ){
-        return res.status(400).json({
-            msg: `no existe una imagen con id:${Id} relacionado con el serivicio: ${servicio.Nombre}`
-        })
-    }
-/* 
-    await prisma.imgPaths.updateMany({
-        data:{
-            Path:
-        },
-        where:{ Id: Number(Id)
+        const pathImg = path.join(__dirname,'../uploads/',Servicio.toString(), imgPath.Path)
+        if(fs.existsSync(pathImg)){
+            fs.unlinkSync(pathImg)
         }
-    }) */
-    res.json({
-        servicio,
-        Id
-    })
+        return res.status(200).json({ 
+            msg:`el serivicio ${Servicio} actualizo la foto con id ${Id} con el archivo ${nombre}`
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({error})
+    }
+    
 }
 const MostrarImagen = async (req = request, res = response ) => {
-    const { Id } = req.params        
+    const { Servicio, Id } = req.params        
     
     const img = await prisma.imgPaths.findUnique({ where: { Id: Number(Id) } })
     if( !img ){
+        return res.status(400).json({
+            msg:`No existe una imagen con id ${Id}`
+        })
+    }
+    const pathImagen = path.join(__dirname,'../uploads/',Servicio,img.Path)
+    if( !fs.existsSync(pathImagen) ){
         const pathImagen = path.join(__dirname,'../assets/no-image.jpg')
         return res.sendFile(pathImagen)
     }
-    const pathImagen = path.join(__dirname,'../uploads/',img.Path)
     return res.sendFile(pathImagen)      
     
 }
 const deleteImagen = async (req = request, res = response) => {
-    
     const { Id, ServicioId } = req.query
     const servicio = await prisma.servicio.findUnique( { where : { Id: Number(ServicioId) } } )
-    if( !servicio ){
-        return res.status(400).json({
-            msg: 'no existe un servicio con el id: ' + Id
-        })
-    }
     let imgs =  await prisma.imgPaths.findMany({
         where: { ServicioId: Number(ServicioId) }
     })
-    if( !imgs ){
-        return res.status(404).json({
-            msg: `el servicio: ${servicio.Id} no contiene imagenes para borrar`
-        })
-    }
     const paths = imgs
     imgs = imgs.map( i =>{
         return i.Id
@@ -104,7 +96,7 @@ const deleteImagen = async (req = request, res = response) => {
     })
     await prisma.imgPaths.delete({ where: { Id: Number(Id) } })
     res.json({
-        imgs
+       msg: `El serivicio ${servicio.Nombre} borro la foto con id: ${Id}`
     })
 
 }

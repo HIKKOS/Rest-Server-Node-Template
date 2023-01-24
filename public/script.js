@@ -16,14 +16,14 @@ async function postData(url = '',) {
       return response.json(); // parses JSON response into native JavaScript objects
     }
     const img = []
-    postData('http://localhost:8080/api/servicios')
+    postData('http://localhost:8080/api/Transporte')
       .then((data) => {
         console.log(data.servicios[0]);
         ImgIds = data.servicios[0].ImgIds
         ImgIds.map(i => {
           const img = document.createElement('img')
             img.style= 'height: 200px'
-            img.src = 'http://localhost:8080/api/uploads/servicios/' + i
+            img.src = `http://localhost:8080/api/uploads/servicios/${i}`
             document.body.appendChild(img)
     
         })

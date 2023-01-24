@@ -1,30 +1,32 @@
 const { Router } = require('express')
 const { check } = require('express-validator')
 const { cargarArchivo,  actualizarImagen, MostrarImagen, deleteImagen } = require('../controllers/uploads')
-const { validarColecciones } = require('../helpers/DBvalidators')
+const { ExisteImg, ExisteServicio,validarColecciones} = require('../helpers/DataBaseValidator')
 const {validarCampos, validarCargaArchivos, validarJWT} = require('../middlewares')
 
 const router = Router()
- router.get('/:coleccion/:Id',[
+ router.get('/:Servicio/:Id',[
     //validarJWT,
     check('Id','Debe ser numerico').isNumeric(),
-    check('coleccion').custom(c => validarColecciones(c, ['servicios'])), 
+    check('Id').custom( ExisteImg ),
+    check('Servicio').custom(s => validarColecciones(s, ['servicios'])), 
     validarCampos,     
 ],MostrarImagen) 
-router.post('/:coleccion/:Id',[
+router.post('/:Servicio/:Id',[
     validarJWT,
     validarCargaArchivos,
     check('Id','Debe ser numerico').isNumeric(),
-    check('coleccion').custom(c => validarColecciones(c, ['servicios'])), 
+    check('Servicio').custom(s => validarColecciones(s, ['servicios'])), 
     validarCampos,
 ], 
 cargarArchivo )
 
-router.put('/', [
+router.put('/:Servicio/:Id', [
     validarJWT,
     validarCargaArchivos,
     check('Id','Debe ser numerico').isNumeric(),
-    check('ServicioId','Debe ser numerico').isNumeric(),
+    check('Id').custom( ExisteImg ),
+    check('Servicio','No existe').custom(s => validarColecciones(s) ),
     validarCampos,     
 ], actualizarImagen)
 router.delete('/',[

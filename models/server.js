@@ -34,7 +34,8 @@ class Server{
         //file uploads 
         this.app.use(fileUpload({
             useTempFiles : true,
-            tempFileDir : '/tmp/'
+            tempFileDir : '/tmp/',
+            createParentPath: true,
         }));
     }
     routes(){
@@ -47,7 +48,7 @@ class Server{
     }
     listen(){        
         this.app.listen(this.port, () =>{
-            console.log('escuchando en el puerto: ' + this.port);
+            console.log(`escuchando en el puerto: ${this.port}`);
         })
     }
 }

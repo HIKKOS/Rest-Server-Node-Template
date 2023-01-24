@@ -1,7 +1,8 @@
 const { Router } = require('express')
 const { check } = require('express-validator')
 
-const { 
+const router = Router()
+/* const { 
     validarCampos, 
     verifyAdminRole, 
     hasRole, 
@@ -14,13 +15,7 @@ const {
     usuariosPatch,
     usuariosPost
 } = require('../controllers/users')
-const { 
-    isValidRole, 
-    emailExist, 
-    UserExistById 
-} = require('../helpers/DBvalidators')
 
-const router = Router()
 
 router.get('/', usuariosGet)
 
@@ -42,7 +37,7 @@ router.post('/', [
         se puede manejar así: 
     ->  check('role').custom((rol) => isValidRole(rol) )
     pero como el rol se recibe y se pasa
-    se ovbia y solo se llama la referencia de la funcion*/
+    se ovbia y solo se llama la referencia de la funcion
     check('role').custom( isValidRole ),  
     validarCampos
 ], usuariosPost)
@@ -56,5 +51,5 @@ router.delete('/:id',[
 ],usuariosDelete)
 
 router.patch('/',usuariosPatch)
-
+ */
 module.exports = router
