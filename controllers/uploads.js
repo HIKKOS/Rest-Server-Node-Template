@@ -8,19 +8,14 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 const cargarArchivo = async (req = require, res = response) => {
-    let Id = req.params.Id
-    const servicio = await prisma.servicio.findUnique( { where: { Id:Number(Id) } } )
-    if( !servicio ){
-        return res.status(404).json({
-            msg : `No existe un servicio con el id: ${Id}`
-        })
-    }
+    let { Servicio } = req.params
+    const servicio = await prisma.servicio.findFirst( { where: { Nombre: Servicio } } )
     try {
         const dir = await uploadFile(req.files, undefined, servicio.Nombre)
         const archivo = await prisma.imgPaths.create({
             data : { 
                 Path: dir,
-                ServicioId: Number(Id)
+                ServicioId: Number(servicio.Id)
             }
         })
         res.status(201).json({ 
@@ -74,15 +69,16 @@ const MostrarImagen = async (req = request, res = response ) => {
     
 }
 const deleteImagen = async (req = request, res = response) => {
-    const { Id, ServicioId } = req.query
-    const servicio = await prisma.servicio.findUnique( { where : { Id: Number(ServicioId) } } )
+    const { Id, Servicio } = req.params
+    const servicio = await prisma.servicio.findFirst( { where : { Nombre: (Servicio) } } )
     let imgs =  await prisma.imgPaths.findMany({
-        where: { ServicioId: Number(ServicioId) }
+        where: { ServicioId: Number(servicio.Id) }
     })
     const paths = imgs
     imgs = imgs.map( i =>{
         return i.Id
     })
+
     if( ( !imgs.includes(Number(Id)) ) ){        
         return res.status(400).json({
             msg: `No existe el la imagen con el id: ${Id}`
@@ -96,7 +92,7 @@ const deleteImagen = async (req = request, res = response) => {
     })
     await prisma.imgPaths.delete({ where: { Id: Number(Id) } })
     res.json({
-       msg: `El serivicio ${servicio.Nombre} borro la foto con id: ${Id}`
+       msg: `Se  borro la foto con id: ${Id} del serivicio ${servicio.Nombre}`
     })
 
 }

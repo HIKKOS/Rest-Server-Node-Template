@@ -31,7 +31,7 @@ router.put('/:Id',[
     validarJWT,
     check('Nombre','no debe ser vacio').notEmpty(),
     check('Descripcion','Se requiere este campo').notEmpty(),
-    check(['Prioritario','Activo'],'De ser booleano (true/false 1/0)').isBoolean(),
+    check(['Prioritario'],'De ser booleano (true/false 1/0)').isBoolean(),
     check('Precio','Debe ser numerico').isNumeric(),
     check('Id','No existe').custom(  ExisteServicio ),
     validarCampos

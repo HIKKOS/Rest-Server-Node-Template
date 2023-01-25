@@ -63,10 +63,15 @@ const serviciosPost = async (req = request, res = response) => {
 };
 const serviciosPut = async (req = request, res = response) => {
 	const { Id } = req.params;
-	const { Nombre, Prioritario, Descripcion, FechaPago, Precio, Activo } =
-		req.body;
+	const data = req.body;
+	if ( data.Activo === 1){
+		data.Activo = true
+	}
+	if ( data.Prioritario === 1){
+		data.Prioritario = true
+	}
 	const serv = await prisma.servicio.update({
-		data: { Nombre, Prioritario, Descripcion, FechaPago, Precio, Activo },
+		data,
 		where: { Id: Number(Id) },
 	});
 	return res.json({

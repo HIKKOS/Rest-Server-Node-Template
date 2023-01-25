@@ -7,7 +7,7 @@ async function postData(url = "") {
 		headers: {
 			"Content-Type": "application/json",
 			"x-token":
-				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiaWF0IjoxNjc0NTgwMDc1LCJleHAiOjE2NzQ1OTQ0NzV9.JXWiTUVMAEqKc97maiwoGs44EFelbi9AHwg0DHsPvhk",
+				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiaWF0IjoxNjc0NjAyNDEzLCJleHAiOjE2NzQ2MTY4MTN9.2lVocwg3l-Ny7F90kuM5syv2jBXs63MDzODwfHwNGSk",
 			// 'Content-Type': 'application/x-www-form-urlencoded',
 		},
 		redirect: "follow", // manual, *follow, error
@@ -19,20 +19,31 @@ const img = [];
 postData("http://localhost:8080/api/servicios").then((data) => {
 	const { servicios } = data
 	console.log(servicios);
-	const imgPhats = servicios[0].ImgIds
-	console.log(servicios[0].Nombre	)
-	console.log(imgPhats)	
-	imgPhats.map(pt =>{
-		
-		const p = document.createElement('p')
-		p.innerText = pt
-		document.body.appendChild(p) 
-		const img = document.createElement('img')
-		img.style = 'height:100px'
-		const src = `http://localhost:8080/api/uploads/${servicios[0].Nombre}/${pt}`
-		img.src = src
-		console.log(src)
-		document.body.appendChild(img)
+	servicios.map(s =>{
+		const imgPhats = s.ImgIds
+		const h1 = document.createElement('h1')
+		const h2 = document.createElement('h2')
+		const par = document.createElement('p')
+		h1.innerText = s.Nombre
+		h2.innerText = `Id: ${s.Id}`
+		par.innerText = s.Descripcion
+		document.body.appendChild(h1)
+		document.body.appendChild(h2)
+		document.body.appendChild(par)
+		console.log(s.Nombre	)
+		console.log(imgPhats)	
+		imgPhats.map(pt =>{
+			
+			const p = document.createElement('p')
+			p.innerText = pt
+			document.body.appendChild(p) 
+			const img = document.createElement('img')
+			img.style = 'height:100px'
+			const src = `http://localhost:8080/api/uploads/${s.Nombre}/${pt}`
+			img.src = src
+			console.log(src)
+			document.body.appendChild(img)
+		})
 	})
-	
+		
 })

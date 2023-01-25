@@ -8,14 +8,14 @@ const router = Router()
  router.get('/:Servicio/:Id',[
     //validarJWT,
     check('Id','Debe ser numerico').isNumeric(),
-    check('Id').custom( ExisteImg ),
+    //check('Id').custom( ExisteImg ),
+    check(['Id']).custom( (Id, { req }) => ExisteImg(Id,req) ),
     check('Servicio').custom(s => validarColecciones(s, ['servicios'])), 
     validarCampos,     
 ],MostrarImagen) 
-router.post('/:Servicio/:Id',[
+router.post('/:Servicio',[
     validarJWT,
     validarCargaArchivos,
-    check('Id','Debe ser numerico').isNumeric(),
     check('Servicio').custom(s => validarColecciones(s, ['servicios'])), 
     validarCampos,
 ], 
@@ -25,15 +25,16 @@ router.put('/:Servicio/:Id', [
     validarJWT,
     validarCargaArchivos,
     check('Id','Debe ser numerico').isNumeric(),
-    check('Id').custom( ExisteImg ),
     check('Servicio','No existe').custom(s => validarColecciones(s) ),
+    check(['Id']).custom( (Id, { req }) => ExisteImg(Id,req) ),
     validarCampos,     
 ], actualizarImagen)
-router.delete('/',[
+router.delete('/:Servicio/:Id', [
     validarJWT,
-    check('Id','deber ser numerico').isNumeric(),
-    check('ServicioId','deber ser numerico').isNumeric(),
-    validarCampos,
-],deleteImagen)
+    check('Id','Debe ser numerico').isNumeric(),
+    check('Servicio','No existe').custom(s => validarColecciones(s) ),
+    check(['Id']).custom( (Id, { req }) => ExisteImg(Id,req) ),
+    validarCampos,     
+], deleteImagen)
 
 module.exports = router

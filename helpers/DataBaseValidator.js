@@ -28,11 +28,16 @@ const getColeciones = async() => {
     })
     return colecciones
 }
-const ExisteImg = async(Id) => {
-    const img = await prisma.imgPaths.findUnique({ where: {Id: Number(Id)} })
-    if( !img ){
-        throw new Error(`No existe una imagen con el Id: ${Id}`)
-    }
+const ExisteImg = async( Id=0, req ) => { 
+    const { Servicio } = req.params
+	const servicio = await prisma.servicio.findFirst({ where: { Nombre: Servicio.toString() } })    
+    let imgIds = await prisma.imgPaths.findMany({ where: {ServicioId: Number(servicio.Id)} })
+    imgIds = imgIds.map( p =>{
+        return p.Id
+    } )
+    //const img = await prisma.imgPaths.findUnique({ where: {Id: Number(Id)} })
+    if( !imgIds.includes(Number(Id)) )
+        throw new Error(`No existe una imagen con el Id: ${Id} en la coleccion ${Servicio}, validas: ${imgIds}`) 
     return true
 }
 const validarColecciones = async(coleccion = '', coleciones = []) => {
