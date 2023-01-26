@@ -7,12 +7,13 @@ class Server{
         this.app = express()
         this.port = process.env.PORT
         this.paths = {
-            auth: '/api/admin',
+            auth: '/api/login',
             usersPath : '/api/users',
             uploads : '/api/uploads',
             servicios: '/api/servicios',
             tutores: '/api/tutores',
-            alumnos: '/api/alumnos'
+            alumnos: '/api/alumnos',
+            busqueda: '/api/buscar/'
         }
         //Middlewares
         this.middlewares()
@@ -45,6 +46,7 @@ class Server{
         this.app.use(this.paths.servicios, require('../routes/servicios'))
         this.app.use(this.paths.tutores, require('../routes/tutores'))
         this.app.use(this.paths.alumnos, require('../routes/alumnos'))
+        this.app.use(this.paths.busqueda, require('../routes/busqueda'))
     }
     listen(){        
         this.app.listen(this.port, () =>{
