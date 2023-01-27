@@ -12,9 +12,9 @@ const busquedaGet = async (req = request, res = response) => {
 		const { skip, limite } = await evaluarPagina(page, limit);		
 		const allServicios = await prisma.servicio.findMany({
 			where: {
-				Nombre: {
+				 Nombre: {
 					startsWith: Servicio
-				}
+				}				
 			},
 			skip,
 			take: limite,
