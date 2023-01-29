@@ -6,7 +6,7 @@ const {validarCampos} = require('../middlewares/validadorCampos')
 
 const router = Router()
 
-router.post('/admin',[
+router.post('/Admin',[
     check('Correo','tiene que ser un correro').isEmail(),
     check('Password','debe escribir algo').not().isEmpty(),
     validarCampos

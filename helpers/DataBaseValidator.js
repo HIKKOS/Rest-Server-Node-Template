@@ -13,10 +13,11 @@ const ExisteServicio = async ( Id = 0 ) => {
     return true
 }
 const ExisteNombreServicio = async(Nombre = '') => {   
-	 const servicio = await prisma.servicio.findMany({ where : { Nombre } }) 
-	    if( servicio ){
-	        throw new Error(`Ya existe el servicio con el nombre: ${Nombre}`)
-	    }
+	const servicio = await prisma.servicio.findMany({ where : { Nombre } }) 
+    if( servicio.length > 0 ){
+        const coleciones = await getColeciones()
+        throw new Error(`Ya existe el servicio con el nombre: ${Nombre}, s:${coleciones}`)
+    }
 
     return true
 
@@ -49,9 +50,35 @@ const validarColecciones = async(coleccion = '', coleciones = []) => {
     }
     return true
 }
+
+const existeCorreo = async( Correo ) => {
+	const tutor = await prisma.tutor.findFirst({
+        where: {
+            Correo
+        }
+    })
+    if( tutor ){
+        throw new Error(`el correo ${tutor.Correo } ya esta registrado`)
+    }
+    return true
+}
+const existeTelefono = async( Telefono ) => {
+    Telefono = Telefono.toString()
+	const tutor = await prisma.tutor.findFirst({
+        where: {
+            Telefono
+        }
+    })
+    if( tutor ){
+        throw new Error(`el telefono ${tutor.Telefono } ya esta registrado`)
+    }
+    return true
+}
 module.exports = {
    ExisteServicio,
    ExisteImg,
    validarColecciones,
    ExisteNombreServicio,
+   existeCorreo,
+   existeTelefono
 }

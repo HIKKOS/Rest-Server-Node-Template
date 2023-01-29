@@ -13,7 +13,8 @@ class Server{
             servicios: '/api/servicios',
             tutores: '/api/tutores',
             alumnos: '/api/alumnos',
-            busqueda: '/api/buscar/'
+            busqueda: '/api/buscar/',
+            actualizarInfo: '/api/actualizar/'
         }
         //Middlewares
         this.middlewares()
@@ -47,6 +48,7 @@ class Server{
         this.app.use(this.paths.tutores, require('../routes/tutores'))
         this.app.use(this.paths.alumnos, require('../routes/alumnos'))
         this.app.use(this.paths.busqueda, require('../routes/busqueda'))
+        this.app.use(this.paths.actualizarInfo, require('../routes/actualizarInformacion'))
     }
     listen(){        
         this.app.listen(this.port, () =>{

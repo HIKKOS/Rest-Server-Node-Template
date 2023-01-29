@@ -1,17 +1,33 @@
+const { PrismaClient } = require("@prisma/client")
 const { request, response } = require("express")
-
+const bcryptjs = require('bcryptjs')
+const prisma = new PrismaClient()
 const verifyAdminRole = (req = request, res = response, next) => {
-    if( !req.userAuth ) {
+    if( !req.auth ) {
         return res.status(400).json({
             msg:'se quiere verificar el rol sin validar token'
         })
     }
-    const {role, name} = req.userAuth
-    if( role !== 'ADMIN_ROLE' )
-    return res.status(401).json({
-        msg: `${name} no es administrador - no perimitido`
-    })
-      
+    const {rol} = req.auth
+    if( !bcryptjs.compareSync('Administrador',rol) ){
+        return res.status(401).json({
+            msg: "no perimitido"
+        })
+    }
+    next()
+}
+const verifyUserRole = (req = request, res = response, next) => {
+    if( !req.auth ) {
+        return res.status(400).json({
+            msg:'se quiere verificar el rol sin validar token'
+        })
+    }
+    const {rol} = req.auth
+    if( !bcryptjs.compareSync('Tutor',rol) ){
+        return res.status(401).json({
+            msg: "no permitido"
+        })
+    }
     next()
 }
 const hasRole = ( ...roles ) =>{
@@ -32,6 +48,7 @@ const hasRole = ( ...roles ) =>{
 
 module.exports = {
     verifyAdminRole,
-    hasRole
+    verifyUserRole,
+    hasRole,
 
 }

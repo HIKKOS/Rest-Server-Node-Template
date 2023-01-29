@@ -1,6 +1,10 @@
+
 const jwt = require('jsonwebtoken')
-const generarJWT = (Id = '', rol = 'Tutor' ) => {
-    return new Promise( (resolve, reject) => {
+const bcryptjs = require('bcryptjs')
+const generarJWT = (Id = '', rol = '') => {
+    const salt= bcryptjs.genSaltSync()    
+    return new Promise( (resolve, reject) => {        
+        rol = bcryptjs.hashSync(rol, salt)
         const payload = { Id, rol }
         jwt.sign( payload, process.env.SECRETORPRIVATEKEY, {
             expiresIn: '4h'

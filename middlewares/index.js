@@ -1,15 +1,15 @@
 const  validarCampos           = require('../middlewares/validadorCampos')
-const  validaRoles             = require('../middlewares/roleCheck')
 const  validarJWT              = require('../middlewares/validarJWT')
 const  validarCargaArchivos    = require('../middlewares/validarCargaArchivo')
 const  validarPaginacion       = require('../middlewares/validarPaginacion')  
 const  genderCheck             = require('../middlewares/genderCheck')  
+const validarRol = require('../middlewares/validarRol')
 
 module.exports = {
     ...validarCampos,
     ...validarJWT,
-    ...validaRoles,
     ...validarCargaArchivos,
     ...validarPaginacion,
     ...genderCheck,
+    ...validarRol,
 }

@@ -7,7 +7,7 @@ async function postData(url = "") {
 		headers: {
 			"Content-Type": "application/json",
 			"x-token":
-				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiaWF0IjoxNjc0NjAyNDEzLCJleHAiOjE2NzQ2MTY4MTN9.2lVocwg3l-Ny7F90kuM5syv2jBXs63MDzODwfHwNGSk",
+				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiaWF0IjoxNjc0NjczODkxLCJleHAiOjE2NzQ2ODgyOTF9.vzn7Y8AiTs_QdpE2T3xvxaz-52IkcZ6sR7Hiwp_kW6E",
 			// 'Content-Type': 'application/x-www-form-urlencoded',
 		},
 		redirect: "follow", // manual, *follow, error
@@ -29,6 +29,9 @@ postData("http://localhost:8080/api/servicios").then((data) => {
 		par.innerText = s.Descripcion
 		document.body.appendChild(h1)
 		document.body.appendChild(h2)
+    const h3 = document.createElement('h3')
+    h3.innerText=s.Precio
+		document.body.appendChild(h3)
 		document.body.appendChild(par)
 		console.log(s.Nombre	)
 		console.log(imgPhats)	

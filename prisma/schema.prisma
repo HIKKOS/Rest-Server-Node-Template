@@ -14,33 +14,18 @@ model Tutor {
   Id              Int        @id @default(autoincrement())
   Nombres         String     @db.VarChar(75)
   ApellidoMaterno String     @db.VarChar(75)
-  ApellidoPaterno String?     @db.VarChar(75)
+  ApellidoPaterno String?    @db.VarChar(75)
   Correo          String     @unique @db.VarChar(255)
   Telefono        String     @unique @db.VarChar(20)
   RFC             String     @unique @db.VarChar(15)
   PasswordTutor   String     @db.VarChar(255)
-  Direccion       String?     @db.VarChar(150)
+  Direccion       String?    @db.VarChar(150)
   CreatedAt       DateTime   @default(now())
   Tutorado        Alumno[]
   MetodoPago      MetodoPago @default(null)
+  Pagos Pagos[]
   Activo Boolean @default(true)
 }
-
-model Alumno {
-  Id              Int        @id @default(autoincrement())
-  Nombres         String     @db.VarChar(75)
-  ApellidoMaterno String     @db.VarChar(75)
-  ApellidoPaterno String?     @db.VarChar(75)
-  Servicio        Servicio[]
-  Grado           Int        @default(1)
-  Grupo           String     @default("A") @db.VarChar(20)
-  Genero          Genero     @default(MASCULINO)
-  CreatedAt       DateTime   @default(now())
-  Padre           Tutor      @relation(fields: [TutorId], references: [Id])
-  TutorId         Int
-  Activo Boolean @default(true)
-}
-
 model Servicio {
   Id          Int        @id @default(autoincrement())
   Nombre      String     @db.VarChar(75)
@@ -51,6 +36,37 @@ model Servicio {
   FechaPago   DateTime   @default(now())
   Precio      Float      @default(0.0)
   Alumno      Alumno[]     
+  Tutor Pagos[] 
+  Activo Boolean @default(true)
+}
+
+model Pagos{
+  //TODO: AGREGAR TABLA DE PAGOS
+  TutorId Int 
+  ServicioId Int 
+  Tutor Tutor @relation(fields: [TutorId], references: [Id])
+  Servicio Servicio @relation(fields: [ServicioId], references: [Id])
+  AlumnoId Int 
+  Facturado Boolean @default(false)
+  Monto Float 
+  FechaDelPago DateTime @default(now())
+  MetodoPago MetodoPago @default(PayPal)
+
+  @@id([TutorId, ServicioId])
+}
+
+model Alumno {
+  Id              Int        @id @default(autoincrement())
+  Nombres         String     @db.VarChar(75)
+  ApellidoMaterno String     @db.VarChar(75)
+  ApellidoPaterno String?     @db.VarChar(75)
+  Servicio        Servicio[]
+  Grado           Int        @default(1)
+  Grupo           Grupo   
+  Genero          Genero     @default(MASCULINO)
+  CreatedAt       DateTime   @default(now())
+  Padre           Tutor      @relation(fields: [TutorId], references: [Id])
+  TutorId         Int
   Activo Boolean @default(true)
 }
 
@@ -79,4 +95,9 @@ enum MetodoPago {
 enum Genero {
   MASCULINO
   FEMENINO
+}
+enum Grupo{
+  A
+  B
+  C
 }

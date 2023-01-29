@@ -11,9 +11,16 @@ const tutoresGet = async (req = request, res = response) => {
 	try {
 		const { skip, pagina, limite } = await evaluarPagina(page, limit);
 		const total = await prisma.tutor.count();
-		const allUsers = await prisma.tutor.findMany({
+		let allUsers = await prisma.tutor.findMany({
 			skip,
 			take: limite,
+		});
+		allUsers.map((u) => {
+			{
+				(u.PasswordTutor = undefined),
+				(u.CreatedAt = undefined),
+				(u.MetodoPago = undefined);
+			}
 		});
 		res.json({
 			total,
@@ -24,8 +31,8 @@ const tutoresGet = async (req = request, res = response) => {
 		});
 	} catch (error) {
 		return res.status(400).json({
-			error
-		})
+			error,
+		});
 	}
 };
 const tutoresGetById = async (req = request, res = response) => {
@@ -62,32 +69,13 @@ const tutoresPut = async (req = request, res = response) => {
 		  });
 };
 const tutoresPost = async (req, res = response) => {
-	const {
-		Nombres,
-		ApellidoMaterno,
-		ApellidoPaterno,
-		Correo,
-		Telefono,
-		RFC,
-		PasswordTutor,
-		Direccion,
-	} = req.body;
-	const existe = await prisma.tutor.findUnique({ where: { Correo } });
-	if (existe) {
-		return res.status(400).json({ msg: `Ya existe el correo: ${Correo}` });
-	}
+	const data = req.body;
 	const salt = bcryptjs.genSaltSync();
+	data.PasswordTutor = bcryptjs.hashSync(data.Password, salt);
+	data.Password = undefined;
+	data.Telefono = data.Telefono.toString();
 	const tutor = await prisma.tutor.create({
-		data: {
-			Nombres,
-			ApellidoMaterno,
-			ApellidoPaterno,
-			Correo,
-			Telefono,
-			RFC,
-			PasswordTutor: bcryptjs.hashSync(PasswordTutor, salt),
-			Direccion,
-		},
+		data,
 	});
 	res.json({
 		tutor,
