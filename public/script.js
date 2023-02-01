@@ -7,7 +7,7 @@ async function postData(url = "") {
 		headers: {
 			"Content-Type": "application/json",
 			"x-token":
-				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiaWF0IjoxNjc0NjczODkxLCJleHAiOjE2NzQ2ODgyOTF9.vzn7Y8AiTs_QdpE2T3xvxaz-52IkcZ6sR7Hiwp_kW6E",
+				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwicm9sIjoiJDJhJDEwJFhUd1p5am1WZjYxdy5jZ05UZFF6NWVSdGV5aTZsQllsWjJ5dWM4dlliTkt3dFozVkxwTnFxIiwiaWF0IjoxNjc1MDk0MTQwLCJleHAiOjE2NzUxMDg1NDB9.KN_vvEUuGjT4d1bigShjFuWfabdCE8DWk16n2BEDXWA",
 			// 'Content-Type': 'application/x-www-form-urlencoded',
 		},
 		redirect: "follow", // manual, *follow, error
@@ -19,7 +19,7 @@ const img = [];
 postData("http://localhost:8080/api/servicios").then((data) => {
 	const { servicios } = data
 	console.log(servicios);
-	servicios.map(s =>{
+	servicios.map( s =>{
 		const imgPhats = s.ImgIds
 		const h1 = document.createElement('h1')
 		const h2 = document.createElement('h2')

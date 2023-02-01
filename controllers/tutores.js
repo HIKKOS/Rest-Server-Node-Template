@@ -1,3 +1,5 @@
+const path = require('path')
+const fs = require('fs')
 const { response, request } = require("express");
 
 const bcryptjs = require("bcryptjs");
@@ -5,9 +7,27 @@ const { PrismaClient } = require("@prisma/client");
 const { evaluarPagina } = require("../helpers/paginacion");
 const prisma = new PrismaClient();
 
+const MostrarFoto = async (req = request, res = response ) => {
+    const { TutorId } = req.query       
+    console.log(TutorId);
+    const tutor = await prisma.tutor.findUnique({ where: { Id: Number(TutorId) } })
+    if( !tutor ){
+        return res.status(400).json({
+            msg:`No existe una imagen con id ${TutorId}`
+        })
+    }
+	console.log(tutor);
+    const pathImagen = path.join(__dirname,'../uploads/Tutores/',`${TutorId}/`,tutor.Foto)
+    if( !fs.existsSync(pathImagen) ){
+        const pathImagen = path.join(__dirname,'../assets/no-image.jpg')
+        return res.sendFile(pathImagen)
+    }
+    return res.sendFile(pathImagen)      
+    
+}
+
 const tutoresGet = async (req = request, res = response) => {
 	const { page, limit } = req.query;
-
 	try {
 		const { skip, pagina, limite } = await evaluarPagina(page, limit);
 		const total = await prisma.tutor.count();
@@ -59,10 +79,8 @@ const tutoresPut = async (req = request, res = response) => {
 		uwu = true;
 	}
 	user
-		? res.json({
-				msg: "put tutor",
+		? res.json({			
 				user,
-				uwu,
 		  })
 		: res.status(404).json({
 				msg: `no se encontro el usuario con el id: ${id}`,
@@ -86,4 +104,5 @@ module.exports = {
 	tutoresPost,
 	tutoresPut,
 	tutoresGetById,
+	MostrarFoto
 };

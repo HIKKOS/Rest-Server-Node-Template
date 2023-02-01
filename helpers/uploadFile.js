@@ -14,7 +14,11 @@ const uploadFile = ( files, extensionesValidas = ['png', 'jpg', 'jpeg'], folder 
         }
    
         const nombreTemp = `${uuidv4()}.${extension}`
-        const uploadPath = path.join( __dirname, '../uploads/',folder ,nombreTemp)
+        let uploadPath
+        if(extension === 'ico' || extension === 'svg'){
+            uploadPath = path.join( __dirname, '../uploads/',folder ,'/Icon',nombreTemp)
+        } else{
+        uploadPath = path.join( __dirname, '../uploads/',folder ,nombreTemp)}
         
         archivo.mv(uploadPath, (err) => {
             if (err) {
@@ -27,5 +31,4 @@ const uploadFile = ( files, extensionesValidas = ['png', 'jpg', 'jpeg'], folder 
 
 module.exports = {
     uploadFile,
-
 }

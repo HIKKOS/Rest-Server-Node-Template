@@ -1,12 +1,17 @@
 const { Router } = require('express')
 const { check } = require('express-validator')
-const { cargarArchivo,  actualizarImagen, MostrarImagen, deleteImagen } = require('../controllers/uploads')
+const { cargarArchivo,  actualizarImagen,actualizarIcon, MostrarImagen, deleteImagen, MostrarIcon } = require('../controllers/uploads')
 const { ExisteImg, ExisteServicio,validarColecciones} = require('../helpers/DataBaseValidator')
 const {validarCampos, validarCargaArchivos, validarJWT} = require('../middlewares')
 const { verifyAdminRole } = require('../middlewares/validarRol')
 
 const router = Router()
- router.get('/:Servicio/:Id',[
+router.get('/:Servicio/Icon',[
+    //validarJWT,
+    check('Servicio').custom(s => validarColecciones(s, ['servicios'])), 
+    validarCampos,     
+],MostrarIcon) 
+router.get('/:Servicio/:Id',[
     //validarJWT,
     //verifyAdminRole,
     check('Id','Debe ser numerico').isNumeric(),
@@ -15,6 +20,9 @@ const router = Router()
     check('Servicio').custom(s => validarColecciones(s, ['servicios'])), 
     validarCampos,     
 ],MostrarImagen) 
+
+
+
 router.post('/:Servicio',[
     validarJWT,
     verifyAdminRole,
@@ -24,6 +32,13 @@ router.post('/:Servicio',[
 ], 
 cargarArchivo )
 
+router.put('/:Servicio/Icon', [
+    validarJWT,
+    verifyAdminRole,
+    validarCargaArchivos,
+    check('Servicio','No existe').custom(s => validarColecciones(s) ),
+    validarCampos,     
+], actualizarIcon)
 router.put('/:Servicio/:Id', [
     validarJWT,
     verifyAdminRole,
@@ -33,6 +48,7 @@ router.put('/:Servicio/:Id', [
     check(['Id']).custom( (Id, { req }) => ExisteImg(Id,req) ),
     validarCampos,     
 ], actualizarImagen)
+
 router.delete('/:Servicio/:Id', [
     validarJWT,
     verifyAdminRole,

@@ -15,6 +15,7 @@ model Tutor {
   Nombres         String     @db.VarChar(75)
   ApellidoMaterno String     @db.VarChar(75)
   ApellidoPaterno String?    @db.VarChar(75)
+  Foto  String? @db.VarChar(75)
   Correo          String     @unique @db.VarChar(255)
   Telefono        String     @unique @db.VarChar(20)
   RFC             String     @unique @db.VarChar(15)
@@ -31,6 +32,7 @@ model Servicio {
   Nombre      String     @db.VarChar(75)
   Prioritario Boolean    @default(true)
   Imagenes    ImgPaths[]
+  IconPath String?  
   Descripcion String     @db.VarChar(500)
   //TODO: Fecha corte
   FechaPago   DateTime   @default(now())

@@ -6,6 +6,7 @@ const {
 	tutoresPost,
 	tutoresPut,
 	tutoresGetById,
+	MostrarFoto,
 } = require("../controllers/tutores");
 const {
 	validarPaginacion,
@@ -14,6 +15,7 @@ const {
 } = require("../middlewares");
 const { existeCorreo } = require("../helpers/DataBaseValidator");
 const { verifyAdminRole } = require("../middlewares/validarRol");
+const { MostrarImagen } = require("../controllers/uploads");
 
 const router = Router();
 router.get(
@@ -21,7 +23,6 @@ router.get(
 	[validarJWT, verifyAdminRole, validarPaginacion, validarCampos],
 	tutoresGet,
 );
-router.get("/:id", [validarJWT, validarCampos,verifyAdminRole], tutoresGetById);
 router.put(
 	"/:id",
 	[
@@ -52,4 +53,10 @@ router.post(
 	],
 	tutoresPost,
 );
+router.get('/Foto',[
+	validarJWT,
+	check('TutorId').isNumeric(),
+	validarCampos
+],MostrarFoto)
+router.get("/:id", [validarJWT, validarCampos,verifyAdminRole], tutoresGetById);
 module.exports = router;

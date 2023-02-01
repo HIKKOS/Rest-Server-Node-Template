@@ -1,10 +1,11 @@
 const { Router } = require("express");
 const { check } = require("express-validator");
-const {actualizarDatos, actualizarTelefono} = require('../controllers/actualizarInformacion')
+const {actualizarDatos, actualizarTelefono, actualizarFotoTutor} = require('../controllers/actualizarInformacion')
 const {
 	validarCampos,
     verifyUserRole,
 	validarJWT,
+    validarCargaArchivos,
 } = require("../middlewares");
 const { existeCorreo, existeTelefono } = require("../helpers/DataBaseValidator");
 
@@ -24,4 +25,16 @@ router.post("/Telefono", [
     check('Telefono').custom(existeTelefono),
     validarCampos,
 ],actualizarDatos);
+router.post('/Password', [
+    validarJWT,
+    verifyUserRole,
+    check('Password','Debe contener al menos 8 caracteres').isLength({min:8}),
+    validarCampos,
+],actualizarDatos);
+router.post('/Foto/:Id',[
+    validarJWT,
+    verifyUserRole,
+    validarCargaArchivos,
+    validarCampos,
+],actualizarFotoTutor)
 module.exports = router;

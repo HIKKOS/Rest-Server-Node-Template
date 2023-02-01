@@ -9,9 +9,11 @@ const prisma = new PrismaClient()
 
 const cargarArchivo = async (req = require, res = response) => {
     let { Servicio } = req.params
-    const servicio = await prisma.servicio.findFirst( { where: { Nombre: Servicio } } )
+    const { Id } = await prisma.servicio.findFirst( { where: { Nombre: Servicio } } )
+    const servicio = await prisma.servicio.findUnique({ where:{Id: Number(Id)} })
     try {
-        const dir = await uploadFile(req.files, undefined, servicio.Nombre)
+        console.log(servicio);
+        const dir = await uploadFile(req.files, undefined, `/Servicios/${servicio.Nombre}`)
         const archivo = await prisma.imgPaths.create({
             data : { 
                 Path: dir,
@@ -26,11 +28,12 @@ const cargarArchivo = async (req = require, res = response) => {
       res.status(400).json({error})
     }
 }
+
 const actualizarImagen = async( req = request, res = response ) => {
     const { Id, Servicio } = req.params    
     const imgPath = await prisma.imgPaths.findUnique({ where : { Id: Number(Id) } })
     try {
-        const nombre = await uploadFile(req.files, undefined,Servicio)
+        const nombre = await uploadFile(req.files, undefined, `/Servicios/${Servicio}`)
         await prisma.imgPaths.update({ 
             data:{
                 Path: nombre
@@ -38,12 +41,51 @@ const actualizarImagen = async( req = request, res = response ) => {
             where: { Id:Number(Id) },
     
         })
-        const pathImg = path.join(__dirname,'../uploads/',Servicio.toString(), imgPath.Path)
+        //TODO: PONER EN CARETA DE SERVICIOS LAS FOTOS
+        const pathImg = path.join(__dirname,'../uploads/','Servicios/',Servicio.toString(),'/', imgPath.Path)
         if(fs.existsSync(pathImg)){
             fs.unlinkSync(pathImg)
         }
         return res.status(200).json({ 
             msg:`el serivicio ${Servicio} actualizo la foto con id ${Id} con el archivo ${nombre}`
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({error})
+    }
+    
+}
+
+const actualizarIcon = async( req = request, res = response ) => {
+    const { Servicio } = req.params    
+    try {
+        const nombre = await uploadFile(req.files, ['ico','svg'],Servicio)      
+        const servicio = await prisma.servicio.findFirst({
+            where: { Nombre: Servicio }}
+        )
+        const { Id } = servicio
+        await prisma.servicio.update({
+            where:{
+                Id
+            },
+            data:{
+                IconPath: nombre
+            },
+        })
+        const existe = await prisma.servicio.findUnique({
+            where:{
+                Id
+            }
+        })
+        if( !existe.IconPath ){
+            existe.IconPath = ''
+        }
+        const pathIco = path.join(__dirname,'../uploads/','/Servicios/',Servicio.toString(),'/Icon/', servicio.IconPath)
+        if(fs.existsSync(pathIco)){
+            fs.unlinkSync(pathIco)
+        }
+        return res.status(200).json({ 
+            msg:`el serivicio ${Servicio} actualizo su icono con ${nombre}` 
         })
     } catch (error) {
         console.log(error);
@@ -60,9 +102,22 @@ const MostrarImagen = async (req = request, res = response ) => {
             msg:`No existe una imagen con id ${Id}`
         })
     }
-    const pathImagen = path.join(__dirname,'../uploads/',Servicio,img.Path)
+    const pathImagen = path.join(__dirname,'../uploads/Servicios/',Servicio,img.Path)
     if( !fs.existsSync(pathImagen) ){
         const pathImagen = path.join(__dirname,'../assets/no-image.jpg')
+        return res.sendFile(pathImagen)
+    }
+    return res.sendFile(pathImagen)      
+    
+}
+const MostrarIcon = async (req = request, res = response ) => {     
+    const { Servicio } = req.params
+    const servicio = await prisma.servicio.findFirst({ where: { Nombre: Servicio } })
+    let pathImagen =path.join(__dirname,'../assets/no-icon.svg')
+    if(servicio.IconPath){
+       pathImagen = path.join(__dirname,'../uploads/',Servicio,'/Icon/', servicio.IconPath)
+    }
+    if( !fs.existsSync(pathImagen) ){
         return res.sendFile(pathImagen)
     }
     return res.sendFile(pathImagen)      
@@ -101,4 +156,6 @@ module.exports = {
     actualizarImagen,
     MostrarImagen,
     deleteImagen,
+    MostrarIcon,
+    actualizarIcon,
 }
