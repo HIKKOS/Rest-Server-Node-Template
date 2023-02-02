@@ -44,6 +44,13 @@ const serviciosGet = async (req = request, res = response) => {
 };
 const serviciosPost = async (req = request, res = response) => {
 	let { Nombre, Prioritario = "", Descripcion, FechaPago, Precio } = req.body;
+	if(Prioritario === "true"){
+		Prioritario = true
+	} else{ 
+		Prioritario = false
+	}
+	Prioritario = false
+	Prioritario === '0' ? Prioritario = false : Prioritario = true;
 	Prioritario ? (Prioritario = true) : (Prioritario = false);
 	Precio = Number(Precio);
 

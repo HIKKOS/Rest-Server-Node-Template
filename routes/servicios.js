@@ -20,10 +20,10 @@ router.get('/', [
 ],serviciosGet)
 router.post('/',[
     validarJWT,
-    check('Nombre').custom( ExisteNombreServicio ),
-    check('Descripcion','Se requiere este campo').notEmpty(),
+    check('Nombre').custom( ExisteNombreServicio ).isLength({min:1}),
+    check('Descripcion','Se requiere este campo').isLength({min:1}),
     check('Prioritario','De ser booleano (true/false 1/0)').isBoolean(),
-    check('Precio','Debe ser numerico').isNumeric(),
+    check('Precio','Debe ser numerico y mayor a 0').not().isIn([0]).isNumeric().isLength({min:1}),
     validarCampos,
 ] ,serviciosPost)
 

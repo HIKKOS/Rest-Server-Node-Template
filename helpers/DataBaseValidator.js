@@ -13,11 +13,13 @@ const ExisteServicio = async ( Id = 0 ) => {
     return true
 }
 const ExisteNombreServicio = async(Nombre = '') => {   
-	 const servicio = await prisma.servicio.findMany({ where : { Nombre } }) 
-	    if( servicio ){
-	        throw new Error(`Ya existe el servicio con el nombre: ${Nombre}`)
-	    }
-
+    const servicio = await prisma.servicio.findMany()
+    const names = servicio.map(s => {
+        return s.Nombre.toUpperCase()
+    })
+    if( names.includes(Nombre.toUpperCase()) ){
+        throw new Error(`Ya existe el servicio con el nombre: ${Nombre}`)
+    }
     return true
 
 }

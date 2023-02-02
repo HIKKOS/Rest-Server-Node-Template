@@ -7,7 +7,7 @@ async function postData(url = "") {
 		headers: {
 			"Content-Type": "application/json",
 			"x-token":
-				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwiaWF0IjoxNjc0NjAyNDEzLCJleHAiOjE2NzQ2MTY4MTN9.2lVocwg3l-Ny7F90kuM5syv2jBXs63MDzODwfHwNGSk",
+				"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MSwicm9sIjoiQWRtaW5pc3RyYWRvciIsImlhdCI6MTY3NTIwODE1NywiZXhwIjoxNjc1MjIyNTU3fQ.PdItdC_iXNh9RQj4RbcLG0vSITMTAQLl_2YpswiR14w",
 			// 'Content-Type': 'application/x-www-form-urlencoded',
 		},
 		redirect: "follow", // manual, *follow, error
