@@ -4,18 +4,20 @@ const { evaluarPagina } = require("../helpers/paginacion");
 const prisma = new PrismaClient();
 
 const serviciosGet = async (req = request, res = response) => {
-	const { page = 1, limit } = req.query;
+	const { page, limit } = req.query;
+
 	try {
 		const { skip, pagina, limite } = await evaluarPagina(page, limit);
-		let servicios = await prisma.servicio.findMany({
+		const servicios = await prisma.servicio.findMany({
 			skip,
 			take: limite,
-		});
-		servicios = servicios.map((s) => {
-			if (s.Activo) {
-				return s;
-			}
-		});
+		});		
+		console.log('--------');
+		console.log({limit});
+		console.log({skip});
+		console.log({limite});
+		console.log('--------');
+		
 		for (let i = 0; i < servicios.length; i++) {
 			const ServicioId = servicios[i].Id;
 			const PathsArray = await prisma.imgPaths.findMany({
@@ -27,11 +29,9 @@ const serviciosGet = async (req = request, res = response) => {
 			servicios[i].ImgIds = Id;
 		}
 		const total = await prisma.servicio.count();
+		const query = req.query
+
 		res.json({
-			/*      pagina,
-            skip,
-            limite,
-            total, */
 			total,
 			servicios,
 		});
@@ -43,17 +43,9 @@ const serviciosGet = async (req = request, res = response) => {
 	}
 };
 const serviciosPost = async (req = request, res = response) => {
-	let { Nombre, Prioritario = "", Descripcion, FechaPago, Precio } = req.body;
-	if(Prioritario === "true"){
-		Prioritario = true
-	} else{ 
-		Prioritario = false
-	}
-	Prioritario = false
-	Prioritario === '0' ? Prioritario = false : Prioritario = true;
-	Prioritario ? (Prioritario = true) : (Prioritario = false);
+	let { Nombre, Prioritario, Descripcion, FechaPago, Precio } = req.body;
+	Prioritario = Boolean(Prioritario)
 	Precio = Number(Precio);
-
 	const servicio = await prisma.servicio.create({
 		data: {
 			Nombre,
@@ -69,14 +61,14 @@ const serviciosPost = async (req = request, res = response) => {
 	});
 };
 const serviciosPut = async (req = request, res = response) => {
-	const { Id } = req.params;
+	const { Id } = req.params;	
 	const data = req.body;
-	if ( data.Activo === 1){
-		data.Activo = true
-	}
-	if ( data.Prioritario === 1){
-		data.Prioritario = true
-	}
+	data.Activo === 0 ? data.Activo = false : true
+	data.Activo = Boolean(data.Activo) 
+	data.Precio = Number(data.Precio)
+	data.Prioritario === 0 ? data.Prioritario = false : true
+	data.Prioritario = Boolean(data.Prioritario) 
+
 	const serv = await prisma.servicio.update({
 		data,
 		where: { Id: Number(Id) },
