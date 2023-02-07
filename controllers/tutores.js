@@ -9,23 +9,23 @@ const tutoresGet = async (req = request, res = response) => {
 	const { page, limit } = req.query;
 
 	try {
-		const { skip, pagina, limite } = await evaluarPagina(page, limit);
+		const { skip, limite } = await evaluarPagina(page, limit);
 		const total = await prisma.tutor.count();
 		const allUsers = await prisma.tutor.findMany({
 			skip,
 			take: limite,
 		});
+		const tutores = allUsers.map((t) => {
+			const { PasswordTutor, CreatedAt, MetodoPago, Activo, ...resto } = t;
+			return resto;
+		});
 		res.json({
-			total,
-			skip,
-			pagina,
-			limite,
-			allUsers,
+			Tutores: tutores,
 		});
 	} catch (error) {
 		return res.status(400).json({
-			error
-		})
+			error,
+		});
 	}
 };
 const tutoresGetById = async (req = request, res = response) => {
@@ -44,22 +44,34 @@ const tutoresGetById = async (req = request, res = response) => {
 };
 const tutoresPut = async (req = request, res = response) => {
 	const { id } = req.params;
-
-	const user = await prisma.tutor.findUnique({ where: { Id: Number(id) } });
-	const { password } = req.body;
-	let uwu = false;
-	if (bcryptjs.compareSync(password.toString(), user.PasswordTutor)) {
-		uwu = true;
-	}
-	user
-		? res.json({
-				msg: "put tutor",
-				user,
-				uwu,
-		  })
-		: res.status(404).json({
+	const data  = req.body
+	console.log(data);
+ 	const {PasswordTutor, ...resto} = data
+	 const salt = bcryptjs.genSaltSync();
+	const Tutor = await prisma.tutor.findUnique({ where: { Id: Number(id) } });
+	if( !Tutor ){
+		return res.status(400).json({
 				msg: `no se encontro el usuario con el id: ${id}`,
-		  });
+	});}
+	!PasswordTutor ?
+	await prisma.tutor.update({ 
+		where: {Id:Number(id)
+		},
+		data:resto
+		
+	 })
+	 
+	:
+	bcryptjs.hashSync(PasswordTutor, salt),
+	await prisma.tutor.update({ 
+		where: {Id:Number(id)
+		},
+		data: {
+			PasswordTutor: PasswordTutor
+		}
+	 })
+	
+	
 };
 const tutoresPost = async (req, res = response) => {
 	const {
@@ -93,8 +105,27 @@ const tutoresPost = async (req, res = response) => {
 		tutor,
 	});
 };
+const tutoresDelete = async(req = request, res = response) => {
+	const {Id} = req.params;
+	const tutor = await prisma.tutor.findUnique({ where: { Id:Number(Id) } });
+	if ( !tutor ) {
+		return res.status(404).json({ msg: `no existe el id: ${Id}` });
+	}
+	try {
+		await prisma.tutor.delete({ where: { Id:Number(Id) } })		
+		return res.json({
+			msg:'elimidado correctamente'
+		})
+	} catch (error) {
+		console.log(err);
+	}
+		
+	
+
+}
 module.exports = {
 	tutoresGet,
+	tutoresDelete,
 	tutoresPost,
 	tutoresPut,
 	tutoresGetById,
