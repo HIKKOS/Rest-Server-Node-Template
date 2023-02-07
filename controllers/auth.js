@@ -3,6 +3,7 @@ const bcryptjs = require("bcryptjs");
 const { generarJWT } = require("../helpers/jwtGenerator");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const jwt = require('jsonwebtoken')
 const loginAdmin = async (req = request, res = response) => {
 	const { Correo = "", Password } = req.body;
 	try {
@@ -86,7 +87,29 @@ const loginTutor = async (req = request, res = response) => {
 		});
 	}
 };
+const verificarJWT = (req = request, res = response) =>{
+	const token = req.header('x-token')
+	if (!token) {
+		return res.status(401).json({
+			msg: "no hay token en la peticion",
+		});
+	}
+	try{
+		const { rol } = jwt.verify(token, process.env.SECRETORPRIVATEKEY)
+		if(rol !== 'Administrador'){
+			return res.status(401).json('sin autorización')
+		}
+		return res.status(200).json({msg:'ok'})
+	} catch (error) {
+		const msg = error
+		res.status(400).json({
+			msg
+		});
+	}
+	
+}
 module.exports = {
 	loginAdmin,
 	loginTutor,
+	verificarJWT,
 };

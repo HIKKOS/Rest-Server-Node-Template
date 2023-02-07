@@ -6,6 +6,7 @@ const {
     tutoresPost,
     tutoresPut,
     tutoresGetById,
+    tutoresDelete,
 } = require('../controllers/tutores')
 const { validarPaginacion, validarCampos, validarJWT } = require('../middlewares')
 
@@ -29,6 +30,11 @@ router.post('/',[
     check('Correo').isEmail(),    
     validarCampos
 ],tutoresPost )
+router.delete('/:Id',[
+    validarJWT,
+    check('Id','debe ser numerico').isNumeric(),    
+    validarCampos
+], tutoresDelete )
 
 module.exports = router
     

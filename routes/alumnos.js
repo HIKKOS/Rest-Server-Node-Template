@@ -6,10 +6,11 @@ const {
     alumnosPost,
     alumnosPut, 
 } = require('../controllers/alumnos')
-const { validarPaginacion, validarCampos,genderCheck } = require('../middlewares')
+const { validarPaginacion, validarCampos,genderCheck, validarJWT } = require('../middlewares')
 
 const router = Router()
 router.get('/',[
+    validarJWT,
     validarPaginacion, 
     validarCampos
 ],alumnosGet )
@@ -22,7 +23,8 @@ router.post('/',[
     check('ApellidoMaterno','no se recibieron datos').not().isEmpty(),
     check('ApellidoPaterno','no se recibieron datos').not().isEmpty(),
     check('Grupo','no se recibieron datos').not().isEmpty(),
-    genderCheck('MASCULINO', 'FEMENINO' ),
+    check('Genero').notEmpty(),
+    check('Genero').custom(genderCheck('MASCULINO', 'FEMENINO' )),
     check('Grado','debe ser numerico').isNumeric(),
     check('TutorId','debe ser numerico').isNumeric(),
     validarCampos
