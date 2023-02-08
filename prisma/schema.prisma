@@ -36,8 +36,8 @@ model Alumno {
   Grupo           String     @default("A") @db.VarChar(20)
   Genero          Genero     @default(MASCULINO)
   CreatedAt       DateTime   @default(now())
-  Padre           Tutor      @relation(fields: [TutorId], references: [Id])
-  TutorId         Int
+  Padre           Tutor?     @relation(fields: [TutorId], references: [Id])
+  TutorId         Int? 
   Activo Boolean @default(true)
 }
 

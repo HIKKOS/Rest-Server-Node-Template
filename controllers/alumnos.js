@@ -1,89 +1,116 @@
-const { response, request } = require('express')
+const { response, request } = require("express");
 
-const bcryptjs = require('bcryptjs')
-const  { PrismaClient, prisma } = require ("@prisma/client");
-const { evaluarPagina } = require('../helpers/paginacion');
+const { PrismaClient } = require("@prisma/client");
+const { evaluarPagina } = require("../helpers/paginacion");
+const { reduceName } = require("../helpers/reduceName");
+const prisma = new PrismaClient();
+const alumnosGet = async (req = request, res = response) => {
+    let { show = 'active' } = req.query
+    if( show !== 'active'){
+        show = 'disabled'
+    }
+	const { page, limit } = req.query;
+	const { skip, limite } = evaluarPagina(page, limit);
+	const Alumnos = await prisma.alumno.findMany({
+		skip,
+		take: limite,       
+        where: {
+		    Activo: show === 'active' ? true : false,
+		}
+         
+	});
+    const data = Alumnos.map(a => {
+        const {CreatedAt, Activo, ...resto} = a
+        return resto
+    })
+	return res.json({
+		Alumonos: data
+	});
+};
+const alumnosPut = async (req = request, res = response) => {
+	let alumno = {};
+    const { Id } = req.params
+	const {
+		TutorId,
+		Nombres,
+		ApellidoMaterno,
+		ApellidoPaterno,
+		Grado,
+		Grupo,
+		Genero,
+	} = req.body;
+	if ( !TutorId ) {
+		alumno = {
+			Nombres,
+			ApellidoMaterno,
+			ApellidoPaterno,
+			Grado: Number(Grado),
+			Grupo,
+			Genero: Genero === 0 ? "MASCULINO" : "FEMENINO",
+		};
+	} else {
+        if(isNaN(TutorId)){
+            return res.status(400).json({
+                msg: `Tutor Id debe ser numerico y se obtuvo: ${TutorId}`
+            })
+        }
+        const tutor = await prisma.tutor.findUnique({ where: { Id:Numer(TutorId) } })
+        if(!tutor){
+            return res.status(400).json({ msg: `No existe el tutor con id ${TutorId}`})
+        }
+        alumno = {
+            TutorId:Number(TutorId),
+			Nombres: nombre,
+			ApellidoMaterno,
+			ApellidoPaterno,
+			Grado: Number(Grado),
+			Grupo,
+			Genero: Genero === 0 ? "MASCULINO" : "FEMENINO",
+		};
+    }
+    const resp = await prisma.alumno.update({ where: { Id:Number(Id) }, data: alumno })
+    return res.json({
+        resp
+    })
+};
+const alumnosPost = async (req = request, res = response) => {
+	const { Nombres, ApellidoMaterno, ApellidoPaterno, Grado, Grupo, Genero } =
+		req.body;
+    //! TODO: FUNCION PARA VALIDAR NOMBRES SIN ESPACIOS
+	const alumno = await prisma.alumno.create({
+		data: {
+			Nombres,
+			ApellidoPaterno,
+			ApellidoMaterno,
+			Grado: Number(Grado),
+			Grupo,
+			Genero: Genero === 0 ? 'MASCULINO':'FEMENINO',
+		},
+	});
+	return res.json({
+		alumno,
+	});
+};
+const alumnosDelete = async (req = request, res = response) => {
+	const { Id } = req.params;
+	const alumno = await prisma.alumno.findUnique({ where: { Id: Number(Id) } });
+	if (!alumno) {
+		return res.status(400).json({
+			msg: `no existe el Id ${Id}`,
+		});
+	}
+	await prisma.alumno.update({
+		where: { Id: Number(Id) },
+		data: { Activo: false },
+	});
+	return res.json({
+		alumno,
+	});
+};
 
-const alumnosGet = async(req = request, res = response) => { 
-    const { page, limit } = req.query
-    const { skip, pagina, limite } = evaluarPagina(page, limit)
-    const prisma = new PrismaClient();    
-    const total = await prisma.alumno.count()
-    const allUsers = await prisma.alumno.findMany({
-        skip,
-        take: limite
-    })
-    
-    res.json({       
-        total,
-        skip,
-        pagina,
-        limite,
-        allUsers,
-    })
-}
-const alumnosPut = async(req = request, res = response) => {
-  /*   const { id } = req.params
-    const prisma = new PrismaClient()
-    const user = await prisma.alumno.findUnique({where : { Id:Number(id) }})
-    const { password } = req.body
-    let uwu = false
-    if(bcryptjs.compareSync(password.toString(), user.alumnoId)){
-        uwu = true
-    }
-    user 
-    ? res.json({
-            msg: 'put alumno',
-            user ,
-            uwu
-        }) 
-    : res.status(404).json({
-        msg: `no se encontro el usuario con el id: ${id}`
-    }) */
-    const prisma = new PrismaClient()
-    //TODO: FILTRAR ALUMNOS POR ID DE TUROR
-    const alumnos =  prisma.alumno.findMany({where: {TutorId: Id}})
-}
-const alumnosPost = async(req, res = response) => {
-    const { 
-        Nombres,   
-        ApellidoMaterno,
-        ApellidoPaterno,
-        Grado,
-        Grupo,
-        Genero,
-        TutorId,
-    } =  req.body
-    const prisma = new PrismaClient()
-    const tutor = await prisma.tutor.findUnique({where: {Id: TutorId}})
-    if ( !tutor ){
-        return res.status(400).json({
-            msg: `no existe el tutor con el id: ${TutorId}`
-        })
-    }
-    const alumno = await prisma.alumno.create({
-        data: {            
-            Nombres,
-            ApellidoMaterno,
-            ApellidoPaterno,
-            Grado,
-            Grupo,
-            Genero,
-            TutorId,
-        },
-      }); 
-    res.json({
-        msg: 'post API alumnos - controlador',
-        alumno
-    })    
-}
 module.exports = {
-   alumnosGet,
-   alumnosPost,
-   alumnosPut,
-}
-
-
-
-
-
+	alumnosGet,
+	alumnosPost,
+	alumnosPut,
+	alumnosDelete,
+};

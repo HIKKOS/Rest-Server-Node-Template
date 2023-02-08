@@ -37,8 +37,9 @@ const validarJWT = async (req = request, res = response, next) => {
                 msg='error de formato en el token'
 				break;
 		}
+		const {message} = error
 		res.status(400).json({
-			msg
+			msg:message
 		});
 	}
 };

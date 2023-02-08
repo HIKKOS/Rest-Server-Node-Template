@@ -51,6 +51,7 @@ const validarColecciones = async(coleccion = '', coleciones = []) => {
     }
     return true
 }
+
 module.exports = {
    ExisteServicio,
    ExisteImg,

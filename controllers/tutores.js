@@ -112,7 +112,7 @@ const tutoresDelete = async(req = request, res = response) => {
 		return res.status(404).json({ msg: `no existe el id: ${Id}` });
 	}
 	try {
-		await prisma.tutor.delete({ where: { Id:Number(Id) } })		
+		await prisma.tutor.update({ where: { Id:Number(Id) },data:{Activo:false} })		
 		return res.json({
 			msg:'elimidado correctamente'
 		})

@@ -5,18 +5,23 @@ const prisma = new PrismaClient();
 
 const serviciosGet = async (req = request, res = response) => {
 	const { page, limit } = req.query;
-
+	let { show = 'active' } = req.query
+	show === '' ? show = 'active' : null 
+	console.log({show});
+	console.log(show.length > 0);
+    if( show !== 'disabled'){
+        show = 'active'
+    }
+	console.log({show});
 	try {
-		const { skip, pagina, limite } = await evaluarPagina(page, limit);
+		const { skip, limite } = await evaluarPagina(page, limit);
 		const servicios = await prisma.servicio.findMany({
 			skip,
 			take: limite,
+			where: {
+				Activo: show === 'active' ? true : false,
+			}
 		});		
-		console.log('--------');
-		console.log({limit});
-		console.log({skip});
-		console.log({limite});
-		console.log('--------');
 		
 		for (let i = 0; i < servicios.length; i++) {
 			const ServicioId = servicios[i].Id;
@@ -38,7 +43,7 @@ const serviciosGet = async (req = request, res = response) => {
 	} catch (error) {
 		console.log(error);
 		res.status(400).json({
-			error,
+			error
 		});
 	}
 };
