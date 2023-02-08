@@ -8,6 +8,7 @@ const {
     alumnosDelete,
 } = require('../controllers/alumnos')
 const { validarPaginacion, validarCampos,genderCheck, validarJWT } = require('../middlewares')
+const { gradeCheck } = require('../middlewares/gradeCheck')
 
 const router = Router()
 router.get('/',[
@@ -34,6 +35,7 @@ router.post('/',[
     check('Grupo','no se recibieron datos').not().isEmpty(),
     check('Genero').isNumeric().isLength({min:1}),
     check('Grado','debe ser numerico').isNumeric(),
+    check('Grado').custom(gradeCheck),
     validarCampos
 ], alumnosPost )
 router.delete('/:Id',[

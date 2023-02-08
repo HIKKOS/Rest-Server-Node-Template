@@ -34,7 +34,7 @@ model Alumno {
   Servicio        Servicio[]
   Grado           Int        @default(1)
   Grupo           String     @default("A") @db.VarChar(20)
-  Genero          Genero     @default(MASCULINO)
+  Genero          Int    
   CreatedAt       DateTime   @default(now())
   Padre           Tutor?     @relation(fields: [TutorId], references: [Id])
   TutorId         Int? 

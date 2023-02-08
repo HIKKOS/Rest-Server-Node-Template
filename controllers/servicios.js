@@ -7,12 +7,9 @@ const serviciosGet = async (req = request, res = response) => {
 	const { page, limit } = req.query;
 	let { show = 'active' } = req.query
 	show === '' ? show = 'active' : null 
-	console.log({show});
-	console.log(show.length > 0);
     if( show !== 'disabled'){
         show = 'active'
     }
-	console.log({show});
 	try {
 		const { skip, limite } = await evaluarPagina(page, limit);
 		const servicios = await prisma.servicio.findMany({
@@ -68,8 +65,6 @@ const serviciosPost = async (req = request, res = response) => {
 const serviciosPut = async (req = request, res = response) => {
 	const { Id } = req.params;	
 	const data = req.body;
-	data.Activo === 0 ? data.Activo = false : true
-	data.Activo = Boolean(data.Activo) 
 	data.Precio = Number(data.Precio)
 	data.Prioritario === 0 ? data.Prioritario = false : true
 	data.Prioritario = Boolean(data.Prioritario) 

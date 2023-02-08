@@ -9,8 +9,9 @@ const alumnosGet = async (req = request, res = response) => {
     if( show !== 'active'){
         show = 'disabled'
     }
-	const { page, limit } = req.query;
-	const { skip, limite } = evaluarPagina(page, limit);
+	const { page, limit} = req.query;
+	const { skip, limite } = await evaluarPagina(page, limit);
+
 	const Alumnos = await prisma.alumno.findMany({
 		skip,
 		take: limite,       
@@ -24,10 +25,11 @@ const alumnosGet = async (req = request, res = response) => {
         return resto
     })
 	return res.json({
-		Alumonos: data
+		Alumnos: data
 	});
 };
 const alumnosPut = async (req = request, res = response) => {
+
 	let alumno = {};
     const { Id } = req.params
 	const {
@@ -39,6 +41,7 @@ const alumnosPut = async (req = request, res = response) => {
 		Grupo,
 		Genero,
 	} = req.body;
+	console.log(Genero);
 	if ( !TutorId ) {
 		alumno = {
 			Nombres,
@@ -46,7 +49,7 @@ const alumnosPut = async (req = request, res = response) => {
 			ApellidoPaterno,
 			Grado: Number(Grado),
 			Grupo,
-			Genero: Genero === 0 ? "MASCULINO" : "FEMENINO",
+			Genero: Genero === 0 ? 0 : 1,
 		};
 	} else {
         if(isNaN(TutorId)){
@@ -65,7 +68,7 @@ const alumnosPut = async (req = request, res = response) => {
 			ApellidoPaterno,
 			Grado: Number(Grado),
 			Grupo,
-			Genero: Genero === 0 ? "MASCULINO" : "FEMENINO",
+			Genero: Genero === 0 ? 0 : 1,
 		};
     }
     const resp = await prisma.alumno.update({ where: { Id:Number(Id) }, data: alumno })
@@ -84,7 +87,7 @@ const alumnosPost = async (req = request, res = response) => {
 			ApellidoMaterno,
 			Grado: Number(Grado),
 			Grupo,
-			Genero: Genero === 0 ? 'MASCULINO':'FEMENINO',
+			Genero: Genero === 0 ? 0 : '1',
 		},
 	});
 	return res.json({
