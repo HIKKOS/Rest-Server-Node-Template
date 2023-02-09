@@ -36,6 +36,11 @@ router.put('/:Id',[
     check('Id','No existe').custom(  ExisteServicio ),
     validarCampos
 ],serviciosPut)
+router.put('/restore/:Id',[
+    validarJWT,
+    check('Id','No existe').custom(  ExisteServicio ),
+    validarCampos
+],serviciosPut)
 router.delete('/:Id',[
     validarJWT,
     check('Id','No existe').custom(  ExisteServicio ),

@@ -11,6 +11,7 @@ const serviciosGet = async (req = request, res = response) => {
         show = 'active'
     }
 	try {
+		console.log(show);
 		const { skip, limite } = await evaluarPagina(page, limit);
 		const servicios = await prisma.servicio.findMany({
 			skip,
@@ -64,11 +65,15 @@ const serviciosPost = async (req = request, res = response) => {
 };
 const serviciosPut = async (req = request, res = response) => {
 	const { Id } = req.params;	
+	const restore =  req.url.split('/')
+	const [,action,] = restore
+	if(action === 'restore'){
+		 return await prisma.servicio.update({ where:  {Id: Number(Id)},data: {Activo : true} })
+	}
 	const data = req.body;
 	data.Precio = Number(data.Precio)
 	data.Prioritario === 0 ? data.Prioritario = false : true
 	data.Prioritario = Boolean(data.Prioritario) 
-
 	const serv = await prisma.servicio.update({
 		data,
 		where: { Id: Number(Id) },
@@ -79,7 +84,7 @@ const serviciosPut = async (req = request, res = response) => {
 };
 const serviciosDel = async (req = request, res = response) => {
 	const { Id } = req.params;
-	const servicio = await prisma.servicio.delete({ where: { Id: Number(Id) } });
+	const servicio = await prisma.servicio.update({ where: { Id: Number(Id) }, data:{ Activo: false} });
 	return res.json({
 		msg: `el servicio ${servicio.Nombre} se ha dado de baja `,
 	});

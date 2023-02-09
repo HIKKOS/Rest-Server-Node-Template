@@ -3,35 +3,52 @@ const { response, request } = require("express");
 const { PrismaClient } = require("@prisma/client");
 const { evaluarPagina } = require("../helpers/paginacion");
 const { reduceName } = require("../helpers/reduceName");
+const { isBool } = require("../helpers/isBoolean");
 const prisma = new PrismaClient();
 const alumnosGet = async (req = request, res = response) => {
-    let { show = 'active' } = req.query
-    if( show !== 'active'){
-        show = 'disabled'
-    }
-	const { page, limit} = req.query;
+	let { show = "active", onlyNames = false } = req.query;
+	if (isBool(onlyNames)) {
+		const names = await prisma.alumno.findMany({
+			select: {
+				Id: true,
+				Nombres: true,
+				ApellidoPaterno: true,
+				ApellidoMaterno: true,
+				Grado: true,
+				Grupo: true,
+			},
+		});
+		return res.status(200).json({ Alumnos: names });
+	}
+
+	onlyNames = Boolean(onlyNames);
+	if (onlyNames) {
+	}
+	if (show !== "active") {
+		show = "disabled";
+	}
+	const { page, limit } = req.query;
 	const { skip, limite } = await evaluarPagina(page, limit);
 
 	const Alumnos = await prisma.alumno.findMany({
 		skip,
-		take: limite,       
-        where: {
-		    Activo: show === 'active' ? true : false,
-		}
-         
+		take: limite,
+		where: {
+			Activo: show === "active" ? true : false,
+		},
 	});
-    const data = Alumnos.map(a => {
-        const {CreatedAt, Activo, ...resto} = a
-        return resto
-    })
+	const data = Alumnos.map((a) => {
+		const { CreatedAt, Activo, ...resto } = a;
+		return resto;
+	});
 	return res.json({
-		Alumnos: data
+		Alumnos: data,
 	});
 };
 const alumnosPut = async (req = request, res = response) => {
-
 	let alumno = {};
-    const { Id } = req.params
+	console.log('put');
+	const { Id } = req.params;
 	const {
 		TutorId,
 		Nombres,
@@ -41,8 +58,7 @@ const alumnosPut = async (req = request, res = response) => {
 		Grupo,
 		Genero,
 	} = req.body;
-	console.log(Genero);
-	if ( !TutorId ) {
+	if (!TutorId) {
 		alumno = {
 			Nombres,
 			ApellidoMaterno,
@@ -52,34 +68,42 @@ const alumnosPut = async (req = request, res = response) => {
 			Genero: Genero === 0 ? 0 : 1,
 		};
 	} else {
-        if(isNaN(TutorId)){
-            return res.status(400).json({
-                msg: `Tutor Id debe ser numerico y se obtuvo: ${TutorId}`
-            })
-        }
-        const tutor = await prisma.tutor.findUnique({ where: { Id:Numer(TutorId) } })
-        if(!tutor){
-            return res.status(400).json({ msg: `No existe el tutor con id ${TutorId}`})
-        }
-        alumno = {
-            TutorId:Number(TutorId),
-			Nombres: nombre,
+		if (isNaN(TutorId)) {
+			return res.status(400).json({
+				msg: `Tutor Id debe ser numerico y se obtuvo: ${TutorId}`,
+			});
+		}
+		const tutor = await prisma.tutor.findUnique({
+			where: { Id: Number(TutorId) },
+		});
+		if (!tutor) {
+			return res
+				.status(400)
+				.json({ msg: `No existe el tutor con id ${TutorId}` });
+		}
+		alumno = {
+			TutorId: Number(TutorId),
+			/* Nombres: nombre,
 			ApellidoMaterno,
 			ApellidoPaterno,
 			Grado: Number(Grado),
 			Grupo,
-			Genero: Genero === 0 ? 0 : 1,
+			Genero: Genero === 0 ? 0 : 1, */
 		};
-    }
-    const resp = await prisma.alumno.update({ where: { Id:Number(Id) }, data: alumno })
-    return res.json({
-        resp
-    })
+	}
+	const resp = await prisma.alumno.update({
+		where: { Id: Number(Id) },
+		data: alumno,
+	});
+	return res.json({
+		resp,
+	});
 };
+
 const alumnosPost = async (req = request, res = response) => {
 	const { Nombres, ApellidoMaterno, ApellidoPaterno, Grado, Grupo, Genero } =
 		req.body;
-    //! TODO: FUNCION PARA VALIDAR NOMBRES SIN ESPACIOS
+	//! TODO: FUNCION PARA VALIDAR NOMBRES SIN ESPACIOS
 	const alumno = await prisma.alumno.create({
 		data: {
 			Nombres,
@@ -87,7 +111,7 @@ const alumnosPost = async (req = request, res = response) => {
 			ApellidoMaterno,
 			Grado: Number(Grado),
 			Grupo,
-			Genero: Genero === 0 ? 0 : '1',
+			Genero: Genero === 0 ? 0 : 1,
 		},
 	});
 	return res.json({

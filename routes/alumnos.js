@@ -27,6 +27,11 @@ router.put('/:Id',[
     check('Grado','debe ser numerico').isNumeric(),
     validarCampos
 ], alumnosPut )
+router.put('/setTutor/:Id',[
+    validarJWT,
+    check('Id','Debe ser numerico').isNumeric(),
+    validarCampos
+], alumnosPut )
 router.post('/',[
     validarJWT,
     check('Nombres','no se recibieron datos').not().isEmpty(),
