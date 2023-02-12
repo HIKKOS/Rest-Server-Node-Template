@@ -10,6 +10,7 @@ class Server{
             auth: '/api/login',
             usersPath : '/api/users',
             uploads : '/api/uploads',
+            fotos : '/api/fotos',
             servicios: '/api/servicios',
             tutores: '/api/tutores',
             alumnos: '/api/alumnos',
@@ -47,6 +48,7 @@ class Server{
         this.app.use(this.paths.tutores, require('../routes/tutores'))
         this.app.use(this.paths.alumnos, require('../routes/alumnos'))
         this.app.use(this.paths.busqueda, require('../routes/busqueda'))
+        this.app.use(this.paths.fotos, require('../routes/FotosTutores'))
     }
     listen(){        
         this.app.listen(this.port, () =>{

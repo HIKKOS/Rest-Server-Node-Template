@@ -9,17 +9,21 @@ const tutoresGet = async (req = request, res = response) => {
 	const { page, limit } = req.query;
 
 	try {
-		const { skip, limite } = await evaluarPagina(page, limit);
-		const total = await prisma.tutor.count();
+		const { skip, limite } = await evaluarPagina(page, limit);	
+		const total = await prisma.tutor.count({where: {Activo:true}});
 		const allUsers = await prisma.tutor.findMany({
 			skip,
 			take: limite,
+			where:{
+				Activo:true
+			}
 		});
 		const tutores = allUsers.map((t) => {
 			const { PasswordTutor, CreatedAt, MetodoPago, Activo, ...resto } = t;
 			return resto;
 		});
 		res.json({
+			total:total,
 			Tutores: tutores,
 		});
 	} catch (error) {

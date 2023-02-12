@@ -96,9 +96,12 @@ const deleteImagen = async (req = request, res = response) => {
     })
 
 }
+
+
+
 module.exports = {
     cargarArchivo,
     actualizarImagen,
-    MostrarImagen,
+    MostrarImagen,  
     deleteImagen,
 }

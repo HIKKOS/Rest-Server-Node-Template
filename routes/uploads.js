@@ -5,9 +5,9 @@ const { ExisteImg, ExisteServicio,validarColecciones} = require('../helpers/Data
 const {validarCampos, validarCargaArchivos, validarJWT} = require('../middlewares')
 
 const router = Router()
- router.get('/:Servicio/:Id',[
+router.get('/:Servicio/:Id',[
     //validarJWT,
-    check('Id','Debe ser numerico').isNumeric(),
+    check('Id','No ser recibio este campo').notEmpty(),
     //check('Id').custom( ExisteImg ),
     check(['Id']).custom( (Id, { req }) => ExisteImg(Id,req) ),
     check('Servicio').custom(s => validarColecciones(s, ['servicios'])), 
@@ -24,17 +24,20 @@ cargarArchivo )
 router.put('/:Servicio/:Id', [
     validarJWT,
     validarCargaArchivos,
-    check('Id','Debe ser numerico').isNumeric(),
+    check('Id','Debe ser uuid').isUUID(),
     check('Servicio','No existe').custom(s => validarColecciones(s) ),
     check(['Id']).custom( (Id, { req }) => ExisteImg(Id,req) ),
     validarCampos,     
 ], actualizarImagen)
 router.delete('/:Servicio/:Id', [
     validarJWT,
-    check('Id','Debe ser numerico').isNumeric(),
+    check('Id','No ser recibio este campo').notEmpty(),
     check('Servicio','No existe').custom(s => validarColecciones(s) ),
     check(['Id']).custom( (Id, { req }) => ExisteImg(Id,req) ),
     validarCampos,     
 ], deleteImagen)
+
+
+
 
 module.exports = router

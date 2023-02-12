@@ -11,10 +11,11 @@ datasource db {
 }
 
 model Tutor {
-  Id              Int        @id @default(autoincrement())
+  Id              String        @id
   Nombres         String     @db.VarChar(75)
   ApellidoMaterno String     @db.VarChar(75)
-  ApellidoPaterno String?     @db.VarChar(75)
+  ApellidoPaterno String?      @db.VarChar(75)
+  Foto String? @db.VarChar(75)
   Correo          String     @unique @db.VarChar(255)
   Telefono        String     @unique @db.VarChar(20)
   RFC             String     @unique @db.VarChar(15)
@@ -22,12 +23,13 @@ model Tutor {
   Direccion       String?     @db.VarChar(150)
   CreatedAt       DateTime   @default(now())
   Tutorado        Alumno[]
+  Pagos Pago[]
   MetodoPago      MetodoPago @default(null)
   Activo Boolean @default(true)
 }
 
 model Alumno {
-  Id              Int        @id @default(autoincrement())
+  Id              String        @id
   Nombres         String     @db.VarChar(75)
   ApellidoMaterno String     @db.VarChar(75)
   ApellidoPaterno String?     @db.VarChar(75)
@@ -37,12 +39,12 @@ model Alumno {
   Genero          Int    
   CreatedAt       DateTime   @default(now())
   Padre           Tutor?     @relation(fields: [TutorId], references: [Id])
-  TutorId         Int? 
+  TutorId         String? 
   Activo Boolean @default(true)
 }
 
 model Servicio {
-  Id          Int        @id @default(autoincrement())
+Id          String        @id
   Nombre      String     @db.VarChar(75)
   Prioritario Boolean    @default(true)
   Imagenes    ImgPaths[]
@@ -50,10 +52,20 @@ model Servicio {
   //TODO: Fecha corte
   FechaPago   DateTime   @default(now())
   Precio      Float      @default(0.0)
-  Alumno      Alumno[]     
+  Alumno      Alumno[] 
+  Pago Pago[]    
   Activo Boolean @default(true)
 }
-
+model Pago {
+  Servicio    Servicio  @relation(fields: [ServicioId], references: [Id])
+  ServicioId  String
+  Tutor       Tutor     @relation(fields: [TutorId], references: [Id])
+  TutorId     String
+  AlumnoId    Int
+  FechaPago   DateTime   @default(now())
+  Precio      Float      
+  @@id([ServicioId, TutorId, AlumnoId])
+}
 model Administrador {
   Id              Int    @id @default(autoincrement())
   Nombres         String @db.VarChar(75)
@@ -66,7 +78,7 @@ model Administrador {
 
 model ImgPaths {
   Id       Int      @id @default(autoincrement())
-  ServicioId   Int
+  ServicioId   String
   Path     String
   Servicio Servicio? @relation(fields: [ServicioId], references: [Id])
 }
