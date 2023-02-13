@@ -7,7 +7,6 @@ const prisma = new PrismaClient();
 
 const tutoresGet = async (req = request, res = response) => {
 	const { page, limit } = req.query;
-
 	try {
 		const { skip, limite } = await evaluarPagina(page, limit);	
 		const total = await prisma.tutor.count({where: {Activo:true}});
@@ -22,6 +21,7 @@ const tutoresGet = async (req = request, res = response) => {
 			const { PasswordTutor, CreatedAt, MetodoPago, Activo, ...resto } = t;
 			return resto;
 		});
+	
 		res.json({
 			total:total,
 			Tutores: tutores,
@@ -79,6 +79,7 @@ const tutoresPut = async (req = request, res = response) => {
 };
 const tutoresPost = async (req, res = response) => {
 	const {
+		Id,
 		Nombres,
 		ApellidoMaterno,
 		ApellidoPaterno,
@@ -88,6 +89,7 @@ const tutoresPost = async (req, res = response) => {
 		PasswordTutor,
 		Direccion,
 	} = req.body;
+	const pass = PasswordTutor.toString()
 	const existe = await prisma.tutor.findUnique({ where: { Correo } });
 	if (existe) {
 		return res.status(400).json({ msg: `Ya existe el correo: ${Correo}` });
@@ -95,13 +97,14 @@ const tutoresPost = async (req, res = response) => {
 	const salt = bcryptjs.genSaltSync();
 	const tutor = await prisma.tutor.create({
 		data: {
+			Id,
 			Nombres,
 			ApellidoMaterno,
 			ApellidoPaterno,
 			Correo,
 			Telefono,
 			RFC,
-			PasswordTutor: bcryptjs.hashSync(PasswordTutor, salt),
+			PasswordTutor: bcryptjs.hashSync(pass, salt),
 			Direccion,
 		},
 	});
@@ -116,7 +119,7 @@ const tutoresDelete = async(req = request, res = response) => {
 		return res.status(404).json({ msg: `no existe el id: ${Id}` });
 	}
 	try {
-		await prisma.tutor.update({ where: { Id:Number(Id) },data:{Activo:false} })		
+		await prisma.tutor.update({ where: { Id:Number(Id) },data:{Activo:false} })			
 		return res.json({
 			msg:'elimidado correctamente'
 		})

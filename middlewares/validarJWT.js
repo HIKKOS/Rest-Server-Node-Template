@@ -18,6 +18,9 @@ const validarJWT = async (req = request, res = response, next) => {
 		if (req.baseUrl === "/api/buscar") {
 			return next();
 		}
+		if (req.baseUrl === "/api/pagos") {
+			return next();
+		}
 		if (rol !== "Administrador") {
 			return res.status(401).json({
 				msg: "no tienes permisos para realizar esta acción",

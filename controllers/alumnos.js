@@ -1,5 +1,5 @@
 const { response, request } = require("express");
-
+const { v4: uuidv4 } = require('uuid');
 const { PrismaClient } = require("@prisma/client");
 const { evaluarPagina } = require("../helpers/paginacion");
 const { reduceName } = require("../helpers/reduceName");
@@ -79,9 +79,11 @@ const alumnosPut = async (req = request, res = response) => {
 const alumnosPost = async (req = request, res = response) => {
 	const { Nombres, ApellidoMaterno, ApellidoPaterno, Grado, Grupo, Genero } =
 		req.body;
+	const Id = uuidv4()
     //! TODO: FUNCION PARA VALIDAR NOMBRES SIN ESPACIOS
 	const alumno = await prisma.alumno.create({
 		data: {
+			Id,
 			Nombres,
 			ApellidoPaterno,
 			ApellidoMaterno,

@@ -1,16 +1,39 @@
 const { response, request } = require("express");
 const { PrismaClient } = require("@prisma/client");
 const { evaluarPagina } = require("../helpers/paginacion");
-const prisma = new PrismaClient();
 
+const prisma = new PrismaClient();
+const serviciosGetById = async (Id = '') => {	
+	return servicio
+}
 const serviciosGet = async (req = request, res = response) => {
 	const { page, limit } = req.query;
+	const { Id = '' } = req.query
 	let { show = 'active' } = req.query
 	show === '' ? show = 'active' : null 
     if( show !== 'disabled'){
-        show = 'active'
+		show = 'active'
     }
 	try {
+		if(Id !== ''){
+			const servicio = await prisma.servicio.findUnique({
+				where: {
+					Id:Id 
+				},
+			});
+			const PathsArray = await prisma.imgPaths.findMany({
+				where: { ServicioId : servicio.Id },
+			});
+				const ImgId = PathsArray.map((p) => {
+					return p.Id;
+				});
+				servicio.ImgIds = ImgId;
+			
+			if(!servicio) {
+				return res.status(400).json({msg: 'No existe ese servicio'})
+			}
+			return res.json(servicio)
+		}
 		const { skip, limite } = await evaluarPagina(page, limit);
 		const servicios = await prisma.servicio.findMany({
 			skip,
@@ -65,16 +88,17 @@ const serviciosPost = async (req = request, res = response) => {
 const serviciosPut = async (req = request, res = response) => {
 	const { Id } = req.params;	
 	const data = req.body;
+	console.log(data);
 	data.Precio = Number(data.Precio)
 	data.Prioritario === 0 ? data.Prioritario = false : true
-	data.Prioritario = Boolean(data.Prioritario) 
+	data.Prioritario = Boolean(!data.Prioritario) 
 
 	const serv = await prisma.servicio.update({
 		data,
-		where: { Id: Number(Id) },
+		where: { Id },
 	});
 	return res.json({
-		serv,
+		servicio: serv,
 	});
 };
 const serviciosDel = async (req = request, res = response) => {
@@ -90,4 +114,5 @@ module.exports = {
 	serviciosPost,
 	serviciosPut,
 	serviciosDel,
+	serviciosGetById,
 };

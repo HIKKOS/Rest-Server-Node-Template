@@ -7,11 +7,12 @@ const {
     validarPaginacion,
 } = require('../middlewares')
 const { 
-    serviciosGet, serviciosPost, serviciosPut, serviciosDel,
+    serviciosGet, serviciosPost, serviciosPut, serviciosDel, serviciosGetById,
 } = require('../controllers/servicios')
 const { ExisteNombreServicio, validarColecciones, ExisteServicio } = require('../helpers/DataBaseValidator')
 
 const router = Router()
+
 
 router.get('/', [
     validarJWT,

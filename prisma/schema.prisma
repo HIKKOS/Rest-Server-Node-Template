@@ -33,7 +33,7 @@ model Alumno {
   Nombres         String     @db.VarChar(75)
   ApellidoMaterno String     @db.VarChar(75)
   ApellidoPaterno String?     @db.VarChar(75)
-  Servicio        Servicio[]
+  Servicios        ServiciosDelAlumno[]
   Grado           Int        @default(1)
   Grupo           String     @default("A") @db.VarChar(20)
   Genero          Int    
@@ -42,17 +42,25 @@ model Alumno {
   TutorId         String? 
   Activo Boolean @default(true)
 }
-
+model ServiciosDelAlumno {
+  AlumnoId    String
+  ServicioId  String
+  Alumno      Alumno     @relation(fields: [AlumnoId], references: [Id])
+  Servicio    Servicio   @relation(fields: [ServicioId], references: [Id])
+  Pagado Boolean @default(false)
+  Monto Float 
+  @@id([AlumnoId, ServicioId])
+}
 model Servicio {
-Id          String        @id
+  Id          String        @id
   Nombre      String     @db.VarChar(75)
   Prioritario Boolean    @default(true)
   Imagenes    ImgPaths[]
   Descripcion String     @db.VarChar(500)
   //TODO: Fecha corte
-  FechaPago   DateTime   @default(now())
+  FechaPago   Int   
   Precio      Float      @default(0.0)
-  Alumno      Alumno[] 
+  Alumno      ServiciosDelAlumno[] 
   Pago Pago[]    
   Activo Boolean @default(true)
 }
@@ -63,7 +71,8 @@ model Pago {
   TutorId     String
   AlumnoId    Int
   FechaPago   DateTime   @default(now())
-  Precio      Float      
+  Precio      Float     
+  Facturar Boolean @default(false) 
   @@id([ServicioId, TutorId, AlumnoId])
 }
 model Administrador {
