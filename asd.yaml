@@ -1,0 +1,54 @@
+components :
+  schemas:
+    tutor:	
+	  type: object
+	  properties:
+         	  Id:
+                 type: string
+                 description: id del tutor
+                Nombres:
+           	     type: string
+           	     description: nombre del tutor
+                ApellidoMaterno:
+           	     type: string
+           	     description: apellido materno del tutor
+                ApellidoPaterno:
+           	     type: string
+           	     description: apellido paterno del tutor
+                Correo:
+           	     type: string
+           	     description: correo del tutor
+                Telefono:
+           	     type: string
+           	     description: telefono del tutor
+                RFC:
+           	     type: string
+           	     description: RFC del tutor
+                PasswordTutor:
+           	     type: string
+           	     description: contraseña del tutor
+                Direccion:
+           	     type: string
+           	     description: direccion del tutor
+                Activo:
+           	     type: boolean
+           	     description: estado del tutor
+                MetodoPago:
+           	     type: string
+           	     description: metodo de pago del tutor
+         	required: 
+         		- Id	
+         		- Nombres
+         		- ApellidoMaterno
+         		- ApellidoPaterno
+         		- Correo
+         		- Telefono
+         		- PasswordTutor
+         	example:
+         		Id: abc12
+         		Nombres: "Juan"
+         		ApellidoMaterno: "Perez"
+         		ApellidoPaterno: "Perez"
+         		Correo: "juan@gmail.com"
+         		Telefono: "1234567890"
+*/

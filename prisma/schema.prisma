@@ -18,7 +18,7 @@ model Tutor {
   Foto String? @db.VarChar(75)
   Correo          String     @unique @db.VarChar(255)
   Telefono        String     @unique @db.VarChar(20)
-  RFC             String     @unique @db.VarChar(15)
+  RFC             String?     @unique @db.VarChar(15)
   PasswordTutor   String     @db.VarChar(255)
   Direccion       String?     @db.VarChar(150)
   CreatedAt       DateTime   @default(now())

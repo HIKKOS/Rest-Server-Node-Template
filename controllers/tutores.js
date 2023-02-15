@@ -77,6 +77,7 @@ const tutoresPut = async (req = request, res = response) => {
 	
 	
 };
+
 const tutoresPost = async (req, res = response) => {
 	const {
 		Id,
@@ -89,6 +90,7 @@ const tutoresPost = async (req, res = response) => {
 		PasswordTutor,
 		Direccion,
 	} = req.body;
+	console.log(req.body);
 	const pass = PasswordTutor.toString()
 	const existe = await prisma.tutor.findUnique({ where: { Correo } });
 	if (existe) {

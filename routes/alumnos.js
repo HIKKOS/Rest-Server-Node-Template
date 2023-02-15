@@ -11,6 +11,7 @@ const { validarPaginacion, validarCampos,genderCheck, validarJWT } = require('..
 const { gradeCheck } = require('../middlewares/gradeCheck')
 
 const router = Router()
+
 router.get('/',[
     validarJWT,
     validarPaginacion, 
