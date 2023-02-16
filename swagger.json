@@ -1,0 +1,147 @@
+{
+	"swagger": "2.0",
+	"info": {
+		"version": "1.0.0",
+		"title": "PaySchool",
+		"description": "CRUD"
+	},
+
+	"securitySchemes": {
+		"bearerAuth": {
+			"type": "http",
+			"scheme": "bearer",
+			"bearerFormat": "JWT"
+		}
+	},
+
+	"security": [
+		{
+			"bearerAuth": []
+		}
+	],
+	"host": "localhost:8080",
+	"definitions": {
+		"_id": {
+			"type": "string",
+			"description": "Collection ID",
+			"example": "5c0728badc70ea3dec00d8e6"
+		},
+		"Id": {
+			"type": "string",
+			"description": "ID",
+			"example": "03190746-94c3-410f-9c69-d04c0ccde7ae"
+		},
+		"Nombres": {
+			"type": "string",
+			"description": "Nombre",
+			"example": "Luciano"
+		},
+		"Apellido Paterno": {
+			"type": "string",
+			"description": "Nombre",
+			"example": "Gomez"
+		},
+		"Apellido Materno": {
+			"type": "string",
+			"description": "Nombre",
+			"example": "Quintal"
+		},
+		"password": {
+			"type": "string",
+			"description": "User password",
+			"example": "1234"
+		},
+		"error": {
+			"type": "object",
+			"description": "Error data",
+			"properties": {
+				"msg": {
+					"type": "string",
+					"description": "Error message",
+					"example": "User not found"
+				}
+			}
+		},
+		"business_exception": {
+			"type": "array",
+			"description": "Error array",
+			"items": {
+				"$ref": "#/definitions/error"
+			}
+		}
+	},
+	"paths": {
+		"/api/tutores": {
+			"get": {
+				"tags": ["Tutores"],
+				"description": "Listar Tutores",
+				"produces": ["application/json"],
+				"parameters": [
+					{
+						"name": "Id",
+						"in": "query",
+						"type": "string",
+						"description": "Collection ID",
+						"example": "5c0728badc70ea3dec00d8e6",
+						"defaultValue": ""
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success"
+					},
+					"400": {
+						"description": "Business Exception",
+						"schema": {
+							"$ref": "#/definitions/business_exception"
+						}
+					},
+					"401": {
+						"description": "sin autorizacion Exceptio",
+						"schema": {
+							"$ref": "#/definitions/business_exception"
+						}
+					}
+				}
+			},
+			"post": {
+				"tags": ["Tutores"],
+				"description": "Create tutor",
+				"produces": ["application/json"],
+				"parameters": [
+					{
+						"name": "Tutor",
+						"required": ["Id", "Nombres", "Apellido Paterno"],
+						"in": "body",
+						"properties": {
+							"Id": {},
+							"Nombres": {},
+							"Apellido paterno": {},
+							"Apellido materno": {},
+							"Foto": {},
+							"Correo": {},
+							"Telefono": {},
+							"RFC": {},
+							"Direccion": {}
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success"
+					},
+					"400": {
+						"description": "Business Exception",
+						"schema": {
+							"$ref": "#/definitions/business_exception"
+						}
+					}
+				}
+			}
+		}
+	},
+
+	"schemes": ["http", "https"],
+	"consumes": ["application/json"],
+	"produces": ["application/json"]
+}

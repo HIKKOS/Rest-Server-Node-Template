@@ -1,11 +1,24 @@
 const { response, request } = require("express");
-
+const { v4: uuidv4 } = require('uuid');
 const bcryptjs = require("bcryptjs");
 const { PrismaClient } = require("@prisma/client");
 const { evaluarPagina } = require("../helpers/paginacion");
+const jwt = require('jsonwebtoken')
 const prisma = new PrismaClient();
 
 const tutoresGet = async (req = request, res = response) => {
+	const { Id = '' } = req.query
+	if(Id !== ''){
+		const tutor = await prisma.tutor.findUnique({
+			where: {
+				Id
+			}
+		})
+		if( !tutor ) {
+			return res.status(400).json(`no existe el tutor con id: ${Id}`) 	
+		}
+		return res.json({tutor})
+	}
 	const { page, limit } = req.query;
 	try {
 		const { skip, limite } = await evaluarPagina(page, limit);	
@@ -33,17 +46,17 @@ const tutoresGet = async (req = request, res = response) => {
 	}
 };
 const tutoresGetById = async (req = request, res = response) => {
-	const id = req.params.id;
-	const user = await prisma.tutor.findUnique({ where: { Id: Number(id) } });
+	const token = req.header('x-token')
+	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+	const user = await prisma.tutor.findUnique({ where: { Id } });
 	if (!user) {
 		return res.status(404).json({
-			msg: `no existe un tutor con el id ${id}`,
+			msg: `no existe un tutor con el id ${Id}`,
 		});
 	}
-
-	res.json({
-		id,
-		user,
+	const {CreatedAt, Activo, ...resto} = user 
+	return res.json({
+		Tutor: resto
 	});
 };
 const tutoresPut = async (req = request, res = response) => {
@@ -77,10 +90,8 @@ const tutoresPut = async (req = request, res = response) => {
 	
 	
 };
-
 const tutoresPost = async (req, res = response) => {
 	const {
-		Id,
 		Nombres,
 		ApellidoMaterno,
 		ApellidoPaterno,
@@ -90,7 +101,9 @@ const tutoresPost = async (req, res = response) => {
 		PasswordTutor,
 		Direccion,
 	} = req.body;
-	console.log(req.body);
+	
+	const Id = uuidv4() 
+
 	const pass = PasswordTutor.toString()
 	const existe = await prisma.tutor.findUnique({ where: { Correo } });
 	if (existe) {
@@ -106,6 +119,7 @@ const tutoresPost = async (req, res = response) => {
 			Correo,
 			Telefono,
 			RFC,
+			Foto: '',
 			PasswordTutor: bcryptjs.hashSync(pass, salt),
 			Direccion,
 		},
@@ -134,8 +148,8 @@ const tutoresDelete = async(req = request, res = response) => {
 }
 module.exports = {
 	tutoresGet,
+	tutoresGetById,
 	tutoresDelete,
 	tutoresPost,
 	tutoresPut,
-	tutoresGetById,
 };

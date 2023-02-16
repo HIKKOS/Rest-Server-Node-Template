@@ -70,8 +70,7 @@ const loginTutor = async (req = request, res = response) => {
 				msg: "usuario o contraseña invalidos",
 			});
 		}
-		const {Id,CreatedAt,Activo, PasswordTutor, ...resto } = user;
-
+		const {CreatedAt,Activo, PasswordTutor, ...resto } = user;
 		const tutor = resto
 		console.log(tutor)
 		//generar el JWT

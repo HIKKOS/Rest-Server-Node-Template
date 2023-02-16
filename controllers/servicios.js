@@ -1,6 +1,7 @@
 const { response, request } = require("express");
 const { PrismaClient } = require("@prisma/client");
 const { evaluarPagina } = require("../helpers/paginacion");
+const { v4: uuidv4 } = require('uuid');
 
 const prisma = new PrismaClient();
 const serviciosGetById = async (Id = '') => {	
@@ -71,6 +72,7 @@ const serviciosPost = async (req = request, res = response) => {
 	let { Nombre, Prioritario, Descripcion, FechaPago, Precio } = req.body;
 	Prioritario = Boolean(Prioritario)
 	Precio = Number(Precio);
+	const Id = uuidv4()
 	const servicio = await prisma.servicio.create({
 		data: {
 			Nombre,

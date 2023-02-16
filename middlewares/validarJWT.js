@@ -14,21 +14,11 @@ const validarJWT = async (req = request, res = response, next) => {
 		});
 	}
 	try {
-		const { Id, rol } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
-		if (req.baseUrl === "/api/buscar") {
-			return next();
-		}
-		if (req.baseUrl === "/api/pagos") {
-			return next();
-		}
-		if (rol !== "Administrador") {
-			return res.status(401).json({
-				msg: "no tienes permisos para realizar esta acción",
-			});
-		}
+		const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
 		req.id = Id;
-		const userAuth = await prisma.administrador.findUnique({ where: { Id } });
-		req.userAuth = userAuth;
+/* 		const admin = await prisma.administrador.findUnique({ where: { Id } });
+		const tutor = await prisma.tutor.findUnique({ where: { Id } });
+		req.userAuth = u; */
 		next();
 	} catch (error) {
         let msg = ''

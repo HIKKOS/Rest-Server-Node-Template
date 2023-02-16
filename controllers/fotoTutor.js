@@ -42,8 +42,11 @@ const MostrarImagenTutor = async (req = request, res = response) => {
 		return res.status(400).json({
 			msg: `No existe una el tutor con id ${IdTutor}`,
 		});
+	}	if ( !tutor.Foto ) {
+		const pathImagen = path.join(__dirname, "../assets/no-image.jpg");
+		return res.sendFile(pathImagen);
 	}
-	const pathImagen = path.join(__dirname, "../uploads/Tutores", tutor.Foto);
+	const pathImagen = path.join(__dirname, "../uploads/Tutores", tutor?.Foto);
     console.log(pathImagen);
 	if (!fs.existsSync(pathImagen)) {
 		const pathImagen = path.join(__dirname, "../assets/no-image.jpg");

@@ -24,10 +24,16 @@ model Tutor {
   CreatedAt       DateTime   @default(now())
   Tutorado        Alumno[]
   Pagos Pago[]
-  MetodoPago      MetodoPago @default(null)
+  MetodosdePago      MetodoPago[] 
   Activo Boolean @default(true)
 }
+model MetodoPago{
+  Id String @id
+  Nombre String 
+  TutorId String
+  Tutor Tutor @relation(fields: [TutorId], references: [Id] )
 
+}
 model Alumno {
   Id              String        @id
   Nombres         String     @db.VarChar(75)
@@ -43,13 +49,13 @@ model Alumno {
   Activo Boolean @default(true)
 }
 model ServiciosDelAlumno {
+  Id String @id
   AlumnoId    String
   ServicioId  String
   Alumno      Alumno     @relation(fields: [AlumnoId], references: [Id])
   Servicio    Servicio   @relation(fields: [ServicioId], references: [Id])
-  Pagado Boolean @default(false)
-  Monto Float 
-  @@id([AlumnoId, ServicioId])
+  Monto Float
+  VecesPagado Int @default(1)
 }
 model Servicio {
   Id          String        @id
@@ -63,20 +69,28 @@ model Servicio {
   Alumno      ServiciosDelAlumno[] 
   Pago Pago[]    
   Activo Boolean @default(true)
+  FrecuenciaDePago Frecuencia @default(MENSUAL)
+}
+enum Frecuencia {
+  SEMANAL
+  MENSUAL
+  BIMESTRAL
+  SEMESTRAL
+  ANUAL
 }
 model Pago {
+  Folio Int @id @default(autoincrement())
   Servicio    Servicio  @relation(fields: [ServicioId], references: [Id])
   ServicioId  String
   Tutor       Tutor     @relation(fields: [TutorId], references: [Id])
   TutorId     String
-  AlumnoId    Int
+  AlumnoId    String
   FechaPago   DateTime   @default(now())
-  Precio      Float     
+  Monto      Float     
   Facturar Boolean @default(false) 
-  @@id([ServicioId, TutorId, AlumnoId])
 }
 model Administrador {
-  Id              Int    @id @default(autoincrement())
+  Id              String @id
   Nombres         String @db.VarChar(75)
   ApellidoMaterno String @db.VarChar(75)
   ApellidoPaterno String? @db.VarChar(75)
@@ -90,14 +104,4 @@ model ImgPaths {
   ServicioId   String
   Path     String
   Servicio Servicio? @relation(fields: [ServicioId], references: [Id])
-}
-
-enum MetodoPago {
-  PayPal
-  null
-}
-
-enum Genero {
-  MASCULINO
-  FEMENINO
 }
