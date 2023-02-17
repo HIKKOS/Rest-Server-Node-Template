@@ -2,10 +2,8 @@ const { response, request } = require("express");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const getPagosById = async(req = request, res = response) => {
-	const { TutorId } = req.params
-	console.log(TutorId);	
-	const Tutor = await prisma.Tutor.findUnique( {where: { Id: TutorId }})
-	console.log(Tutor);
+	const { TutorId = '' } = req.params
+	const Tutor = await prisma.tutor.findUnique( {where: { Id: TutorId }})
 	if( !Tutor ) {
 		return res.status(400).json(`no existe el tutor con id: ${TutorId}`)
 	}
@@ -13,8 +11,8 @@ const getPagosById = async(req = request, res = response) => {
 	const pagosFormat = []
 	for (const pago of pagos) {
 		const Servicio = await prisma.servicio.findUnique( {where: { Id: pago.ServicioId }, select: { Nombre:true }})
-		const Tutor = await prisma.Tutor.findUnique( {where: { Id: pago.TutorId }, select: { Nombres:true, ApellidoPaterno: true, ApellidoMaterno:true }})
-		const Alumno = await prisma.Alumno.findUnique( {where: { Id: pago.AlumnoId }, select: { Nombres:true, ApellidoPaterno: true, ApellidoMaterno:true }})
+		const Tutor = await prisma.tutor.findUnique( {where: { Id: pago.TutorId }, select: { Nombres:true, ApellidoPaterno: true, ApellidoMaterno:true }})
+		const Alumno = await prisma.alumno.findUnique( {where: { Id: pago.AlumnoId }, select: { Nombres:true, ApellidoPaterno: true, ApellidoMaterno:true }})
 		pagosFormat.push(
 			{
 				Folio: pago.Folio,

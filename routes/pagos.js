@@ -6,16 +6,16 @@ const { validarJWT } = require('../middlewares/validarJWT')
 const { getPagos, postPagos, getPagosById } = require('../controllers/pagos')
 
 const router = Router()
-
-router.get('/',[
-    validarJWT,    
-    validarCampos
-], getPagos)
 router.get('/:TutorId',[
     validarJWT,  
     check('TutorId', 'se requiere este campo').notEmpty(),  
     validarCampos
 ], getPagosById)
+router.get('/',[
+    validarJWT,    
+    validarCampos
+], getPagos)
+
 router.post('/',[
     validarJWT,  
     check('TutorId','se requiere este campo').notEmpty(),  

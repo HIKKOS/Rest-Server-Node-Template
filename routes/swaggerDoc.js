@@ -9,6 +9,30 @@
  *  security:
  *     - JWT: [] 
  *  schemas:
+ *    Pago: 
+ *      type: object
+ *      properties:
+ *        TutorId:
+ *          type: string
+ *          description: id del tutor
+ *        AlumnoId:
+ *          type: string
+ *          description: id del alumno
+ *        ServicioId:
+ *          type: string
+ *          description: id del servicio
+ *        Facturar:
+ *          type: string
+ *          description: badera para saber si se requiere facturo
+ *      required: 
+ *        - TutorId
+ *        - AlumnoId
+ *        - ServicioId
+ *      example:
+ *        TutorId: 0a83b1cb-489d-4d62-99a7-c2c045fad290
+ *        AlumnoId: 30635ed2-4795-4c66-97d6-5195a1df3931
+ *        ServicioId: 18763168-815f-4c7f-9d48-2f3f723f781b
+ *        Facturar: true
  *    Alumno:
  *      type: object
  *      properties:
@@ -233,8 +257,54 @@
  *       - JWT: [] 
  *     summary: Elimina un tutor 
  *     description: Elimina un tutor 
+ * /api/fotos/{TutorId}:
+ *   get:
+ *     security:
+ *       - JWT: [] 
+ *     summary: obtiene la foto del tutor
+ *     tags: [Foto de tutor]
+ *     parameters:
+ *       - name: TutorId
+ *         in: path
+ *         description: ID del tutor
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: devuelve la foto del tutor 
+ *         content: 
+ *           image/png:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description:  foto no encontrada 
+ *   post:
+ *     security:
+ *       - JWT: [] 
+ *     summary: cambia la foto del tutor
+ *     tags: [Foto de tutor]
+ *     requestBody:
+ *       required: true
+ *       content: 
+ *         image/png:
+ *           schema:
+ *             type: string
+ *             format: binary
+ *     parameters:
+ *       - name: TutorId
+ *         in: path
+ *         description: ID del tutor
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *          description: foto actualizada 
+ *       400:
+ *         description:  foto no actualizada 
  * /api/alumnos:
- *   
  *   post:
  *     security:
  *       - JWT: [] 
@@ -287,7 +357,7 @@
  *   get:
  *     tags:
  *       - alumno
- *     summary: Busca alumno por Id,busca los  trae todos
+ *     summary: Busca alumno por Id o devuelve todos
  *     description: Returna un alumno
  *     operationId: getTutorById
  *     parameters:
@@ -310,6 +380,68 @@
  *         description: alumno no encontrado
  *     security:
  *       - JWT: []
+ * /api/buscar:
+ *   get:
+ *     security:
+ *       - JWT: [] 
+ *     summary: buscar uno o más servicios
+ *     tags: [Busqueda]
+ *     parameters:
+ *       - name: Servicio
+ *         in: query
+ *         description: nombre del servicio
+ *         required: false
+ *         schema:
+ *           type: string
+ *            
+ *     responses:
+ *       200:
+ *          description: servicios pagado
+ *       400:
+ *         description: error de solicitud
+ * /api/pagos:
+ *   post:
+ *     security:
+ *       - JWT: [] 
+ *     summary: registra un pago
+ *     tags: [Pagos]
+ *     requestBody:
+ *       required: true
+ *       content: 
+ *         application/json:
+ *           schema:
+ *             type: object          
+ *             $ref: '#/components/schemas/Pago'
+ *     responses:
+ *       200:
+ *          description: servicios pagado
+ *       400:
+ *         description: error de solicitud
+ *   get:
+ *     tags:
+ *       - Pagos
+ *     summary: Busca los pagos relacionados con el tutor
+ *     description: Returna una lista de pagos
+ *     parameters:
+ *       - name: TutorId
+ *         in: params
+ *         description: ID del tutor
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: successful operation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Pago'          
+ *       '400':
+ *         description: ID no valido
+ *       '404':
+ *         description: Tutor no encontrado
+ *     security:
+ *       - JWT: [] 
  * /api/servicios:
  *   post:
  *     security:
