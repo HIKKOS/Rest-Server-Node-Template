@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,98 +7,115 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Tutor {
-  Id              String        @id
-  Nombres         String     @db.VarChar(75)
-  ApellidoMaterno String     @db.VarChar(75)
-  ApellidoPaterno String?      @db.VarChar(75)
-  Foto String? @db.VarChar(75)
-  Correo          String     @unique @db.VarChar(255)
-  Telefono        String     @unique @db.VarChar(20)
-  RFC             String?     @unique @db.VarChar(15)
-  PasswordTutor   String     @db.VarChar(255)
-  Direccion       String?     @db.VarChar(150)
-  CreatedAt       DateTime   @default(now())
-  Tutorado        Alumno[]
-  Pagos Pago[]
-  MetodosdePago      MetodoPago[] 
-  Activo Boolean @default(true)
+model administrador {
+  Id              String  @id
+  Nombres         String  @db.VarChar(75)
+  ApellidoMaterno String  @db.VarChar(75)
+  ApellidoPaterno String? @db.VarChar(75)
+  Correo          String  @unique(map: "Administrador_Correo_key") @db.VarChar(255)
+  PasswordAdmin   String  @db.VarChar(255)
+  Activo          Boolean @default(true)
 }
-model MetodoPago{
-  Id String @id
-  Nombre String 
-  TutorId String
-  Tutor Tutor @relation(fields: [TutorId], references: [Id] )
 
+model alumno {
+  Id                 String               @id
+  Nombres            String               @db.VarChar(75)
+  ApellidoMaterno    String               @db.VarChar(75)
+  ApellidoPaterno    String?              @db.VarChar(75)
+  Grado              Int                  @default(1)
+  Grupo              String               @default("A") @db.VarChar(20)
+  Genero             Int
+  CreatedAt          DateTime             @default(now())
+  TutorId            String?
+  Activo             Boolean              @default(true)
+  tutor              tutor?               @relation(fields: [TutorId], references: [Id], map: "Alumno_TutorId_fkey")
+  serviciosdelalumno serviciosdelalumno[]
+
+  @@index([TutorId], map: "Alumno_TutorId_fkey")
 }
-model Alumno {
-  Id              String        @id
-  Nombres         String     @db.VarChar(75)
-  ApellidoMaterno String     @db.VarChar(75)
-  ApellidoPaterno String?     @db.VarChar(75)
-  Servicios        ServiciosDelAlumno[]
-  Grado           Int        @default(1)
-  Grupo           String     @default("A") @db.VarChar(20)
-  Genero          Int    
-  CreatedAt       DateTime   @default(now())
-  Padre           Tutor?     @relation(fields: [TutorId], references: [Id])
-  TutorId         String? 
-  Activo Boolean @default(true)
+
+model imgpaths {
+  Id         Int      @id @default(autoincrement())
+  ServicioId String
+  Path       String
+  servicio   servicio @relation(fields: [ServicioId], references: [Id], map: "ImgPaths_ServicioId_fkey")
+
+  @@index([ServicioId], map: "ImgPaths_ServicioId_fkey")
 }
-model ServiciosDelAlumno {
-  Id String @id
+
+model metodopago {
+  Id      String @id
+  Nombre  String
+  TutorId String
+  tutor   tutor  @relation(fields: [TutorId], references: [Id], map: "MetodoPago_TutorId_fkey")
+
+  @@index([TutorId], map: "MetodoPago_TutorId_fkey")
+}
+
+model pago {
+  Folio      Int      @id @default(autoincrement())
+  ServicioId String
+  TutorId    String
+  AlumnoId   String
+  FechaPago  DateTime @default(now())
+  Facturar   Boolean  @default(false)
+  Monto      Float
+  servicio   servicio @relation(fields: [ServicioId], references: [Id], map: "Pago_ServicioId_fkey")
+  tutor      tutor    @relation(fields: [TutorId], references: [Id], map: "Pago_TutorId_fkey")
+
+  @@index([ServicioId], map: "Pago_ServicioId_fkey")
+  @@index([TutorId], map: "Pago_TutorId_fkey")
+}
+
+model servicio {
+  Id                 String                    @id
+  Nombre             String                    @db.VarChar(75)
+  Prioritario        Boolean                   @default(true)
+  Descripcion        String                    @db.VarChar(500)
+  FechaPago          Int
+  Precio             Float                     @default(0)
+  Activo             Boolean                   @default(true)
+  FrecuenciaDePago   servicio_FrecuenciaDePago @default(MENSUAL)
+  imgpaths           imgpaths[]
+  pago               pago[]
+  serviciosdelalumno serviciosdelalumno[]
+}
+
+model serviciosdelalumno {
+  Id          String   @id
   AlumnoId    String
   ServicioId  String
-  Alumno      Alumno     @relation(fields: [AlumnoId], references: [Id])
-  Servicio    Servicio   @relation(fields: [ServicioId], references: [Id])
-  Monto Float
-  VecesPagado Int @default(1)
+  Monto       Float
+  VecesPagado Int      @default(1)
+  alumno      alumno   @relation(fields: [AlumnoId], references: [Id], map: "ServiciosDelAlumno_AlumnoId_fkey")
+  servicio    servicio @relation(fields: [ServicioId], references: [Id], map: "ServiciosDelAlumno_ServicioId_fkey")
+
+  @@index([AlumnoId], map: "ServiciosDelAlumno_AlumnoId_fkey")
+  @@index([ServicioId], map: "ServiciosDelAlumno_ServicioId_fkey")
 }
-model Servicio {
-  Id          String        @id
-  Nombre      String     @db.VarChar(75)
-  Prioritario Boolean    @default(true)
-  Imagenes    ImgPaths[]
-  Descripcion String     @db.VarChar(500)
-  //TODO: Fecha corte
-  FechaPago   Int   
-  Precio      Float      @default(0.0)
-  Alumno      ServiciosDelAlumno[] 
-  Pago Pago[]    
-  Activo Boolean @default(true)
-  FrecuenciaDePago Frecuencia @default(MENSUAL)
+
+model tutor {
+  Id              String       @id
+  Nombres         String       @db.VarChar(75)
+  ApellidoMaterno String       @db.VarChar(75)
+  ApellidoPaterno String?      @db.VarChar(75)
+  Foto            String?      @db.VarChar(75)
+  Correo          String       @unique(map: "Tutor_Correo_key") @db.VarChar(255)
+  Telefono        String       @unique(map: "Tutor_Telefono_key") @db.VarChar(20)
+  RFC             String?      @unique(map: "Tutor_RFC_key") @db.VarChar(15)
+  PasswordTutor   String       @db.VarChar(255)
+  Direccion       String?      @db.VarChar(150)
+  CreatedAt       DateTime     @default(now())
+  Activo          Boolean      @default(true)
+  alumno          alumno[]
+  metodopago      metodopago[]
+  pago            pago[]
 }
-enum Frecuencia {
+
+enum servicio_FrecuenciaDePago {
   SEMANAL
   MENSUAL
   BIMESTRAL
   SEMESTRAL
   ANUAL
-}
-model Pago {
-  Folio Int @id @default(autoincrement())
-  Servicio    Servicio  @relation(fields: [ServicioId], references: [Id])
-  ServicioId  String
-  Tutor       Tutor     @relation(fields: [TutorId], references: [Id])
-  TutorId     String
-  AlumnoId    String
-  FechaPago   DateTime   @default(now())
-  Monto      Float     
-  Facturar Boolean @default(false) 
-}
-model Administrador {
-  Id              String @id
-  Nombres         String @db.VarChar(75)
-  ApellidoMaterno String @db.VarChar(75)
-  ApellidoPaterno String? @db.VarChar(75)
-  Correo          String @unique @db.VarChar(255)
-  PasswordAdmin   String @db.VarChar(255)
-  Activo Boolean @default(true)
-}
-
-model ImgPaths {
-  Id       Int      @id @default(autoincrement())
-  ServicioId   String
-  Path     String
-  Servicio Servicio? @relation(fields: [ServicioId], references: [Id])
 }
