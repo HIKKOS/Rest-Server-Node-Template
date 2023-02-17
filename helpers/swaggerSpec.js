@@ -6,10 +6,10 @@ const swaggerSpec = {
 			title: "API PaySchool",
 			version: "1.0.0",
 		},
-		host: "localhost:3000",
+		host: "Producción",
 		servers: [
 			{
-				url: "http://localhost:8080",
+				url: "https://rest-server-node-production-1503.up.railway.app",
 				description: 'Local server',
 			},
 		],
