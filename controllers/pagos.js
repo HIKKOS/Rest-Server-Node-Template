@@ -3,6 +3,12 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const getPagosById = async(req = request, res = response) => {
 	const { TutorId } = req.params
+	console.log(TutorId);	
+	const Tutor = await prisma.Tutor.findUnique( {where: { Id: TutorId }})
+	console.log(Tutor);
+	if( !Tutor ) {
+		return res.status(400).json(`no existe el tutor con id: ${TutorId}`)
+	}
 	const pagos = await prisma.pago.findMany( {where: {TutorId } } );
 	const pagosFormat = []
 	for (const pago of pagos) {

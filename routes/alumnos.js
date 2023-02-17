@@ -19,7 +19,7 @@ router.get('/',[
 ], alumnosGet )
 router.put('/:Id',[
     validarJWT,
-    check('Id','Debe ser numerico').isNumeric(),
+    check('Id','ser requiere este campo').notEmpty(),
     check('Nombres','no se recibieron datos').not().isEmpty(),
     check('ApellidoMaterno','no se recibieron datos').not().isEmpty(),
     check('ApellidoPaterno','no se recibieron datos').not().isEmpty(),

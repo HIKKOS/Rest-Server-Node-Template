@@ -17,7 +17,8 @@ const tutoresGet = async (req = request, res = response) => {
 		if( !tutor ) {
 			return res.status(400).json(`no existe el tutor con id: ${Id}`) 	
 		}
-		return res.json({tutor})
+		const {CreatedAt, Activo,PasswordTutor , ...resto} = tutor
+		return res.json({data: resto})
 	}
 	const { page, limit } = req.query;
 	try {
@@ -44,20 +45,6 @@ const tutoresGet = async (req = request, res = response) => {
 			error,
 		});
 	}
-};
-const tutoresGetById = async (req = request, res = response) => {
-	const token = req.header('x-token')
-	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
-	const user = await prisma.tutor.findUnique({ where: { Id } });
-	if (!user) {
-		return res.status(404).json({
-			msg: `no existe un tutor con el id ${Id}`,
-		});
-	}
-	const {CreatedAt, Activo, ...resto} = user 
-	return res.json({
-		Tutor: resto
-	});
 };
 const tutoresPut = async (req = request, res = response) => {
 	const { id } = req.params;
@@ -146,10 +133,33 @@ const tutoresDelete = async(req = request, res = response) => {
 	
 
 }
+const getTutorados = async(req, res) => {
+	const { TutorId = '' } = req.query
+	if(TutorId !== ''){
+		const Alumnos = await prisma.alumno.findMany({
+			where: {
+				TutorId,
+				Activo: true
+			}
+		})
+		if( Alumnos.length <= 0 ) {
+			return res.status(404).json("no tienes tutorados")
+		}
+		const data = Alumnos.map( a => {
+			const {CreatedAt, Activo, ...resto} = a
+			return resto
+		})
+		return res.json({tutorados:data})
+	}
+	return res.status(400).json({
+		msg: 'no se recibio el parametro Tutor Id en el query'
+	})
+	
+}
 module.exports = {
 	tutoresGet,
-	tutoresGetById,
 	tutoresDelete,
 	tutoresPost,
+	getTutorados,
 	tutoresPut,
 };

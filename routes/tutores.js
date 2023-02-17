@@ -1,16 +1,13 @@
 const { Router } = require("express");
 const { check } = require("express-validator");
-const {
-	verifyAdminRole,
-	verifyUserRole,
-} = require("../middlewares/verifyRole");
+
 
 const {
 	tutoresGet,
-	tutoresGetById,
 	tutoresPost,
 	tutoresPut,
 	tutoresDelete,
+	getTutorados
 } = require("../controllers/tutores");
 const {
 	validarPaginacion,
@@ -20,13 +17,20 @@ const {
 const router = Router();
 router.get(
 	"/",
-	[validarJWT, verifyAdminRole, validarPaginacion, validarCampos],
+	//! roles verificar
+	[validarJWT, validarPaginacion, validarCampos],
 	tutoresGet,
 );
 router.get(
+	"/Tutorados",
+	//! roles verificar
+	[validarJWT, validarPaginacion, validarCampos],
+	getTutorados,
+);
+router.get(
 	"/getInfo",
-	[validarJWT, verifyUserRole, validarPaginacion, validarCampos],
-	tutoresGetById,
+	[validarJWT, validarPaginacion, validarCampos],
+	tutoresGet,
 );
 router.put(
 	"/:id",

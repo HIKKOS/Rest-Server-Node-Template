@@ -128,11 +128,10 @@
  *        Correo: "juan@gmail.com"
  *        Telefono: "1234567890"
  *        PasswordTutor: "abc12345"
- * /api/tutores:
+ * 
+ * /api/login/tutor:
  *   post:
- *     security:
- *       - JWT: [] 
- *     summary: crear tutor
+ *     summary: Login del tutor
  *     tags: [Tutor]
  *     requestBody:
  *       required: true
@@ -140,7 +139,62 @@
  *         application/json:
  *           schema:
  *             type: object
- *             $ref: '#/components/schemas/Tutor'
+ *             properties:
+ *               Correo:
+ *                 type: string
+ *                 description: direccion del tutor
+ *               PasswordTutor:
+ *                 type: string
+ *                 description: contraseña del tutor
+ *             example:
+ *               Correo: "fbohlingt@pinterest.com"
+ *               Password:  "12345678"
+ *     responses:
+ *       200:
+ *          description: login correcto
+ *       400:
+ *         description: usuario o contraseña invalidos
+ *             
+ * /api/tutores:
+ *   get:
+ *     tags:
+ *       - Tutor
+ *     summary: Busca tutor por Id o trae todos
+ *     description: Returna un tutor
+ *     operationId: getTutorById
+ *     parameters:
+ *       - name: Id
+ *         in: query
+ *         description: ID del tutor
+ *         required: false
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: successful operation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Tutor'          
+ *       '400':
+ *         description: ID no valido
+ *       '404':
+ *         description: Tutor no encontrado
+ *     security:
+ *       - JWT: [] 
+ *
+ *   post:
+ *     security:
+ *       - JWT: [] 
+ *     summary: crea un tutor
+ *     tags: [Tutor]
+ *     requestBody:
+ *       required: true
+ *       content: 
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             
  *     responses:
  *       200:
  *          description: tutor creado
@@ -179,33 +233,8 @@
  *       - JWT: [] 
  *     summary: Elimina un tutor 
  *     description: Elimina un tutor 
- *   get:
- *     tags:
- *       - Tutor
- *     summary: Busca tutor por Id o trae todos
- *     description: Returna un tutor
- *     operationId: getTutorById
- *     parameters:
- *       - name: Id
- *         in: query
- *         description: ID del tutor
- *         required: false
- *         schema:
- *           type: string
- *     responses:
- *       '200':
- *         description: successful operation
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Tutor'          
- *       '400':
- *         description: ID no valido
- *       '404':
- *         description: Tutor no encontrado
- *     security:
- *       - JWT: [] 
  * /api/alumnos:
+ *   
  *   post:
  *     security:
  *       - JWT: [] 
@@ -254,11 +283,11 @@
  *       - JWT: []
  *     tags: [alumno]
  *     summary: Elimina un  alumno 
- *     description: Elimina un  alumno 
+ *     description: Elimina un  alumno *   
  *   get:
  *     tags:
  *       - alumno
- *     summary: Busca alumno por Id o trae todos
+ *     summary: Busca alumno por Id,busca los  trae todos
  *     description: Returna un alumno
  *     operationId: getTutorById
  *     parameters:

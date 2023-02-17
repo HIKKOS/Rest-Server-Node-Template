@@ -5,6 +5,20 @@ const { evaluarPagina } = require("../helpers/paginacion");
 const { reduceName } = require("../helpers/reduceName");
 const prisma = new PrismaClient();
 const alumnosGet = async (req = request, res = response) => {
+	
+	const { AlumnoId = '' } = req.query
+	if( AlumnoId !== ''){
+		const Alumno = await prisma.alumno.findUnique({
+			where: {
+				Id: AlumnoId
+			}
+		})
+		if( !Alumno ) {
+			return res.status(400).json(`no existe el alumno con id: ${Id}`)
+		}
+	}
+	
+	
     let { show = 'active' } = req.query
     if( show !== 'active'){
         show = 'disabled'
@@ -29,7 +43,6 @@ const alumnosGet = async (req = request, res = response) => {
 	});
 };
 const alumnosPut = async (req = request, res = response) => {
-
 	let alumno = {};
     const { Id } = req.params
 	const {
@@ -52,18 +65,13 @@ const alumnosPut = async (req = request, res = response) => {
 			Genero: Genero === 0 ? 0 : 1,
 		};
 	} else {
-        if(isNaN(TutorId)){
-            return res.status(400).json({
-                msg: `Tutor Id debe ser numerico y se obtuvo: ${TutorId}`
-            })
-        }
-        const tutor = await prisma.tutor.findUnique({ where: { Id:Numer(TutorId) } })
+        const tutor = await prisma.tutor.findUnique({ where: { Id:(TutorId) } })
         if(!tutor){
             return res.status(400).json({ msg: `No existe el tutor con id ${TutorId}`})
         }
         alumno = {
-            TutorId:Number(TutorId),
-			Nombres: nombre,
+            TutorId:TutorId,
+			Nombres,
 			ApellidoMaterno,
 			ApellidoPaterno,
 			Grado: Number(Grado),
@@ -71,7 +79,7 @@ const alumnosPut = async (req = request, res = response) => {
 			Genero: Genero === 0 ? 0 : 1,
 		};
     }
-    const resp = await prisma.alumno.update({ where: { Id:Number(Id) }, data: alumno })
+    const resp = await prisma.alumno.update({ where: { Id:(Id) }, data: alumno })
     return res.json({
         resp
     })
