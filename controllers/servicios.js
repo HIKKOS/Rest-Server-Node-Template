@@ -75,6 +75,7 @@ const serviciosPost = async (req = request, res = response) => {
 	const Id = uuidv4()
 	const servicio = await prisma.servicio.create({
 		data: {
+			Id,
 			Nombre,
 			Prioritario,
 			Descripcion,

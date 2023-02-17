@@ -72,6 +72,7 @@
  *        ApellidoMaterno: "Aguilar"
  *        ApellidoPaterno: "Perez"
  *        Grado: "5"
+ *        Genero: 0
  *        Grupo: "A"
  *    Servicio:
  *      type: object
@@ -217,7 +218,7 @@
  *       content: 
  *         application/json:
  *           schema:
- *             type: object
+ *             $ref: '#/components/schemas/Tutor'   
  *             
  *     responses:
  *       200:
