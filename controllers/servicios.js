@@ -52,6 +52,9 @@ const serviciosGet = async (req = request, res = response) => {
 			const Id = PathsArray.map((p) => {
 				return p.Id;
 			});
+			if(PathsArray.length >= 0){
+				servicios[i].ImgIds = '';				
+			}
 			servicios[i].ImgIds = Id;
 		}
 		const total = await prisma.servicio.count();
