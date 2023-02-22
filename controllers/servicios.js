@@ -52,6 +52,10 @@ const serviciosGet = async (req = request, res = response) => {
 				return p.Id;
 			});
 			Servicio.ImgIds = Id;		
+			if(PathsArray.length >= 0){
+				servicios[i].ImgIds = '';				
+			}
+			servicios[i].ImgIds = Id;
 		}
 
 		const total = await prisma.Servicio.count();
@@ -73,6 +77,7 @@ const serviciosPost = async (req = request, res = response) => {
 	const Id = uuidv4()
 	const Servicio = await prisma.Servicio.create({
 		data: {
+			Id,
 			Nombre,
 			Prioritario,
 			Descripcion,
