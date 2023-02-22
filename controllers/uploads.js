@@ -1,5 +1,6 @@
 const  path  = require('path')
 const  fs  = require('fs')
+const { v4: uuidv4 } = require('uuid');
 
 const { response, request } = require("express")
 const { uploadFile } = require("../helpers")
@@ -9,17 +10,18 @@ const prisma = new PrismaClient()
 
 const cargarArchivo = async (req = require, res = response) => {
     let { ServicioId } = req.params
-    const servicio = await prisma.servicio.findUnique( { where: { Id: ServicioId } } )
+    const Servicio = await prisma.Servicio.findUnique( { where: { Id: ServicioId } } )
     try {
-        const dir = await uploadFile(req.files, undefined, servicio.Id)
-        const archivo = await prisma.imgPaths.create({
+        const dir = await uploadFile(req.files, undefined, Servicio.Id)
+        const archivo = await prisma.ImgPaths.create({
             data : { 
+                Id: uuidv4(),
                 Path: dir,
-                ServicioId: (servicio.Id)
+                ServicioId: (Servicio.Id)
             }
         })
         res.status(201).json({ 
-            msg:`se subio la foto ${ archivo.Id } del servicio: ${servicio.Nombre} `
+            msg:`se subio la foto ${ archivo.Id } del Servicio: ${Servicio.Nombre} `
         })
     } catch (error) {
         console.log(error);
@@ -28,11 +30,11 @@ const cargarArchivo = async (req = require, res = response) => {
 }
 const actualizarImagen = async( req = request, res = response ) => {
     const { Id, ServicioId } = req.params    
-    const Servicio = await prisma.servicio.findUnique( { where: { Id: ServicioId } } )   
-    const imgPath = await prisma.imgPaths.findUnique({ where : { Id: Number(Id) } })
+    const Servicio = await prisma.Servicio.findUnique( { where: { Id: ServicioId } } )   
+    const imgPath = await prisma.ImgPaths.findUnique({ where : { Id: Number(Id) } })
     try {
         const nombre = await uploadFile(req.files, undefined, ServicioId)
-        await prisma.imgPaths.update({ 
+        await prisma.ImgPaths.update({ 
             data:{
                 Path: nombre
             },
@@ -54,9 +56,8 @@ const actualizarImagen = async( req = request, res = response ) => {
     
 }
 const MostrarImagen = async (req = request, res = response ) => {
-    const { ServicioId, Id } = req.params        
-    
-    const img = await prisma.imgPaths.findUnique({ where: { Id: Number(Id) } })
+    const { ServicioId, Id } = req.params            
+    const img = await prisma.ImgPaths?.findUnique({ where: { Id } })
     if( !img ){
         return res.status(400).json({
             msg:`No existe una imagen con id ${Id}`
@@ -72,13 +73,13 @@ const MostrarImagen = async (req = request, res = response ) => {
 }
 const deleteImagen = async (req = request, res = response) => {
     const { Id, ServicioId } = req.params
-    const servicio = await prisma.servicio.findUnique( { where : { Id: ServicioId } } )
-    if(!servicio){
+    const Servicio = await prisma.Servicio.findUnique( { where : { Id: ServicioId } } )
+    if(!Servicio){
         return res.status(400).json({
-            msg: `No existe el servicio con el id: ${ServicioId}`
+            msg: `No existe el Servicio con el id: ${ServicioId}`
         })
     }
-    let imgs = await prisma.imgPaths.findMany({
+    let imgs = await prisma.ImgPaths.findMany({
         where: { ServicioId: (ServicioId) }
     })
     const paths = imgs
@@ -97,9 +98,9 @@ console.log(imgs);
             fs.rm(pathImagen)
         }
     })
-    await prisma.imgPaths.delete({ where: { Id: Number(Id) } })
+    await prisma.ImgPaths.delete({ where: { Id: Number(Id) } })
     res.json({
-       msg: `Se  borro la foto con id: ${Id} del serivicio ${servicio.Nombre}`
+       msg: `Se  borro la foto con id: ${Id} del serivicio ${Servicio.Nombre}`
     })
 
 }

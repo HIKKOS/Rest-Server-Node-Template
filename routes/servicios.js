@@ -23,8 +23,8 @@ router.post('/',[
     validarJWT,
     check('Nombre').custom( ExisteNombreServicio ).isLength({min:1}),
     check('Descripcion','Se requiere este campo').isLength({min:1}),
-    check('Prioritario','De ser booleano (true/false 1/0)').isBoolean(),
-    check('Precio','Debe ser numerico y mayor a 0').not().isIn([0]).isNumeric().isLength({min:1}),
+    check('Cancelable','De ser booleano (true/false 1/0)').isBoolean(),
+    check('Costo','Debe ser numerico y mayor a 0').not().isIn([0]).isNumeric().isLength({min:1}),
     validarCampos,
 ] ,serviciosPost)
 
@@ -32,8 +32,8 @@ router.put('/:Id',[
     validarJWT,
     check('Nombre','no debe ser vacio').notEmpty(),
     check('Descripcion','Se requiere este campo').notEmpty(),
-    check(['Prioritario'],'De ser booleano (true/false 1/0)').isBoolean(),
-    check('Precio','Debe ser numerico').isNumeric(),
+    check(['Cancelable'],'De ser booleano (true/false 1/0)').isBoolean(),
+    check('Costo','Debe ser numerico').isNumeric(),
     check('Id','No existe').custom(  ExisteServicio ),
     validarCampos
 ],serviciosPut)

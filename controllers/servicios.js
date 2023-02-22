@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const prisma = new PrismaClient();
 const serviciosGetById = async (Id = '') => {	
-	return servicio
+	return Servicio
 }
 const serviciosGet = async (req = request, res = response) => {
 	const { page, limit } = req.query;
@@ -17,49 +17,47 @@ const serviciosGet = async (req = request, res = response) => {
     }
 	try {
 		if(Id !== ''){
-			const servicio = await prisma.servicio.findUnique({
+			const Servicio = await prisma.Servicio.findUnique({
 				where: {
 					Id:Id 
 				},
 			});
-			const PathsArray = await prisma.imgPaths.findMany({
-				where: { ServicioId : servicio.Id },
+			const PathsArray = await prisma.ImgPaths.findMany({
+				where: { ServicioId : Servicio.Id },
 			});
-				const ImgId = PathsArray.map((p) => {
-					return p.Id;
-				});
-				servicio.ImgIds = ImgId;
+			const ImgId = PathsArray.map((p) => {
+				return p.Id;
+			});
+			Servicio.ImgIds = ImgId;
 			
-			if(!servicio) {
-				return res.status(400).json({msg: 'No existe ese servicio'})
+			if(!Servicio) {
+				return res.status(400).json({msg: 'No existe ese Servicio'})
 			}
-			return res.json(servicio)
+			return res.json(Servicio)
 		}
 		const { skip, limite } = await evaluarPagina(page, limit);
-		const servicios = await prisma.servicio.findMany({
+		const Servicios = await prisma.Servicio.findMany({
 			skip,
 			take: limite,
 			where: {
 				Activo: show === 'active' ? true : false,
 			}
 		});		
-		
-		for (let i = 0; i < servicios.length; i++) {
-			const ServicioId = servicios[i].Id;
-			const PathsArray = await prisma.imgPaths.findMany({
+		for (const Servicio of Servicios) {
+			const ServicioId = Servicio.Id;
+			const PathsArray = await prisma.ImgPaths.findMany({
 				where: { ServicioId },
 			});
-			const Id = PathsArray.map((p) => {
+			const Id = PathsArray.map( (p) => {
 				return p.Id;
 			});
-			servicios[i].ImgIds = Id;
+			Servicio.ImgIds = Id;		
 		}
-		const total = await prisma.servicio.count();
-		const query = req.query
 
+		const total = await prisma.Servicio.count();
 		res.json({
 			total,
-			servicios,
+			Servicios,
 		});
 	} catch (error) {
 		console.log(error);
@@ -73,7 +71,7 @@ const serviciosPost = async (req = request, res = response) => {
 	Prioritario = Boolean(Prioritario)
 	Precio = Number(Precio);
 	const Id = uuidv4()
-	const servicio = await prisma.servicio.create({
+	const Servicio = await prisma.Servicio.create({
 		data: {
 			Nombre,
 			Prioritario,
@@ -83,31 +81,31 @@ const serviciosPost = async (req = request, res = response) => {
 		},
 	});
 	res.json({
-		msg: "serviciosPost - controlador",
-		servicio,
+		msg: "ServiciosPost - controlador",
+		Servicio,
 	});
 };
 const serviciosPut = async (req = request, res = response) => {
 	const { Id } = req.params;	
 	const data = req.body;
 	console.log(data);
-	data.Precio = Number(data.Precio)
-	data.Prioritario === 0 ? data.Prioritario = false : true
-	data.Prioritario = Boolean(!data.Prioritario) 
+	data.Costo = Number(data.Costo)
+	data.Cancelable = Boolean(data.Cancelable)
 
-	const serv = await prisma.servicio.update({
+
+	const serv = await prisma.Servicio.update({
 		data,
 		where: { Id },
 	});
 	return res.json({
-		servicio: serv,
+		Servicio: serv,
 	});
 };
 const serviciosDel = async (req = request, res = response) => {
 	const { Id } = req.params;
-	const servicio = await prisma.servicio.delete({ where: { Id: Number(Id) } });
+	const Servicio = await prisma.Servicio.delete({ where: { Id: Number(Id) } });
 	return res.json({
-		msg: `el servicio ${servicio.Nombre} se ha dado de baja `,
+		msg: `el Servicio ${Servicio.Nombre} se ha dado de baja `,
 	});
 };
 

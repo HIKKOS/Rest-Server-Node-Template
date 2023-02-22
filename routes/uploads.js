@@ -8,17 +8,15 @@ const router = Router()
 router.get('/:ServicioId/:Id',[
     //validarJWT,
     check('Id','No ser recibio este campo').notEmpty(),
-    //check('Id').custom( ExisteImg ),
-    check(['Id']).custom( (Id, { req }) => ExisteImg(Id,req) ),
     validarCampos,     
 ],MostrarImagen) 
+
 router.post('/:ServicioId',[
     validarJWT,
     validarCargaArchivos,
     validarCampos,
 ], 
 cargarArchivo )
-
 router.put('/:ServicioId/:Id', [
     validarJWT,
     validarCargaArchivos,
@@ -31,7 +29,6 @@ router.delete('/:ServicioId/:Id', [
     validarJWT,
     check('Id','No ser recibio este campo').notEmpty(),
     check('ServicioId','no se recibio').notEmpty(),
-    check(['Id']).custom( (Id, { req }) => ExisteImg(Id,req) ),
     validarCampos,     
 ], deleteImagen)
 

@@ -18,7 +18,6 @@ const alumnosGet = async (req = request, res = response) => {
 		}
 	}
 	
-	
     let { show = 'active' } = req.query
     if( show !== 'active'){
         show = 'disabled'
@@ -26,6 +25,7 @@ const alumnosGet = async (req = request, res = response) => {
 	const { page, limit} = req.query;
 	const { skip, limite } = await evaluarPagina(page, limit);
 
+	const total = await prisma.alumno.count()
 	const Alumnos = await prisma.alumno.findMany({
 		skip,
 		take: limite,       
@@ -39,6 +39,7 @@ const alumnosGet = async (req = request, res = response) => {
         return resto
     })
 	return res.json({
+		total,
 		Alumnos: data
 	});
 };
