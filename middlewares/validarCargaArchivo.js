@@ -1,6 +1,7 @@
-const { response } = require("express")
+const { response, request } = require("express")
 
-const validarCargaArchivos = (req, res = response, next) => {
+const validarCargaArchivos = (req = request, res = response, next) => {
+    console.log(req.files)
     const archivo = req.files
     if(archivo === undefined){
         return res.status(400).json({

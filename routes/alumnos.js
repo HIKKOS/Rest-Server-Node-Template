@@ -24,7 +24,7 @@ router.put('/:Id',[
     check('ApellidoMaterno','no se recibieron datos').not().isEmpty(),
     check('ApellidoPaterno','no se recibieron datos').not().isEmpty(),
     check('Grupo','no se recibieron datos').not().isEmpty(),
-    check('Genero').isNumeric().isLength({min:1}),
+    check('Genero').isBoolean(),
     check('Grado','debe ser numerico').isNumeric(),
     validarCampos
 ], alumnosPut )
@@ -34,7 +34,7 @@ router.post('/',[
     check('ApellidoMaterno','no se recibieron datos').not().isEmpty(),
     check('ApellidoPaterno','no se recibieron datos').not().isEmpty(),
     check('Grupo','no se recibieron datos').not().isEmpty(),
-    check('Genero').isNumeric().isLength({min:1}),
+    check('Genero').isBoolean(),
     check('Grado','debe ser numerico').isNumeric(),
     check('Grado').custom(gradeCheck),
     validarCampos

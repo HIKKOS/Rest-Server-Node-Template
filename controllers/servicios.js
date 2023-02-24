@@ -4,10 +4,20 @@ const { evaluarPagina } = require("../helpers/paginacion");
 const { v4: uuidv4 } = require('uuid');
 
 const prisma = new PrismaClient();
-const serviciosGetById = async (Id = '') => {	
-	return Servicio
-}
 const serviciosGet = async (req = request, res = response) => {
+	const { dataFor = 'mobile'} = req.query;
+	switch ((dataFor).toLocaleLowerCase()) {		
+		case 'web': 
+			serviciosGetWeb(req, res)
+		break;
+		default:
+			serviciosGetMobile(req, res)
+	}
+}
+const serviciosGetMobile = async (req = request, res = response) => {
+	return res.json({msg: 'mobile'})
+}
+const serviciosGetWeb = async (req = request, res = response) => {
 	const { page, limit } = req.query;
 	const { Id = '' } = req.query
 	let { show = 'active' } = req.query
@@ -53,9 +63,9 @@ const serviciosGet = async (req = request, res = response) => {
 			});
 			Servicio.ImgIds = Id;		
 			if(PathsArray.length >= 0){
-				servicios[i].ImgIds = '';				
+				Servicios.ImgIds = '';				
 			}
-			servicios[i].ImgIds = Id;
+			Servicios.ImgIds = Id;
 		}
 
 		const total = await prisma.Servicio.count();
@@ -119,5 +129,4 @@ module.exports = {
 	serviciosPost,
 	serviciosPut,
 	serviciosDel,
-	serviciosGetById,
 };

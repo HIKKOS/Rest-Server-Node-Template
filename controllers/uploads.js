@@ -57,7 +57,8 @@ const actualizarImagen = async( req = request, res = response ) => {
 }
 const MostrarImagen = async (req = request, res = response ) => {
     const { ServicioId, Id } = req.params            
-    const img = await prisma.ImgPaths?.findUnique({ where: { Id } })
+    const img = await prisma.ImgPaths.findUnique({ where: { Id } })
+    //! arrgelar el indice  que recibe numerico
     if( !img ){
         return res.status(400).json({
             msg:`No existe una imagen con id ${Id}`
