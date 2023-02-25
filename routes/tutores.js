@@ -7,30 +7,32 @@ const {
 	tutoresPost,
 	tutoresPut,
 	tutoresDelete,
-	getTutorados
+	getTutorados,
+	getTutorInfo
 } = require("../controllers/tutores");
 const {
 	validarPaginacion,
 	validarCampos,
 	validarJWT,
 } = require("../middlewares");
+const { verifyUserRole, verifyAdminRole } = require("../middlewares/verifyRole");
 const router = Router();
 router.get(
 	"/",
 	//! roles verificar
-	[validarJWT, validarPaginacion, validarCampos],
+	[validarJWT, validarPaginacion,verifyAdminRole, validarCampos],
 	tutoresGet,
 );
 router.get(
 	"/Tutorados",
 	//! roles verificar
-	[validarJWT, validarPaginacion, validarCampos],
+	[validarJWT, validarPaginacion,verifyUserRole, validarCampos],
 	getTutorados,
 );
 router.get(
 	"/getInfo",
-	[validarJWT, validarPaginacion, validarCampos],
-	tutoresGet,
+	[validarJWT, verifyUserRole],
+	getTutorInfo,
 );
 router.put(
 	"/:id",

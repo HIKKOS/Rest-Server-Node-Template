@@ -15,7 +15,59 @@ const serviciosGet = async (req = request, res = response) => {
 	}
 }
 const serviciosGetMobile = async (req = request, res = response) => {
-	return res.json({msg: 'mobile'})
+	const { page, limit } = req.query;
+	const { Id = '' } = req.query
+	let { show = 'active' } = req.query
+	show === '' ? show = 'active' : null 
+    if( show !== 'disabled'){
+		show = 'active'
+    }
+	try {
+		if(Id !== ''){
+			const Servicio = await prisma.Servicio.findUnique({
+
+				where: {
+					Id:Id 
+				},
+			});
+			const PathsArray = await prisma.ImgPaths.findMany({
+				where: { ServicioId : Servicio.Id },
+			});
+			const ImgId = PathsArray.map((p) => {
+				return p.Id;
+			});
+			Servicio.ImgIds = ImgId;
+			
+			if(!Servicio) {
+				return res.status(400).json({msg: 'No existe ese Servicio'})
+			}
+			return res.json(Servicio)
+		}
+		const { skip, limite } = await evaluarPagina(page, limit);
+		const Servicios = await prisma.Servicio.findMany({
+			skip,
+			take: limite,
+			select:{
+				Id:true,
+				Nombre:true,
+				Costo:true,
+			},
+			where: {
+				Activo: show === 'active' ? true : false,
+
+			}
+		});				
+		const total = await prisma.Servicio.count();
+		res.json({
+			total,
+			Servicios,
+		});
+	} catch (error) {
+		console.log(error);
+		res.status(400).json({
+			error
+		});
+	}
 }
 const serviciosGetWeb = async (req = request, res = response) => {
 	const { page, limit } = req.query;
