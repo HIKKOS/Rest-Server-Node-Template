@@ -53,5 +53,4 @@ router.delete(
 	[validarJWT, check("Id", "debe ser numerico").isNumeric(), validarCampos],
 	tutoresDelete,
 );
-
 module.exports = router;

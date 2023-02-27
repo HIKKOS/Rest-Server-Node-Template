@@ -9,7 +9,8 @@ datasource db {
 
 model Administrador {
   Id              String  @id
-  Nombres         String  @db.VarChar(75)
+  PrimerNombre             String               @db.VarChar(75)
+  SegundoNombre            String?              @db.VarChar(75)
   ApellidoMaterno String  @db.VarChar(75)
   ApellidoPaterno String? @db.VarChar(75)
   Correo          String  @unique(map: "Administrador_Correo_key") @db.VarChar(255)
@@ -19,7 +20,8 @@ model Administrador {
 
 model Alumno {
   Id                 String               @id
-  Nombres            String               @db.VarChar(75)
+  PrimerNombre             String               @db.VarChar(75)
+  SegundoNombre            String?              @db.VarChar(75)
   ApellidoMaterno    String               @db.VarChar(75)
   ApellidoPaterno    String?              @db.VarChar(75)
   Grado              Int                  @default(1)
@@ -30,7 +32,7 @@ model Alumno {
   Activo             Boolean              @default(true)
   Tutor              Tutor?               @relation(fields: [TutorId], references: [Id], map: "Alumno_TutorId_fkey")
   Serviciosdelalumno ServiciosDelAlumno[]
-
+  HorarioServicioAlumno HoarioServicioAlumno[]
   @@index([TutorId], map: "Alumno_TutorId_fkey")
 }
 
@@ -79,24 +81,39 @@ model Servicio {
   ImgPaths           ImgPaths[]
   Pago               Pago[]
   ServiciosDelAlumno ServiciosDelAlumno[]
+  HorarioServicio    HorarioServicio[]
 }
-
+model HorarioServicio {
+  Id         String      @id
+  ServicioId String
+  Dia        DiaSemana
+  HoraInicio Int
+  HoraFin    Int
+  Servicio   Servicio @relation(fields: [ServicioId], references: [Id])
+}
 model ServiciosDelAlumno {
-  Id          String   @id
   AlumnoId    String
   ServicioId  String
-  Monto       Float
-  VecesPagado Int      @default(1)
-  Alumno      Alumno   @relation(fields: [AlumnoId], references: [Id], map: "Serviciosdelalumno_Alumnoid_Fkey")
-  Servicio    Servicio @relation(fields: [ServicioId], references: [Id], map: "ServiciosDelAlumno_ServicioId_fkey")
+  DiasRestantes Int
+  Alumno      Alumno   @relation(fields: [AlumnoId], references: [Id])
+  Servicio    Servicio @relation(fields: [ServicioId], references: [Id])
 
-  @@index([AlumnoId], map: "ServiciosDelAlumno_AlumnoId_fkey")
-  @@index([ServicioId], map: "ServiciosDelAlumno_ServicioId_fkey")
+  @@id([AlumnoId, ServicioId])
+}
+model HoarioServicioAlumno {  
+  AlumnoId    String
+  ServicioId String
+  Dia DiaSemana        
+  HoraInicio Int
+  HoraFin    Int
+  Alumno      Alumno   @relation(fields: [AlumnoId], references: [Id])
+  @@id([AlumnoId, ServicioId])
 }
 
 model Tutor {
   Id              String       @id
-  Nombres         String       @db.VarChar(75)
+    PrimerNombre             String               @db.VarChar(75)
+  SegundoNombre            String?              @db.VarChar(75)
   ApellidoMaterno String       @db.VarChar(75)
   ApellidoPaterno String?      @db.VarChar(75)
   Foto            String?      @db.VarChar(75)
@@ -118,4 +135,11 @@ enum Servicio_FrecuenciaDePago {
   BIMESTRAL
   SEMESTRAL
   ANUAL
+}
+enum DiaSemana{
+  LUNES
+  MARTES
+  MIERCOLES
+  JUEVES
+  VIERNES
 }
