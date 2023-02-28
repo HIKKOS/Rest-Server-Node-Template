@@ -17,8 +17,7 @@ const usuariosGet = async(req = request, res = response) => {
         Usuario.countDocuments(query),
         Usuario.find(query)
         .skip(Number ( page ))
-        .limit(Number( limit ))]) 
-        
+        .limit(Number( limit ))])         
     
     res.json({
         total,

@@ -20,6 +20,7 @@ class Server {
 			busqueda: "/api/buscar",
 			pagos: "/api/pagos",
 			suscripciones: "/api/contratar",
+			paypal: "/api/test-paypal",
 		};
 		//Middlewares
 		this.middlewares();
@@ -64,6 +65,7 @@ class Server {
 		this.app.use(this.paths.fotos, require("../routes/FotosTutores"));
 		this.app.use(this.paths.pagos, require("../routes/pagos"));
 		this.app.use(this.paths.suscripciones, require("../routes/contratar-servicio"));
+		this.app.use(this.paths.paypal, require("../routes/paypal-test"));
 	}
 	listen() {
 		this.app.listen(this.port, () => {

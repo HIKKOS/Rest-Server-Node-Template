@@ -10,15 +10,21 @@ const contratarServicio = async(req = request, res = response ) => {
     const token = req.header('x-token');
     const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY)
     const { IdServicio, IdAlumno } = req.params
-    const { VecesContratado = 1 } = req.body
+    const { vecesContratado = 1 } = req.body
     const Servicio = await prisma.servicio.findUnique({
         where: {
             Id: IdServicio
         }
     })
-    let resp = calcularFechaExpiracion(VecesContratado, Servicio.FrecuenciaDePago)
+    const alumno = await prisma.alumno.findUnique({
+        where: {
+            Id: IdAlumno
+        }
+    })
+    let resp = calcularFechaExpiracion(vecesContratado, Servicio.FrecuenciaDePago)
     return res.json({
-        resp
+        Fecha: resp,
+        Alumno: alumno.PrimerNombre
     })
     /* model ServiciosDelAlumno {
         AlumnoId    String
@@ -31,12 +37,6 @@ const contratarServicio = async(req = request, res = response ) => {
       } */
     //! pagarlo
     //* contratar
-    const servicioAlumno = {
-        IdAlumno,
-        IdServicio,
-    }
-
-    const IdServicioAlumno = uuidv4();
     
 }
 

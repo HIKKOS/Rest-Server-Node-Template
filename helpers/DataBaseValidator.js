@@ -2,10 +2,17 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
-const ExisteServicio = async (Id = 0) => {
+const ExisteServicio = async (Id) => {
 	const servicio = await prisma.servicio.findUnique({ where: { Id } });
 	if (!servicio) {
 		throw new Error(`No existe el servicio con el Id: ${Id}`);
+	}
+	return true;
+};
+const ExisteAlumno = async (Id) => {
+	const alumno = await prisma.alumno.findUnique({ where: { Id } });
+	if (!alumno) {
+		throw new Error(`No existe el alumno con el Id: ${Id}`);
 	}
 	return true;
 };
@@ -65,6 +72,7 @@ const validarColecciones = async (coleccion = "", coleciones = []) => {
 
 module.exports = {
 	ExisteServicio,
+	ExisteAlumno,
 	ExisteImg,
 	validarColecciones,
 	ExisteNombreServicio,

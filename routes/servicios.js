@@ -5,11 +5,13 @@ const {
     validarCampos, 
     validarJWT,
     validarPaginacion,
+    
 } = require('../middlewares')
 const { 
-    serviciosGet, serviciosPost, serviciosPut, serviciosDel, serviciosGetById,
+    serviciosGet, serviciosPost, serviciosPut, serviciosDel, serviciosGetById, getServicioById,
 } = require('../controllers/servicios')
 const { ExisteNombreServicio, validarColecciones, ExisteServicio } = require('../helpers/DataBaseValidator')
+const { verifyAdminRole } = require('../middlewares/verifyRole')
 
 const router = Router()
 
@@ -19,12 +21,21 @@ router.get('/', [
     validarPaginacion, 
     validarCampos,
 ],serviciosGet)
+router.get('/GetById/:ServicioId', [
+    validarJWT,
+    validarPaginacion, 
+    validarCampos,
+    check('ServicioId', 'es obligatorio').notEmpty(),
+    check('ServicioId').custom( ExisteServicio )
+],getServicioById)
 router.post('/',[
     validarJWT,
+    verifyAdminRole,
     check('Nombre').custom( ExisteNombreServicio ).isLength({min:1}),
     check('Descripcion','Se requiere este campo').isLength({min:1}),
     check('Cancelable','De ser booleano (true/false 1/0)').isBoolean(),
-    check('Costo','Debe ser numerico y mayor a 0').not().isIn([0]).isNumeric().isLength({min:1}),
+    check('Horarios','error de formato').isArray(),
+    check('Costo','Debe ser numerico y mayor a 0').not().isIn([0]).isNumeric(),
     validarCampos,
 ] ,serviciosPost)
 

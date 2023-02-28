@@ -15,6 +15,9 @@ const getTutorInfo = async (req = request, res = response) => {
 				Id,
 			},
 		});
+	if(!tutor.Foto){
+		tutor.Foto = ''
+	}
 	return res.json(tutor);
 };
 const tutoresGet = async (req = request, res = response) => {

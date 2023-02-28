@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const { check } = require("express-validator");
 const { contratarServicio } = require("../controllers/contratar-servicio");
+const { ExisteServicio, ExisteAlumno } = require("../helpers/DataBaseValidator");
 const {
 	validarPaginacion,
 	validarCampos,
@@ -16,7 +17,10 @@ router.post(
         validarJWT,
         verifyUserRole,
 		check("IdServicio", "es obligatorio").notEmpty(),
+		check("IdServicio").custom( ExisteServicio ),
+		check("IdAlumno").custom( ExisteAlumno ),
 		check("IdAlumno", "es obligatorio").notEmpty(),
+		validarCampos
 	],
 	contratarServicio,
 );

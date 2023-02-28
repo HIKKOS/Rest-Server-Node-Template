@@ -6,9 +6,12 @@ const {
     alumnosPost,
     alumnosPut, 
     alumnosDelete,
+    getServiciosDelAlumno,
 } = require('../controllers/alumnos')
+const { verificarJWT } = require('../controllers/auth')
 const { validarPaginacion, validarCampos,genderCheck, validarJWT } = require('../middlewares')
 const { gradeCheck } = require('../middlewares/gradeCheck')
+const { verifyUserRole } = require('../middlewares/verifyRole')
 
 const router = Router()
 
@@ -17,6 +20,13 @@ router.get('/',[
     validarPaginacion, 
     validarCampos
 ], alumnosGet )
+router.get('/servicios/:IdAlumno',[
+    validarJWT,
+    verifyUserRole,
+    check('IdAlumno','es obligatorio').notEmpty(),
+    validarCampos
+], getServiciosDelAlumno )
+
 router.put('/:Id',[
     validarJWT,
     check('Id','ser requiere este campo').notEmpty(),

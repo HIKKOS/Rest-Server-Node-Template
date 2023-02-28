@@ -4,12 +4,10 @@ const { MostrarImagenTutor, cargarArchivo, RemoveImagenTutor } = require('../con
 const {validarCampos, validarCargaArchivos, validarJWT} = require('../middlewares')
 
 const router = Router()
-router.get('/:IdTutor',[
-    validarJWT,
-    check('IdTutor','No ser recibio este campo').notEmpty(),  
-    validarCampos,     
+router.get('/',[
+    validarJWT,   
 ],MostrarImagenTutor) 
-router.post('/:IdTutor',[
+router.post('/',[
     validarJWT,
     validarCargaArchivos,
     validarCampos,

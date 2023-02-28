@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-
+const jwt = require("jsonwebtoken");
 const { response, request } = require("express");
 const { uploadFile } = require("../helpers");
 const { PrismaClient } = require("@prisma/client");
@@ -8,7 +8,8 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const cargarArchivo = async (req = require, res = response) => {
-	const { IdTutor } = req.params;
+	const token = req.header("x-token");
+	const { Id: IdTutor } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
 	const tutor = await prisma.tutor.findUnique({ where: { Id: IdTutor } });
 	if (!tutor) {
 		return res.status(400).json({
@@ -16,7 +17,7 @@ const cargarArchivo = async (req = require, res = response) => {
 		});
 	}
 	try {
-        const pathImg = path.join(__dirname,'../uploads/Tutores', tutor.Foto)
+        const pathImg = path.join(__dirname,'../uploads/Tutores', (tutor.Foto == null ? 'no-image.jpg' : tutor.Foto))
         if(fs.existsSync(pathImg)){
             fs.unlinkSync(pathImg)
         }
@@ -36,7 +37,8 @@ const cargarArchivo = async (req = require, res = response) => {
 	}
 };
 const MostrarImagenTutor = async (req = request, res = response) => {
-	const { IdTutor } = req.params;
+	const token = req.header("x-token");
+	const { Id: IdTutor } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
 	const tutor = await prisma.tutor.findUnique({ where: { Id: IdTutor } });
 	if (!tutor) {
 		return res.status(400).json({

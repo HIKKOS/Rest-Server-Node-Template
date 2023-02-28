@@ -32,7 +32,7 @@ model Alumno {
   Activo             Boolean              @default(true)
   Tutor              Tutor?               @relation(fields: [TutorId], references: [Id], map: "Alumno_TutorId_fkey")
   Serviciosdelalumno ServiciosDelAlumno[]
-  HorarioServicioAlumno HoarioServicioAlumno[]
+  HorarioServicioAlumno HorarioServicioAlumno[]
   @@index([TutorId], map: "Alumno_TutorId_fkey")
 }
 
@@ -100,7 +100,7 @@ model ServiciosDelAlumno {
 
   @@id([AlumnoId, ServicioId])
 }
-model HoarioServicioAlumno {  
+model HorarioServicioAlumno {  
   AlumnoId    String
   ServicioId String
   Dia DiaSemana        
