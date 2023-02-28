@@ -38,6 +38,8 @@ router.put(
 	"/",
 	[
 		validarJWT,
+		check("Correo").isEmail(),
+		validarCampos
 	],
 	tutoresPut,
 );

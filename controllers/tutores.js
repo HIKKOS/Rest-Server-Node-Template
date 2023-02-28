@@ -75,12 +75,12 @@ const tutoresPut = async (req = request, res = response) => {
 	}
 	!PasswordTutor
 		? await prisma.tutor.update({
-				where: { Id: Number(id) },
+				where: { Id: (id) },
 				data: resto,
 		  })
 		: bcryptjs.hashSync(PasswordTutor, salt),
 		await prisma.tutor.update({
-			where: { Id: Number(id) },
+			where: { Id: (id) },
 			data: {
 				PasswordTutor: PasswordTutor,
 			},
