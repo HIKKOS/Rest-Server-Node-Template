@@ -1,7 +1,8 @@
 -- CreateTable
-CREATE TABLE `administrador` (
+CREATE TABLE `Administrador` (
     `Id` VARCHAR(191) NOT NULL,
-    `Nombres` VARCHAR(75) NOT NULL,
+    `PrimerNombre` VARCHAR(75) NOT NULL,
+    `SegundoNombre` VARCHAR(75) NULL,
     `ApellidoMaterno` VARCHAR(75) NOT NULL,
     `ApellidoPaterno` VARCHAR(75) NULL,
     `Correo` VARCHAR(255) NOT NULL,
@@ -13,9 +14,10 @@ CREATE TABLE `administrador` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `alumno` (
+CREATE TABLE `Alumno` (
     `Id` VARCHAR(191) NOT NULL,
-    `Nombres` VARCHAR(75) NOT NULL,
+    `PrimerNombre` VARCHAR(75) NOT NULL,
+    `SegundoNombre` VARCHAR(75) NULL,
     `ApellidoMaterno` VARCHAR(75) NOT NULL,
     `ApellidoPaterno` VARCHAR(75) NULL,
     `Grado` INTEGER NOT NULL DEFAULT 1,
@@ -30,8 +32,8 @@ CREATE TABLE `alumno` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `imgpaths` (
-    `Id` INTEGER NOT NULL AUTO_INCREMENT,
+CREATE TABLE `ImgPaths` (
+    `Id` VARCHAR(191) NOT NULL,
     `ServicioId` VARCHAR(191) NOT NULL,
     `Path` VARCHAR(191) NOT NULL,
 
@@ -40,7 +42,7 @@ CREATE TABLE `imgpaths` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `metodopago` (
+CREATE TABLE `Metodopago` (
     `Id` VARCHAR(191) NOT NULL,
     `Nombre` VARCHAR(191) NOT NULL,
     `TutorId` VARCHAR(191) NOT NULL,
@@ -50,7 +52,7 @@ CREATE TABLE `metodopago` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `pago` (
+CREATE TABLE `Pago` (
     `Folio` INTEGER NOT NULL AUTO_INCREMENT,
     `ServicioId` VARCHAR(191) NOT NULL,
     `TutorId` VARCHAR(191) NOT NULL,
@@ -65,13 +67,13 @@ CREATE TABLE `pago` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `servicio` (
+CREATE TABLE `Servicio` (
     `Id` VARCHAR(191) NOT NULL,
     `Nombre` VARCHAR(75) NOT NULL,
-    `Prioritario` BOOLEAN NOT NULL DEFAULT true,
+    `Cancelable` BOOLEAN NOT NULL DEFAULT true,
     `Descripcion` VARCHAR(500) NOT NULL,
     `FechaPago` INTEGER NOT NULL,
-    `Precio` DOUBLE NOT NULL DEFAULT 0,
+    `Costo` DOUBLE NOT NULL DEFAULT 0,
     `Activo` BOOLEAN NOT NULL DEFAULT true,
     `FrecuenciaDePago` ENUM('SEMANAL', 'MENSUAL', 'BIMESTRAL', 'SEMESTRAL', 'ANUAL') NOT NULL DEFAULT 'MENSUAL',
 
@@ -79,22 +81,41 @@ CREATE TABLE `servicio` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `serviciosdelalumno` (
+CREATE TABLE `HorarioServicio` (
     `Id` VARCHAR(191) NOT NULL,
-    `AlumnoId` VARCHAR(191) NOT NULL,
     `ServicioId` VARCHAR(191) NOT NULL,
-    `Monto` DOUBLE NOT NULL,
-    `VecesPagado` INTEGER NOT NULL DEFAULT 1,
+    `Dia` ENUM('LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES') NOT NULL,
+    `HoraInicio` INTEGER NOT NULL,
+    `HoraFin` INTEGER NOT NULL,
 
-    INDEX `ServiciosDelAlumno_AlumnoId_fkey`(`AlumnoId`),
-    INDEX `ServiciosDelAlumno_ServicioId_fkey`(`ServicioId`),
     PRIMARY KEY (`Id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `tutor` (
+CREATE TABLE `ServiciosDelAlumno` (
+    `AlumnoId` VARCHAR(191) NOT NULL,
+    `ServicioId` VARCHAR(191) NOT NULL,
+    `DiasRestantes` INTEGER NOT NULL,
+
+    PRIMARY KEY (`AlumnoId`, `ServicioId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `HorarioServicioAlumno` (
+    `AlumnoId` VARCHAR(191) NOT NULL,
+    `ServicioId` VARCHAR(191) NOT NULL,
+    `Dia` ENUM('LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES') NOT NULL,
+    `HoraInicio` INTEGER NOT NULL,
+    `HoraFin` INTEGER NOT NULL,
+
+    PRIMARY KEY (`AlumnoId`, `ServicioId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Tutor` (
     `Id` VARCHAR(191) NOT NULL,
-    `Nombres` VARCHAR(75) NOT NULL,
+    `PrimerNombre` VARCHAR(75) NOT NULL,
+    `SegundoNombre` VARCHAR(75) NULL,
     `ApellidoMaterno` VARCHAR(75) NOT NULL,
     `ApellidoPaterno` VARCHAR(75) NULL,
     `Foto` VARCHAR(75) NULL,
@@ -113,22 +134,28 @@ CREATE TABLE `tutor` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `alumno` ADD CONSTRAINT `Alumno_TutorId_fkey` FOREIGN KEY (`TutorId`) REFERENCES `tutor`(`Id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `Alumno` ADD CONSTRAINT `Alumno_TutorId_fkey` FOREIGN KEY (`TutorId`) REFERENCES `Tutor`(`Id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `imgpaths` ADD CONSTRAINT `ImgPaths_ServicioId_fkey` FOREIGN KEY (`ServicioId`) REFERENCES `servicio`(`Id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `ImgPaths` ADD CONSTRAINT `ImgPaths_ServicioId_fkey` FOREIGN KEY (`ServicioId`) REFERENCES `Servicio`(`Id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `metodopago` ADD CONSTRAINT `MetodoPago_TutorId_fkey` FOREIGN KEY (`TutorId`) REFERENCES `tutor`(`Id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Metodopago` ADD CONSTRAINT `MetodoPago_TutorId_fkey` FOREIGN KEY (`TutorId`) REFERENCES `Tutor`(`Id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `pago` ADD CONSTRAINT `Pago_ServicioId_fkey` FOREIGN KEY (`ServicioId`) REFERENCES `servicio`(`Id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Pago` ADD CONSTRAINT `Pago_ServicioId_fkey` FOREIGN KEY (`ServicioId`) REFERENCES `Servicio`(`Id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `pago` ADD CONSTRAINT `Pago_TutorId_fkey` FOREIGN KEY (`TutorId`) REFERENCES `tutor`(`Id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Pago` ADD CONSTRAINT `Pago_TutorId_fkey` FOREIGN KEY (`TutorId`) REFERENCES `Tutor`(`Id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `serviciosdelalumno` ADD CONSTRAINT `ServiciosDelAlumno_AlumnoId_fkey` FOREIGN KEY (`AlumnoId`) REFERENCES `alumno`(`Id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `HorarioServicio` ADD CONSTRAINT `HorarioServicio_ServicioId_fkey` FOREIGN KEY (`ServicioId`) REFERENCES `Servicio`(`Id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `serviciosdelalumno` ADD CONSTRAINT `ServiciosDelAlumno_ServicioId_fkey` FOREIGN KEY (`ServicioId`) REFERENCES `servicio`(`Id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `ServiciosDelAlumno` ADD CONSTRAINT `ServiciosDelAlumno_AlumnoId_fkey` FOREIGN KEY (`AlumnoId`) REFERENCES `Alumno`(`Id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ServiciosDelAlumno` ADD CONSTRAINT `ServiciosDelAlumno_ServicioId_fkey` FOREIGN KEY (`ServicioId`) REFERENCES `Servicio`(`Id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `HorarioServicioAlumno` ADD CONSTRAINT `HorarioServicioAlumno_AlumnoId_fkey` FOREIGN KEY (`AlumnoId`) REFERENCES `Alumno`(`Id`) ON DELETE RESTRICT ON UPDATE CASCADE;

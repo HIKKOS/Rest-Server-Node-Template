@@ -61,12 +61,13 @@ const tutoresGet = async (req = request, res = response) => {
 	}
 };
 const tutoresPut = async (req = request, res = response) => {
-	const { id } = req.params;
+	const token = req.header("x-token");
+	const { Id: id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
 	const data = req.body;
 	console.log(data);
 	const { PasswordTutor, ...resto } = data;
 	const salt = bcryptjs.genSaltSync();
-	const Tutor = await prisma.tutor.findUnique({ where: { Id: Number(id) } });
+	const Tutor = await prisma.tutor.findUnique({ where: { Id: (id) } });
 	if (!Tutor) {
 		return res.status(400).json({
 			msg: `no se encontro el usuario con el id: ${id}`,

@@ -35,11 +35,9 @@ router.get(
 	getTutorInfo,
 );
 router.put(
-	"/:id",
+	"/",
 	[
 		validarJWT,
-		check("id", "el id debe ser numerico").isNumeric(),
-		validarCampos,
 	],
 	tutoresPut,
 );
