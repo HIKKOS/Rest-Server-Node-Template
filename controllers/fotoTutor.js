@@ -17,15 +17,17 @@ const cargarArchivo = async (req = require, res = response) => {
 		});
 	}
 	try {
-		if(tutor.Foto){
-
-		
-        const pathImg = path.join(__dirname,'../uploads/Tutores', (tutor.Foto == null ? '' : tutor.Foto))
-        if(fs.existsSync(pathImg)){
-            fs.unlinkSync(pathImg)
-        }
-	}
-		const dir = await uploadFile(req.files, undefined, "Tutores");   
+		if (tutor.Foto) {
+			const pathImg = path.join(
+				__dirname,
+				"../uploads/Tutores",
+				tutor.Foto == null ? "" : tutor.Foto,
+			);
+			if (fs.existsSync(pathImg)) {
+				fs.unlinkSync(pathImg);
+			}
+		}
+		const dir = await uploadFile(req.files, undefined, "Tutores");
 		const archivo = await prisma.tutor.update({
 			where: { Id: IdTutor },
 			data: {
@@ -48,12 +50,13 @@ const MostrarImagenTutor = async (req = request, res = response) => {
 		return res.status(400).json({
 			msg: `No existe una el tutor con id ${IdTutor}`,
 		});
-	}	if ( !tutor.Foto ) {
+	}
+	if (!tutor.Foto) {
 		const pathImagen = path.join(__dirname, "../assets/no-image.jpg");
 		return res.sendFile(pathImagen);
 	}
 	const pathImagen = path.join(__dirname, "../uploads/Tutores", tutor?.Foto);
-    console.log(pathImagen);
+	console.log(pathImagen);
 	if (!fs.existsSync(pathImagen)) {
 		const pathImagen = path.join(__dirname, "../assets/no-image.jpg");
 		return res.sendFile(pathImagen);
@@ -68,21 +71,20 @@ const RemoveImagenTutor = async (req = request, res = response) => {
 			msg: `No existe una el tutor con id ${IdTutor}`,
 		});
 	}
-    const pathImg = path.join(__dirname,'../uploads/Tutores', tutor.Foto)
-    try {
-        if(fs.existsSync(pathImg)){
-            fs.unlinkSync(pathImg)
-        }
-    } catch (error) {
-        console.log(error);
-    }
-    
-	return res.json({msg : 'Eliminado'})
-	
+	const pathImg = path.join(__dirname, "../uploads/Tutores", tutor.Foto);
+	try {
+		if (fs.existsSync(pathImg)) {
+			fs.unlinkSync(pathImg);
+		}
+	} catch (error) {
+		console.log(error);
+	}
+
+	return res.json({ msg: "Eliminado" });
 };
 
 module.exports = {
 	MostrarImagenTutor,
 	cargarArchivo,
-    RemoveImagenTutor
+	RemoveImagenTutor,
 };

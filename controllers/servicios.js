@@ -3,26 +3,35 @@ const { PrismaClient } = require("@prisma/client");
 const { evaluarPagina } = require("../helpers/paginacion");
 const { v4: uuidv4 } = require("uuid");
 const { tieneDuplicados } = require("../helpers/verificar-valores-unicos");
+const { getImgIdsFromService } = require("../helpers/obenterIdImagenes");
 
 const prisma = new PrismaClient();
 const getServicioById = async (req = request, res = response) => {
 	const { ServicioId } = req.params;
-	const Servicio = await prisma.servicio.findUnique({
+	let Servicio = await prisma.servicio.findUnique({
 		where: {
 			Id: ServicioId,
 		},
-	});
-	const horarios = await prisma.horarioServicio.findMany({
-		where: {
-			ServicioId,
-		},
 		select: {
-			Dia: true,
-			HoraInicio: true,
-			HoraFin: true,
+			Id: true,
+			Nombre: true,
+			Cancelable: true,
+			Descripcion: true,
+			Costo: true,
+			FrecuenciaDePago: true,
+			HorarioServicio: true,
+			ImgPaths: {
+				select: {
+					Id: true,
+				},
+			},
 		},
 	});
-	Servicio.Horario = horarios;
+	Servicio.ImgPaths = Servicio.ImgPaths.map((p) => {
+		const [path] = Object.values(p);
+		return path;
+	});
+	console.log(Servicio);
 	return res.json(Servicio);
 };
 const serviciosGet = async (req = request, res = response) => {
@@ -61,18 +70,13 @@ const serviciosGetMobile = async (req = request, res = response) => {
 					select: {
 						Id: true,
 					},
-				}
+				},
 			},
 			where: {
 				Activo: show === "active" ? true : false,
 			},
 		});
-		Servicios = Servicios.map( s => {
-			let Paths = s.ImgPaths;
-			Paths = Paths.map( p => Object.values(p))
-			s.ImgPaths = Paths 
-			return s
-		})  
+		Servicios = getImgIdsFromService(Servicios);
 		const total = await prisma.Servicio.count();
 		res.json({
 			total,
@@ -152,13 +156,12 @@ const serviciosPost = async (req = request, res = response) => {
 	let { Nombre, Cancelable, Descripcion, FechaPago, Costo } = req.body;
 	const { Horarios } = req.body;
 	const horarioServicio = [];
-	horarioServicio.
-	Cancelable = Boolean(Cancelable);
+	horarioServicio.Cancelable = Boolean(Cancelable);
 	Costo = Number(Costo);
 	const Id = uuidv4();
-	const data = Horarios
-	if(tieneDuplicados(data)){
-		return res.status(400).json({msg: 'tiene valores duplicados'})
+	const data = Horarios;
+	if (tieneDuplicados(data)) {
+		return res.status(400).json({ msg: "tiene valores duplicados" });
 	}
 	for (const horario of Horarios) {
 		if (horario.inicio >= horario.fin) {
@@ -168,7 +171,7 @@ const serviciosPost = async (req = request, res = response) => {
 				fin: horario.fin,
 			});
 		}
-		
+
 		if (isNaN(horario.inicio || horario.fin)) {
 			return res.status(400).json({
 				msg: "deben ser numericos se obtuvo:",
