@@ -112,7 +112,7 @@ model HorarioServicioAlumno {
 
 model Tutor {
   Id              String       @id
-    PrimerNombre             String               @db.VarChar(75)
+  PrimerNombre             String               @db.VarChar(75)
   SegundoNombre            String?              @db.VarChar(75)
   ApellidoMaterno String       @db.VarChar(75)
   ApellidoPaterno String?      @db.VarChar(75)

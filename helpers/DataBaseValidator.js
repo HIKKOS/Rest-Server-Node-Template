@@ -16,6 +16,13 @@ const ExisteAlumno = async (Id) => {
 	}
 	return true;
 };
+const ExisteTutor = async(IdTutor) => {
+	const tutor = await prisma.tutor.findUnique({ where: { Id:IdTutor } });
+	if (!tutor) {
+		throw new Error(`No existe el tutor con el Id: ${Id}`);
+	}
+	return true;
+}
 const ExisteNombreServicio = async (Nombre = "") => {
 	const servicio = await prisma.servicio.findMany();
 	const names = servicio.map((s) => {
@@ -76,4 +83,5 @@ module.exports = {
 	ExisteImg,
 	validarColecciones,
 	ExisteNombreServicio,
+	ExisteTutor
 };

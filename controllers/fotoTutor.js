@@ -17,10 +17,14 @@ const cargarArchivo = async (req = require, res = response) => {
 		});
 	}
 	try {
-        const pathImg = path.join(__dirname,'../uploads/Tutores', (tutor.Foto == null ? 'no-image.jpg' : tutor.Foto))
+		if(tutor.Foto){
+
+		
+        const pathImg = path.join(__dirname,'../uploads/Tutores', (tutor.Foto == null ? '' : tutor.Foto))
         if(fs.existsSync(pathImg)){
             fs.unlinkSync(pathImg)
         }
+	}
 		const dir = await uploadFile(req.files, undefined, "Tutores");   
 		const archivo = await prisma.tutor.update({
 			where: { Id: IdTutor },
