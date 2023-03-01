@@ -5,7 +5,6 @@ const getImgIdsFromService = (Servicios = []) => {
             const [path] = Object.values(p);
             return path;
         });
-        console.log(Paths);
         s.ImgPaths = Paths;
         return s;
     });

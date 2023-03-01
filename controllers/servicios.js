@@ -31,7 +31,7 @@ const getServicioById = async (req = request, res = response) => {
 		const [path] = Object.values(p);
 		return path;
 	});
-	console.log(Servicio);
+
 	return res.json(Servicio);
 };
 const serviciosGet = async (req = request, res = response) => {
@@ -213,7 +213,6 @@ const serviciosPost = async (req = request, res = response) => {
 const serviciosPut = async (req = request, res = response) => {
 	const { Id } = req.params;
 	const data = req.body;
-	console.log(data);
 	data.Costo = Number(data.Costo);
 	data.Cancelable = Boolean(data.Cancelable);
 
