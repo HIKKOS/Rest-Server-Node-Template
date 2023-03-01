@@ -66,7 +66,6 @@ const MostrarImagen = async (req = request, res = response ) => {
         return res.sendFile(pathImagen)
     }
     return res.sendFile(pathImagen)      
-    
 }
 const deleteImagen = async (req = request, res = response) => {
     const { Id, ServicioId } = req.params

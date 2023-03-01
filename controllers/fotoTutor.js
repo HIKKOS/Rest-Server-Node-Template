@@ -33,7 +33,7 @@ const cargarArchivo = async (req = require, res = response) => {
 			},
 		});
 		res.status(201).json({
-			msg: `se subio la foto ${archivo.Foto} del servicio tutor : ${tutor.Nombre} `,
+			msg: `se subio la foto ${archivo.Foto}`,
 		});
 	} catch (error) {
 		console.log(error);
