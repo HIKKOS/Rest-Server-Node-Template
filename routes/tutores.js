@@ -60,7 +60,7 @@ router.put(
 	tutoresPutForWeb,
 );
 router.put(
-	"/mobile/",
+	"/mobile",
 	[
 		validarJWT,
 		verifyUserRole,
@@ -70,6 +70,7 @@ router.put(
 		check("ApellidoMaterno", "Se requiere este campo").notEmpty(),
 		check("ApellidoPaterno", "Se requiere este campo").notEmpty(),
 		check("Telefono", "Se requiere este campo").notEmpty(),
+		check("Direccion", "Se requiere este campo").notEmpty(),
 		validarCampos,
 	],
 	tutoresPutForMobile,
@@ -77,7 +78,6 @@ router.put(
 router.post(
 	"/update-password",
 	[validarJWT, check('password','se requiere este campo').notEmpty(),validarCampos],
-
 	solicitarCambioPassword,
 );
 router.post(
@@ -92,6 +92,7 @@ router.post(
 		check("ApellidoPaterno", "Se requiere este campo").notEmpty(),
 		check("Telefono", "Se requiere este campo").notEmpty(),
 		check("PasswordTutor", "Se requiere este campo").notEmpty(),
+		check("Direccion", "Se requiere este campo").notEmpty(),
 		validarCampos,
 	],
 	tutoresPost,

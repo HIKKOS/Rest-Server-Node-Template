@@ -71,9 +71,6 @@ const loginTutor = async (req = request, res = response) => {
 			});
 		}
 		const {CreatedAt,Activo, PasswordTutor, ...resto } = user;
-		const tutor = resto
-		console.log(tutor)
-		//generar el JWT
 		const jwt = await generarJWT(user.Id,'Tutor');
 		res.json({
 			jwt,

@@ -1,6 +1,6 @@
 const { response, request } = require("express");
 const { v4: uuidv4 } = require("uuid");
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 const bcryptjs = require("bcryptjs");
 const { PrismaClient } = require("@prisma/client");
 const { evaluarPagina } = require("../helpers/paginacion");
@@ -63,36 +63,43 @@ const tutoresPutForMobile = async (req = request, res = response) => {
 	const { Id: id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
 	const data = req.body;
 	const Tutor = await prisma.tutor.findUnique({ where: { Id: id } });
-	await prisma.tutor.update({
-		where: { Id: id },
-		data: resto,
-	});
+	try {
+		await prisma.tutor.update({
+			where: { Id: id },
+			data,
+		});
+		return res.status(200).json({ msg: "datos actualizados correctamente" });
+	} catch (error) {
+		console.log(error);
+		return res.status(400).json({msg: "error al actualizar los datos del tutor"});
+	}
+
 };
 const solicitarCambioPassword = async (req = request, res = response) => {
-	const token = req.header('x-token');
+	const token = req.header("x-token");
 	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+	let testAccount = await nodemailer.createTestAccount();
 	const tutor = await prisma.tutor.findUnique({ where: { Id } });
-	const transporter = nodemailer.createTransport({
-		service: 'gmail',
+	// create reusable transporter object using the default SMTP transport
+	let transporter = nodemailer.createTransport({
+		host: "smtp.ethereal.email",
+		port: 587,
+		secure: false, // true for 465, false for other ports
 		auth: {
-		  user: 'noerecchi@gmail.com',
-		  pass: 'awadeuwu12'
-		}
-	  });
-	  
-	  const mailOptions = {
-		from: 'noerecchi@gmail.com',
-		to: tutor.Correo,
-		subject: 'Sending Email using Node.js',
-		text: 'That was easy!'
-	  };
-	  transporter.sendMail(mailOptions, function(error, info){
-		if (error) {
-		  console.log(error);
-		} else {
-		  console.log(`Email sent: ${info.response}`);
-		}
-	  })
+			user: testAccount.user, // generated ethereal user
+			pass: testAccount.pass, // generated ethereal password
+		},
+	});
+
+	// send mail with defined transport object
+	let info = await transporter.sendMail({
+		from: '"Fred Foo 👻" <foo@example.com>', // sender address
+		to: "noeparedes027@gmail.com", // list of receivers
+		subject: "Hello ✔", // Subject line
+		text: "Hello world?", // plain text body
+		html: "<b>Hello world?</b>", // html body
+	});
+	console.log("Message sent: %s", info.messageId);
 	/* const token = jwt.sign({ Id: tutor.Id }, process.env.SECRETORPRIVATEKEY, {
 		expiresIn: "1h",
 	}); */
@@ -100,23 +107,23 @@ const solicitarCambioPassword = async (req = request, res = response) => {
 		msg: "se envio un correo para cambiar la contraseña",
 		token,
 	});
-}
-const tutorCambioPassword = async(req = request, res = response) => {
+};
+const tutorCambioPassword = async (req = request, res = response) => {
 	const token = req.header("x-token");
 	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
-	const { PasswordTutor } = req.body
-	const tutor = await prisma.tutor.findUnique( { where: { Id } } );
+	const { PasswordTutor } = req.body;
+	const tutor = await prisma.tutor.findUnique({ where: { Id } });
 	const salt = bcryptjs.genSaltSync();
-	
-}
+};
 const tutoresPost = async (req, res = response) => {
 	const {
-		Nombres,
+		PrimerNombre,
+		SegundoNombre,
 		ApellidoMaterno,
 		ApellidoPaterno,
 		Correo,
-		Telefono,
 		RFC,
+		Telefono,
 		PasswordTutor,
 		Direccion,
 	} = req.body;
@@ -132,12 +139,13 @@ const tutoresPost = async (req, res = response) => {
 	const tutor = await prisma.tutor.create({
 		data: {
 			Id,
-			Nombres,
-			ApellidoMaterno,
+			PrimerNombre,
+			SegundoNombre,
 			ApellidoPaterno,
+			ApellidoMaterno,
 			Correo,
 			Telefono,
-			RFC,
+			RFC: RFC || "" ,
 			Foto: "",
 			PasswordTutor: bcryptjs.hashSync(pass, salt),
 			Direccion,
@@ -192,5 +200,5 @@ module.exports = {
 	tutoresPutForWeb,
 	tutoresPutForMobile,
 	getTutorInfo,
-	solicitarCambioPassword
+	solicitarCambioPassword,
 };

@@ -6,8 +6,11 @@ const {validarCampos, validarCargaArchivos, validarJWT} = require('../middleware
 
 const router = Router()
 router.get('/:ServicioId/:Id',[
-    //validarJWT,
+    validarJWT,
+    check('ServicioId','no se recibio').notEmpty(),
+    check('ServicioId').custom( ExisteServicio ),
     check('Id','No ser recibio este campo').notEmpty(),
+    check('Id').custom( ExisteImg ),
     validarCampos,     
 ],MostrarImagen) 
 

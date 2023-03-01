@@ -16,13 +16,13 @@ const ExisteAlumno = async (Id) => {
 	}
 	return true;
 };
-const ExisteTutor = async(IdTutor) => {
-	const tutor = await prisma.tutor.findUnique({ where: { Id:IdTutor } });
+const ExisteTutor = async (IdTutor) => {
+	const tutor = await prisma.tutor.findUnique({ where: { Id: IdTutor } });
 	if (!tutor) {
 		throw new Error(`No existe el tutor con el Id: ${Id}`);
 	}
 	return true;
-}
+};
 const ExisteNombreServicio = async (Nombre = "") => {
 	const servicio = await prisma.servicio.findMany();
 	const names = servicio.map((s) => {
@@ -40,26 +40,18 @@ const getColeciones = async () => {
 	});
 	return colecciones;
 };
-const ExisteImg = async (Id = 0, req) => {
+const ExisteImg = async (Id = "") => {
 	try {
-		const { ServicioId } = req.params;
-		const servicio = await prisma.servicio.findUnique({
-			where: { Id: ServicioId },
+		let imgIds = await prisma.imgPaths.findMany();
+		const ids=
+		 imgIds.map((p) => {
+			p = p.Path.split(".")[0];
+			return p;
 		});
-		if (!servicio) {
-			throw new Error(`No existe el servicio con el Id: ${ServicioId}`);
+
+		if (!ids.includes(Id)){
+			throw new Error(`No existe una imagen con el Id: ${Id}`);
 		}
-		let imgIds = await prisma.imgPaths.findMany({
-			where: { ServicioId },
-		});
-		imgIds = imgIds.map((p) => {
-			return p.Id;
-		});
-		//const img = await prisma.imgPaths.findUnique({ where: {Id: Number(Id)} })
-		if (!imgIds.includes(Number(Id)))
-			throw new Error(
-				`No existe una imagen con el Id: ${Id} en la coleccion ${servicio}`,
-			);
 		return true;
 	} catch (error) {
 		console.log(error);
@@ -83,5 +75,5 @@ module.exports = {
 	ExisteImg,
 	validarColecciones,
 	ExisteNombreServicio,
-	ExisteTutor
+	ExisteTutor,
 };
