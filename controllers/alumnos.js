@@ -47,7 +47,8 @@ const alumnosPut = async (req = request, res = response) => {
 	const { Id } = req.params;
 	const {
 		TutorId,
-		Nombres,
+		PrimerNombre,
+		SegundoNombre,
 		ApellidoMaterno,
 		ApellidoPaterno,
 		Grado,
@@ -57,7 +58,8 @@ const alumnosPut = async (req = request, res = response) => {
 
 	if (!TutorId) {
 		alumno = {
-			Nombres,
+			PrimerNombre,
+			SegundoNombre,
 			ApellidoMaterno,
 			ApellidoPaterno,
 			Grado: Number(Grado),
@@ -73,7 +75,8 @@ const alumnosPut = async (req = request, res = response) => {
 		}
 		alumno = {
 			TutorId: TutorId,
-			Nombres,
+			PrimerNombre,
+			SegundoNombre,
 			ApellidoMaterno,
 			ApellidoPaterno,
 			Grado: Number(Grado),
@@ -81,7 +84,7 @@ const alumnosPut = async (req = request, res = response) => {
 			Genero: Genero ? 0 : 1,
 		};
 	}
-	const resp = await prisma.alumno.update({ where: { Id: Id }, data: alumno });
+	const resp = await prisma.alumno.update({ where: { Id }, data: alumno });
 	return res.json({
 		resp,
 	});
@@ -132,35 +135,35 @@ const getServiciosDelAlumno = async (req = request, res = response) => {
 		where: {
 			AlumnoId: IdAlumno,
 		},
-		select:{
-			ServicioId:true,
-			DiasRestantes:true
-		}
+		select: {
+			ServicioId: true,
+			DiasRestantes: true,
+		},
 	});
 	console.log(data);
 
-	const servicios = []
+	const servicios = [];
 	for (const id of data) {
 		const servicio = await prisma.servicio.findUnique({
-			where:{
-				Id:id.ServicioId
+			where: {
+				Id: id.ServicioId,
 			},
 			select: {
 				Id: true,
 				Nombre: true,
-				Costo:true
-			}
-		})
-		servicio.diasRestantes = id.DiasRestantes
-		servicios.push(servicio)
+				Costo: true,
+			},
+		});
+		servicio.diasRestantes = id.DiasRestantes;
+		servicios.push(servicio);
 	}
 	// data.map()
-	res.status(200).json({servicios: servicios})
+	res.status(200).json({ servicios: servicios });
 };
 module.exports = {
 	alumnosGet,
 	alumnosPost,
 	alumnosPut,
 	alumnosDelete,
-	getServiciosDelAlumno
+	getServiciosDelAlumno,
 };

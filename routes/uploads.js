@@ -6,7 +6,7 @@ const {validarCampos, validarCargaArchivos, validarJWT} = require('../middleware
 
 const router = Router()
 router.get('/:ServicioId/:Id',[
-    validarJWT,
+   // validarJWT,
     check('ServicioId','no se recibio').notEmpty(),
     check('ServicioId').custom( ExisteServicio ),
     check('Id','No ser recibio este campo').notEmpty(),
@@ -31,7 +31,9 @@ router.put('/:ServicioId/:Id', [
 router.delete('/:ServicioId/:Id', [
     validarJWT,
     check('Id','No ser recibio este campo').notEmpty(),
+    check('Id').custom(ExisteImg),
     check('ServicioId','no se recibio').notEmpty(),
+    check('ServicioId').custom(ExisteServicio),
     validarCampos,     
 ], deleteImagen)
 

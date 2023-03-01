@@ -40,22 +40,12 @@ const getColeciones = async () => {
 	});
 	return colecciones;
 };
-const ExisteImg = async (Id = "") => {
-	try {
-		let imgIds = await prisma.imgPaths.findMany();
-		const ids=
-		 imgIds.map((p) => {
-			p = p.Path.split(".")[0];
-			return p;
-		});
-
-		if (!ids.includes(Id)){
-			throw new Error(`No existe una imagen con el Id: ${Id}`);
-		}
-		return true;
-	} catch (error) {
-		console.log(error);
+const ExisteImg = async (Id) => {
+	const img = await prisma.imgPaths.findUnique({ where: { Id } });
+	if (!img) {
+		throw new Error(`No existe una imagen con Id: ${Id}`);
 	}
+	return true;
 };
 const validarColecciones = async (coleccion = "", coleciones = []) => {
 	coleciones = await getColeciones();
