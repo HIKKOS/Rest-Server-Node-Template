@@ -57,7 +57,6 @@ const tutoresPutForWeb = async (req = request, res = response) => {
 	if (!Tutor) {
 	}
 };
-
 const tutoresPutForMobile = async (req = request, res = response) => {
 	const token = req.header("x-token");
 	const { Id: id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
@@ -71,9 +70,10 @@ const tutoresPutForMobile = async (req = request, res = response) => {
 		return res.status(200).json({ msg: "datos actualizados correctamente" });
 	} catch (error) {
 		console.log(error);
-		return res.status(400).json({msg: "error al actualizar los datos del tutor"});
+		return res
+			.status(400)
+			.json({ msg: "error al actualizar los datos del tutor" });
 	}
-
 };
 const solicitarCambioPassword = async (req = request, res = response) => {
 	const token = req.header("x-token");
@@ -145,7 +145,7 @@ const tutoresPost = async (req, res = response) => {
 			ApellidoMaterno,
 			Correo,
 			Telefono,
-			RFC: RFC || "" ,
+			RFC: RFC || "",
 			Foto: "",
 			PasswordTutor: bcryptjs.hashSync(pass, salt),
 			Direccion,
@@ -173,7 +173,25 @@ const tutoresDelete = async (req = request, res = response) => {
 		console.log(err);
 	}
 };
-const getTutorados = async (req, res) => {
+
+const getTutoradosWeb = async (req = request, res = response) => {
+	const { TutorId = "" } = req.params;
+	const Alumnos = await prisma.alumno.findMany({
+		where: {
+			TutorId,
+			Activo: true,
+		},
+	});
+	if (Alumnos.length <= 0) {
+		return res.json({ tutorados: [] });
+	}
+	const data = Alumnos.map((a) => {
+		const { CreatedAt, Activo, TutorId, ...resto } = a;
+		return resto;
+	});
+	return res.json({ tutorados: data });
+};
+const getTutoradosMobil = async (req, res) => {
 	const token = req.header("x-token");
 	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
 
@@ -192,13 +210,31 @@ const getTutorados = async (req, res) => {
 	});
 	return res.json({ tutorados: data });
 };
+const agregarTutorados = async (req, res) => {
+	const { TutorId, tutorados = [] } = req.body;
+	console.log(TutorId, tutorados);
+	try {
+		for (const id of tutorados) {
+			await prisma.alumno.update({
+				where: { Id: id },
+				data: { TutorId },
+			});
+		}
+		return res.json({ msg: "tutor agregado correctamente" });
+	} catch (error) {
+		console.log(error);
+		return res.status(400).json({ msg: "error al agregar el tutor" });
+	}
+};
 module.exports = {
 	tutoresGet,
 	tutoresDelete,
 	tutoresPost,
-	getTutorados,
 	tutoresPutForWeb,
 	tutoresPutForMobile,
 	getTutorInfo,
 	solicitarCambioPassword,
+	agregarTutorados,
+	getTutoradosWeb,
+	getTutoradosMobil,
 };

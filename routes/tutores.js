@@ -7,13 +7,15 @@ const {
 	tutoresPost,
 	tutoresPut,
 	tutoresDelete,
-	getTutorados,
+	getTutoradosWeb,
+	getTutoradosMobil,
 	getTutorInfo,
 	tutoresPutForWeb,
 	tutoresPutForMobile,
 	solicitarCambioPassword,
+	agregarTutorados,
 } = require("../controllers/tutores");
-const { ExisteTutor } = require("../helpers/DataBaseValidator");
+const { ExisteTutor, ExistenAlumnos } = require("../helpers/DataBaseValidator");
 const {
 	validarPaginacion,
 	validarCampos,
@@ -37,10 +39,16 @@ router.get(
 	tutoresGet,
 );
 router.get(
-	"/Tutorados",
+	"/tutorados",
 	//! roles verificar
-	[validarJWT, validarPaginacion, validarCampos],
-	getTutorados,
+	[validarJWT, verifyUserRole, validarPaginacion, validarCampos],
+	getTutoradosMobil,
+);
+router.get(
+	"/tutorados/web/:TutorId",
+	//! roles verificar
+	[validarJWT, validarPaginacion,check('TutorId').custom(ExisteTutor), validarCampos],
+	getTutoradosWeb,
 );
 router.get("/getInfo", [validarJWT, verifyUserRole], getTutorInfo);
 router.put(
@@ -75,9 +83,25 @@ router.put(
 	],
 	tutoresPutForMobile,
 );
+router.put(
+	"/agregar-tutorados",
+	[
+		validarJWT,
+		verifyAdminRole,
+		check("TutorId").custom(ExisteTutor),
+		check("tutorados", "debe ser un arreglo").isArray(),
+		check("tutorados").custom(ExistenAlumnos),
+		validarCampos,
+	],
+	agregarTutorados,
+);
 router.post(
 	"/update-password",
-	[validarJWT, check('password','se requiere este campo').notEmpty(),validarCampos],
+	[
+		validarJWT,
+		check("password", "se requiere este campo").notEmpty(),
+		validarCampos,
+	],
 	solicitarCambioPassword,
 );
 router.post(

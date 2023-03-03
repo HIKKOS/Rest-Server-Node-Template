@@ -17,10 +17,28 @@ const ExisteAlumno = async (Id) => {
 	return true;
 };
 const ExisteTutor = async (IdTutor) => {
-	const tutor = await prisma.tutor.findUnique({ where: { Id: IdTutor } });
-	if (!tutor) {
-		throw new Error(`No existe el tutor con el Id: ${Id}`);
+	if (!IdTutor) {
+		throw new Error("No se recibio el parametro TutorId");
 	}
+	if (!isNaN(IdTutor)) {
+		throw new Error("El parametro TutorId no debe ser un numerico");
+	} else {
+		const tutor = await prisma.tutor.findUnique({ where: { Id: IdTutor } });
+		if (!tutor) {
+			throw new Error(`No existe el tutor con el Id: ${IdTutor}`);
+		}
+	}
+	return true;
+};
+const ExistenAlumnos = async (ids = []) => {
+	for (const id of ids) {
+		const a = await prisma.alumno.findUnique({
+			where:{Id: id}
+		})
+		if(!a){
+			throw new Error(`No existe el alumno con el Id: ${id}`);
+		}
+	}	
 	return true;
 };
 const ExisteNombreServicio = async (Nombre = "") => {
@@ -66,4 +84,5 @@ module.exports = {
 	validarColecciones,
 	ExisteNombreServicio,
 	ExisteTutor,
+	ExistenAlumnos
 };
