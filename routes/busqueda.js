@@ -18,7 +18,7 @@ router.get('/Alumnos',[
     verifyAdminRole,
     validarPaginacion, 
     validarCampos
-],busquedaAlumnos )
+], busquedaAlumnos )
 router.get('/Tutores',[
     validarJWT,
     verifyAdminRole,

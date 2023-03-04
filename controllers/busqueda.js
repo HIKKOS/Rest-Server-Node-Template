@@ -14,35 +14,55 @@ const busquedaServicios = async (req = request, res = response) => {
 		busquedaMobile(req, res);
 	}
 };
+
 const busquedaAlumnos = async (req = request, res = response) => {
-	const { alumno:query = "" } = req.query;
-	const { page, limit } = req.query;
+	const { page, limit, Grado, Grupo, Alumno: query = "" } = req.query;
 	const { skip, limite } = await evaluarPagina(page, limit);
-	const alumnos = await prisma.alumno.findMany({
-		where: {
-			OR: [
-				{
-					PrimerNombre: {
-						startsWith: query,
-					},
+	let where = {
+		AND: [],
+		OR: [
+			{
+				PrimerNombre: {
+					startsWith: query,
 				},
-				{
-					SegundoNombre: {
-						startsWith: query,
-					},
+			},
+			{
+				ApellidoPaterno: {
+					startsWith: query,
 				},
-				{
-					ApellidoPaterno: {
-						startsWith: query,
-					},
-				},
-				{
-					ApellidoMaterno: {
-						startsWith: query,
-					},
-				},
-			],
+			},
+		],
+	};
+	if (
+		(Grado && Grupo ) && !(
+			
+			[1, 2, 3, 4, 5, 6].includes(Number(Grado)) ||
+			["A", "B", "C", "D"].includes(Grupo.charAt(0)) 
+
+		)
+	) {
+		return res.status(400).json({
+			msg: "El grupo debe estar entre A al D y el Grado de 1 al 6",
+		});
+	}
+
+	if (!Grado && Grupo) {
+		where.AND.push({ Grupo: Grupo[0] });
+	}
+	if (!Grupo && Grado) {
+		where.AND.push({ Grado: Number(Grado) });
+	}
+	if(Grado && Grupo)
+	where.AND = [
+		{
+			Grupo: Grupo.charAt(0),
 		},
+		{
+			Grado: Number(Grado),
+		},
+	];
+	const alumnos = await prisma.alumno.findMany({
+		where,
 		skip,
 		take: limite,
 	});
@@ -52,7 +72,7 @@ const busquedaAlumnos = async (req = request, res = response) => {
 	});
 };
 const busquedaTutores = async (req = request, res = response) => {
-	const { tutor:query = "" } = req.query;
+	const { tutor: query = "" } = req.query;
 	const { page, limit } = req.query;
 	const { skip, limite } = await evaluarPagina(page, limit);
 	let tutores = await prisma.tutor.findMany({
@@ -89,11 +109,11 @@ const busquedaTutores = async (req = request, res = response) => {
 	});
 	return res.json({
 		total: tutores.length,
-		tutores: tutores.length === 0 ? 'sin resultados' :tutores ,
+		tutores: tutores.length === 0 ? "sin resultados" : tutores,
 	});
 };
 const busquedaWeb = async (req = request, res = response) => {
-	const { servicio:query = "" } = req.query;
+	const { servicio: query = "" } = req.query;
 	const { page, limit } = req.query;
 	try {
 		const { skip, limite } = await evaluarPagina(page, limit);
@@ -134,7 +154,7 @@ const busquedaWeb = async (req = request, res = response) => {
 	}
 };
 const busquedaMobile = async (req = request, res = response) => {
-	const { Servicio:query = "" } = req.query;
+	const { Servicio: query = "" } = req.query;
 	const { page, limit } = req.query;
 	try {
 		const { skip, limite } = await evaluarPagina(page, limit);
