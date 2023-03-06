@@ -34,11 +34,11 @@ const busquedaAlumnos = async (req = request, res = response) => {
 		],
 	};
 	if (
-		(Grado && Grupo ) && !(
-			
+		Grado &&
+		Grupo &&
+		!(
 			[1, 2, 3, 4, 5, 6].includes(Number(Grado)) ||
-			["A", "B", "C", "D"].includes(Grupo.charAt(0)) 
-
+			["A", "B", "C", "D"].includes(Grupo.charAt(0))
 		)
 	) {
 		return res.status(400).json({
@@ -52,18 +52,34 @@ const busquedaAlumnos = async (req = request, res = response) => {
 	if (!Grupo && Grado) {
 		where.AND.push({ Grado: Number(Grado) });
 	}
-	if(Grado && Grupo)
-	where.AND = [
-		{
-			Grupo: Grupo.charAt(0),
-		},
-		{
-			Grado: Number(Grado),
-		},
-	];
+	if (Grado && Grupo)
+		where.AND = [
+			{
+				Grupo: Grupo.charAt(0),
+			},
+			{
+				Grado: Number(Grado),
+			},
+		];
 	const alumnos = await prisma.alumno.findMany({
 		where,
 		skip,
+		select: {
+			Id: true,
+			PrimerNombre: true,
+			SegundoNombre: true,
+			ApellidoMaterno: true,
+			ApellidoPaterno: true,
+			Grado: true,
+			Grupo: true,
+			Genero: true,
+			Tutor: {
+				select: {
+					PrimerNombre: true,
+					ApellidoPaterno: true,
+				},
+			},
+		},
 		take: limite,
 	});
 	return res.json({

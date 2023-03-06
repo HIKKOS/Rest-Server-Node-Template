@@ -157,8 +157,30 @@ const getServiciosDelAlumno = async (req = request, res = response) => {
 		servicio.diasRestantes = id.DiasRestantes;
 		servicios.push(servicio);
 	}
-	// data.map()
 	res.status(200).json({ servicios: servicios });
+};
+const getHorarioServicioAlumno = async (req = request, res = response) => {
+	const servicio = await prisma.servicio.findUnique({
+		where: {
+			Id: req.params.ServicioId,
+		},
+		select: {
+			Nombre: true,
+		},
+	});
+
+	const horario = await prisma.horarioServicioAlumno.findMany({
+		where: {
+			AlumnoId: req.params.AlumnoId,
+			ServicioId: req.params.ServicioId,
+		},
+		select: {
+			Dia: true,
+			HoraInicio: true,
+			HoraFin: true,
+		},
+	});
+	return res.status(200).json({ servicio: servicio.Nombre , horario });
 };
 module.exports = {
 	alumnosGet,
@@ -166,4 +188,5 @@ module.exports = {
 	alumnosPut,
 	alumnosDelete,
 	getServiciosDelAlumno,
+	getHorarioServicioAlumno,
 };

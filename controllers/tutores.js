@@ -49,13 +49,10 @@ const tutoresGet = async (req = request, res = response) => {
 	}
 };
 const tutoresPutForWeb = async (req = request, res = response) => {
-	const { Id } = req.params;
-	const data = req.body;
-	const { PasswordTutor, ...resto } = data;
-	const salt = bcryptjs.genSaltSync();
-	const Tutor = await prisma.tutor.findUnique({ where: { Id: Id } });
-	if (!Tutor) {
-	}
+	const { TutorId } = req.params;
+	const data = req.body	
+	await prisma.tutor.update({ where: { Id:TutorId }, data });
+	return res.json(data);
 };
 const tutoresPutForMobile = async (req = request, res = response) => {
 	const token = req.header("x-token");
@@ -226,7 +223,23 @@ const agregarTutorados = async (req, res) => {
 		return res.status(400).json({ msg: "error al agregar el tutor" });
 	}
 };
+const quitarTutorado = async (req, res) => {
+	const { AlumnosIds } = req.body;
+	try {
+		for (const AlumnoId of AlumnosIds) {
+			await prisma.alumno.update({
+				where: { Id: AlumnoId },
+				data: { TutorId: null },
+			});
+		}
+		return res.json({ msg: "tutor removido correctamente" });
+	} catch (error) {
+		console.log(error);
+		return res.status(400).json({ msg: "error al remover el tutor" });
+	}
+};
 module.exports = {
+	quitarTutorado,
 	tutoresGet,
 	tutoresDelete,
 	tutoresPost,

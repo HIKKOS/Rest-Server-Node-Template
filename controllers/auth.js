@@ -103,8 +103,23 @@ const verificarJWT = (req = request, res = response) =>{
 	}
 	
 }
+const getAdminInfo = async (req = request, res = response) => {
+	const token  = req.header('x-token')
+	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY)
+	const admin = await prisma.administrador.findUnique({
+		where: {
+			Id			
+		},
+
+	})
+	const { PasswordAdmin, Activo, ...resto } = admin
+	res.status(200).json({
+		admin: resto
+	})
+}
 module.exports = {
 	loginAdmin,
 	loginTutor,
 	verificarJWT,
+	getAdminInfo
 };

@@ -101,13 +101,14 @@ model ServiciosDelAlumno {
   @@id([AlumnoId, ServicioId])
 }
 model HorarioServicioAlumno {  
+  Id String @id
   AlumnoId    String
   ServicioId String
   Dia DiaSemana        
   HoraInicio Int
   HoraFin    Int
   Alumno      Alumno   @relation(fields: [AlumnoId], references: [Id])
-  @@id([AlumnoId, ServicioId])
+
 }
 
 model Tutor {

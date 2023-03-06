@@ -16,24 +16,19 @@ const validarJWT = async (req = request, res = response, next) => {
 	try {
 		const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
 		req.id = Id;
-/* 		const admin = await prisma.administrador.findUnique({ where: { Id } });
-		const tutor = await prisma.tutor.findUnique({ where: { Id } });
-		req.userAuth = u; */
 		next();
-	} catch (error) {
-        let msg = ''
-		switch (error) {
-			case jwt.TokenExpiredError:
-                mgs = 'token expirado'
-				break;
-			case jwt.JsonWebTokenError:
-                msg='error de formato en el token'
-				break;
+	} catch ( error ) {
+		switch (error.name) {
+			case 'TokenExpiredError':
+				return res.status(401).json({msg:'Token expirado'})		
+			case 'JsonWebTokenError':
+				return res.status(401).json({msg:'Error de formato'})		
+			default:
+				res.status(400).json({
+					msg:message
+				});
 		}
-		const {message} = error
-		res.status(400).json({
-			msg:message
-		});
+		
 	}
 };
 

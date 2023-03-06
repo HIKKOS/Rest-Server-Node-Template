@@ -25,10 +25,12 @@ const calcularFechaExpiracion = (TiempoContratado, frecuencia = "MENSUAL") => {
 			added.months = TiempoContratado;
 			break;
 	}
-	return (FechaExpiracion = add(
+	const FechaExpiracion = add(
 		new Date(anio, mes, dia),
 		added,
-	)).toLocaleDateString();
+	) 
+	const diasRestantes = Math.ceil((FechaExpiracion - fechaActual) / (1000 * 60 * 60 * 24))
+	return ({FechaExpiracion: FechaExpiracion.toLocaleDateString(), diasRestantes})
 };
 module.exports = {
 	calcularFechaExpiracion,

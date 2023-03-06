@@ -102,13 +102,14 @@ CREATE TABLE `ServiciosDelAlumno` (
 
 -- CreateTable
 CREATE TABLE `HorarioServicioAlumno` (
+    `Id` VARCHAR(191) NOT NULL,
     `AlumnoId` VARCHAR(191) NOT NULL,
     `ServicioId` VARCHAR(191) NOT NULL,
     `Dia` ENUM('LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES') NOT NULL,
     `HoraInicio` INTEGER NOT NULL,
     `HoraFin` INTEGER NOT NULL,
 
-    PRIMARY KEY (`AlumnoId`, `ServicioId`)
+    PRIMARY KEY (`Id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
