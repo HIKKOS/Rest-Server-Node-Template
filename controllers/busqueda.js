@@ -7,6 +7,7 @@ const { getImgIdsFromService } = require("../helpers/obenterIdImagenes");
 const prisma = new PrismaClient();
 
 const busquedaServicios = async (req = request, res = response) => {
+	console.log("busqueda");
 	const { dataFor = "" } = req.query;
 	if (dataFor.toUpperCase() === "WEB") {
 		busquedaWeb(req, res);
@@ -129,7 +130,9 @@ const busquedaTutores = async (req = request, res = response) => {
 	});
 };
 const busquedaWeb = async (req = request, res = response) => {
+	console.log("busqueda web");
 	const { servicio: query = "" } = req.query;
+	console.log(query);
 	const { page, limit } = req.query;
 	try {
 		const { skip, limite } = await evaluarPagina(page, limit);
@@ -160,8 +163,8 @@ const busquedaWeb = async (req = request, res = response) => {
 			});
 		}
 		res.json({
-			encontrados: allServicios.length,
-			allServicios,
+			total: allServicios.length,
+			servicios:allServicios,
 		});
 	} catch (error) {
 		return res.status(400).json({
@@ -170,6 +173,7 @@ const busquedaWeb = async (req = request, res = response) => {
 	}
 };
 const busquedaMobile = async (req = request, res = response) => {
+	console.log("busqueda mobile");
 	const { Servicio: query = "" } = req.query;
 	const { page, limit } = req.query;
 	try {

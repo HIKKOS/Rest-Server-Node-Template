@@ -4,6 +4,7 @@ const calcularFechaExpiracion = (TiempoContratado, frecuencia = "MENSUAL") => {
 	const dia = fechaActual.getDate();
 	const mes = fechaActual.getMonth();
 	const anio = fechaActual.getFullYear();
+	anio.toFixed()
 	const added = {};
 	switch (frecuencia) {
 		case "SEMANAL":

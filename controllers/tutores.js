@@ -50,15 +50,22 @@ const tutoresGet = async (req = request, res = response) => {
 };
 const tutoresPutForWeb = async (req = request, res = response) => {
 	const { TutorId } = req.params;
-	const data = req.body	
-	await prisma.tutor.update({ where: { Id:TutorId }, data });
+	const data = req.body
+	console.log(data);
+	console.log(data.Correo);
+	await prisma.tutor.update({
+		where:{
+			Id: TutorId
+		},
+		data
+	})
 	return res.json(data);
 };
 const tutoresPutForMobile = async (req = request, res = response) => {
 	const token = req.header("x-token");
 	const { Id: id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
 	const data = req.body;
-	const Tutor = await prisma.tutor.findUnique({ where: { Id: id } });
+	const Tutor = await prisma.tutor.update({ where: { Id: id } });
 	try {
 		await prisma.tutor.update({
 			where: { Id: id },

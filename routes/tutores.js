@@ -16,7 +16,7 @@ const {
 	agregarTutorados,
 	quitarTutorado,
 } = require("../controllers/tutores");
-const { ExisteTutor, ExistenAlumnos, ExisteAlumno } = require("../helpers/DataBaseValidator");
+const { ExisteTutor, ExistenAlumnos, ExisteAlumno, ExisteCorreo } = require("../helpers/DataBaseValidator");
 const {
 	validarPaginacion,
 	validarCampos,
@@ -56,8 +56,9 @@ router.put(
 	[
 		validarJWT,
 		verifyAdminRole,
-		check("TutorId").custom(ExisteTutor),
+		check("TutorId").custom( ExisteTutor ),
 		check("Correo", "debe ser un correo").isEmail(),
+		check("Correo",'errpr').custom( (Correo, { req } ) => ExisteCorreo(Correo, req) ),
 		check("PrimerNombre", "no debe ser vacio").notEmpty(),
 		check("SegundoNombre", "Se requiere este campo").notEmpty(),
 		check("ApellidoMaterno", "Se requiere este campo").notEmpty(),

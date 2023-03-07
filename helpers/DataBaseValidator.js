@@ -1,4 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
+const { request } = require("express");
 
 const prisma = new PrismaClient();
 
@@ -65,6 +66,23 @@ const ExisteImg = async (Id) => {
 	}
 	return true;
 };
+const ExisteCorreo = async ( Correo, req = request ) => {
+	const { TutorId } = req.params
+	const tutor = await prisma.tutor.findUnique({ where: { Id:TutorId } });
+	console.log(TutorId);
+	console.log(tutor);
+	console.log(Correo);
+	if ( tutor ) {
+		const correo = await prisma.tutor.findUnique({where: { Correo }})
+		if(!correo ){
+			return true
+		}
+		if(correo.Id !== tutor.Id){
+			throw new Error('ya existe ese correo')
+		}
+	}
+	return true;
+};
 const validarColecciones = async (coleccion = "", coleciones = []) => {
 	coleciones = await getColeciones();
 	//TODO: VERFICAR LA COLLECION CON EL INCLUDES
@@ -84,5 +102,7 @@ module.exports = {
 	validarColecciones,
 	ExisteNombreServicio,
 	ExisteTutor,
-	ExistenAlumnos
+	ExistenAlumnos,
+	ExisteCorreo,
+	
 };

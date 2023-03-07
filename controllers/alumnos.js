@@ -125,6 +125,35 @@ const alumnosDelete = async (req = request, res = response) => {
 		alumno,
 	});
 };
+const getServiciosDelAlumnoForWeb = async(req = request, res = response)=>{
+	const { IdAlumno } = req.params;
+	const { page, limit } = req.query;
+	const { skip, limite } = await evaluarPagina(page, limit);
+	let data = await prisma.serviciosDelAlumno.findMany({
+		skip,
+		take: limite,
+		where: {
+			AlumnoId: IdAlumno,
+		},
+		select: {
+			FechaExpiracion: true,
+			Servicio: {
+				select: {
+					Nombre: true,
+					Costo: true,
+				},
+			},
+		},
+	});
+	const servicios = data.map( s => ({
+		Nombre: s.Servicio.Nombre,
+		Costo: s.Servicio.Costo,
+		Expirado: s.FechaExpiracion < new Date(),
+		FechaExpiracion: s.FechaExpiracion,
+		DiasRestantes: s.FechaExpiracion < new Date() ? 0 :Math.ceil((s.FechaExpiracion - new Date()) / (1000 * 60 * 60 * 24))
+	}))
+	res.status(200).json( {servicios} );
+}
 const getServiciosDelAlumno = async (req = request, res = response) => {
 	const { IdAlumno } = req.params;
 	const { page, limit } = req.query;
@@ -149,6 +178,7 @@ const getServiciosDelAlumno = async (req = request, res = response) => {
 		Nombre: s.Servicio.Nombre,
 		Costo: s.Servicio.Costo,
 		Expirado: s.FechaExpiracion < new Date(),
+		FechaExpiracion: new Date(s.FechaExpiracion),
 		DiasRestantes: s.FechaExpiracion < new Date() ? 0 :Math.ceil((s.FechaExpiracion - new Date()) / (1000 * 60 * 60 * 24))
 	}))
 	res.status(200).json( {servicios} );

@@ -41,6 +41,7 @@ const contratarServicio = async (req = request, res = response) => {
 	}
 	 await prisma.serviciosDelAlumno.create({
 		data: {
+			
 			FechaExpiracion,
 			AlumnoId: IdAlumno,
 			ServicioId: IdServicio,

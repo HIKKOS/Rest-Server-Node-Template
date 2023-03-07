@@ -7,7 +7,7 @@ const createOrder = async(req = request, res = response) => {
 			{
 				amount: {
 					currency_code: "MXN",
-					value: "2700",
+					value: "20",
 				},
 				description: "service example",
 			},
