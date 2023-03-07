@@ -1,6 +1,6 @@
 const { request, response } = require("express");
-const axios = require("axios")
-const createOrder = async(req = request, res = response) => {
+const axios = require("axios");
+const createOrder = async (req = request, res = response) => {
 	const order = {
 		intent: "CAPTURE",
 		purchase_units: [
@@ -13,23 +13,42 @@ const createOrder = async(req = request, res = response) => {
 			},
 		],
 		application_context: {
-            brand_name:'payschool',
-            locale: "es-MX",
-            user_action: "PAY_NOW",
-            landing_page: "LOGIN",
+			brand_name: "payschool",
+			locale: "es-MX",
+			user_action: "PAY_NOW",
+			landing_page: "LOGIN",
 			return_url: "http://localhost:8080/api/test-paypal/capture-order",
 			cancel_url: "http://localhost:8080/api/test-paypal/cancel-order",
 		},
 	};
-    const resp = await axios.post(`${process.env.PAYPAL_API_URI}/v2/checkout/orders`, order, 
-    {
-        auth:{
-            username: process.env.PAYPAL_API_CLIENT,
-            password: process.env.PAYPAL_API_SECRET,
-        }}
-    )
-    console.log(resp.data);
-}
+	const params = new URLSearchParams();
+	params.append("grant_type", "client_credentials");
+	const token = await axios.post(
+		"https://api-m.sandbox.paypal.com/v1/oauth2/token",
+		params,
+		{
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded",
+			},
+			auth: {
+				username: process.env.PAYPAL_CLIENT_ID,
+				password: process.env.PAYPAL_CLIENT_SECRET,
+			},
+		},
+	);
+	console.log(token.data);
+	const resp = await axios.post(
+		`${process.env.PAYPAL_API_URI}/v2/checkout/orders`,
+		order,
+		{
+			headers: {
+				Authorization:
+					"Bearer A21AAJOftvsjzU2z6O7352Pj3Y7iiEFgQHkIUmnoM4TEeKzdgP4iVHqspwWu6g95kWKhs2lTOion7EGc8UeqTvn9mDh3rjZ8w",
+			},
+		},
+	);
+	console.log(resp.data);
+};
 const cancelOrder = (req = request, res = response) => {
 	res.send("create order");
 };
