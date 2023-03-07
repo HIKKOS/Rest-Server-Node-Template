@@ -36,13 +36,12 @@ const contratarServicio = async (req = request, res = response) => {
                 Dia: date.Dia,
                 HoraInicio: date.Inicio,
                 HoraFin: date.Fin,
-
             }
 		}); 
 	}
 	 await prisma.serviciosDelAlumno.create({
 		data: {
-			DiasRestantes: diasRestantes,
+			FechaExpiracion,
 			AlumnoId: IdAlumno,
 			ServicioId: IdServicio,
 		},

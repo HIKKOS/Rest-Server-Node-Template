@@ -94,7 +94,8 @@ model HorarioServicio {
 model ServiciosDelAlumno {
   AlumnoId    String
   ServicioId  String
-  DiasRestantes Int
+  FechaContrato DateTime @default(now())
+  FechaExpiracion DateTime?
   Alumno      Alumno   @relation(fields: [AlumnoId], references: [Id])
   Servicio    Servicio @relation(fields: [ServicioId], references: [Id])
 
