@@ -92,14 +92,13 @@ model HorarioServicio {
   Servicio   Servicio @relation(fields: [ServicioId], references: [Id])
 }
 model ServiciosDelAlumno {
+  Id          String @id
   AlumnoId    String
   ServicioId  String
   FechaContrato DateTime @default(now())
   FechaExpiracion DateTime?
   Alumno      Alumno   @relation(fields: [AlumnoId], references: [Id])
   Servicio    Servicio @relation(fields: [ServicioId], references: [Id])
-
-  @@id([AlumnoId, ServicioId])
 }
 model HorarioServicioAlumno {  
   Id String @id

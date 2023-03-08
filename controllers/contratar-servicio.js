@@ -2,6 +2,8 @@ const { response, request } = require("express");
 const { v4: uuidv4 } = require("uuid");
 const { PrismaClient } = require("@prisma/client");
 const { evaluarPagina } = require("../helpers/paginacion");
+const { createOrder } = require("../controllers/paypal-api");
+
 const jwt = require("jsonwebtoken");
 const {
 	calcularFechaExpiracion,
@@ -9,7 +11,6 @@ const {
 
 const prisma = new PrismaClient();
 const contratarServicio = async (req = request, res = response) => {
-	const token = req.header("x-token");
 	const { IdServicio, IdAlumno } = req.params;
 	const { VecesContratado = 1, Horario } = req.body;
 	const Servicio = await prisma.servicio.findUnique({
@@ -26,33 +27,43 @@ const contratarServicio = async (req = request, res = response) => {
 		VecesContratado,
 		Servicio.FrecuenciaDePago,
 	);
-	for (const date of Horario) {
-        console.log({date});
-		 await prisma.horarioServicioAlumno.create({
-			data:{
-                Id: uuidv4(),
-                AlumnoId: IdAlumno,
-                ServicioId: IdServicio,
-                Dia: date.Dia,
-                HoraInicio: date.Inicio,
-                HoraFin: date.Fin,
-            }
-		}); 
+	const purchase_units = [
+		{
+			custom_id: alumno.Id,
+			reference_id: IdServicio,
+			items: [
+				{   
+					alumnoId: alumno.Id,
+					name: Servicio.Nombre,
+					description: Servicio.Descripcion,
+					unit_amount: { currency_code: "MXN", value: Servicio.Costo },
+					quantity: VecesContratado,
+				},
+			],
+			amount: {
+				currency_code: "MXN",
+				value: Servicio.Costo * VecesContratado,
+				breakdown: {
+					item_total: {
+						currency_code: "MXN",
+						value: Servicio.Costo * VecesContratado,
+					}
+				},
+			}
+		}
+	];
+	try {
+		const links = await createOrder(req, res, purchase_units);
+		return res.status(200).json({
+			aprove: links[1].href,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			msg: "algo salio mal",
+		});
 	}
-	 await prisma.serviciosDelAlumno.create({
-		data: {
-			
-			FechaExpiracion,
-			AlumnoId: IdAlumno,
-			ServicioId: IdServicio,
-		},
-	});  
 
-	return res.json({
-		FechaExpiracion,
-		diasRestantes,
-		msg: `El alumno ${alumno.PrimerNombre} adquirio: ${Servicio.Nombre}`,
-	});
+
 };
 
 module.exports = {
