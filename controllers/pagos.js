@@ -28,7 +28,7 @@ const getPagosById = async(req = request, res = response) => {
 	}
 	return res.json(pagosFormat);
 }
-const getServiciosPendientesPorPagar = async () =>{
+const getServiciosPendientesPor = async () =>{
 	const token = req.header("x-token");
 	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
 } 
