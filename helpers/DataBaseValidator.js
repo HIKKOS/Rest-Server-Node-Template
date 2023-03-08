@@ -10,6 +10,21 @@ const ExisteServicio = async (Id) => {
 	}
 	return true;
 };
+const estaExpiradoServicioAlumno = async(AlumnoId, req) => {	
+	const { IdServicio: ServicioId, IdAlumno } = req.params
+
+		const servicioAlumno = await prisma.serviciosDelAlumno.findUnique({
+			where:{
+				AlumnoId_ServicioId:{
+					AlumnoId: IdAlumno, ServicioId
+				}
+			}
+		})
+		if(servicioAlumno){
+			throw new Error('ya esta contratado')
+		}
+	
+}
 const ExisteAlumno = async (Id) => {
 	const alumno = await prisma.alumno.findUnique({ where: { Id } });
 	if (!alumno) {
@@ -104,5 +119,6 @@ module.exports = {
 	ExisteTutor,
 	ExistenAlumnos,
 	ExisteCorreo,
+	estaExpiradoServicioAlumno,
 	
 };

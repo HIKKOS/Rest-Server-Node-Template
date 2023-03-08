@@ -1,5 +1,7 @@
 const { request, response } = require("express");
+const jwt = require("jsonwebtoken");
 const apiUri = process.env.PAYPAL_API;
+const host = process.env.HOST;
 const username = process.env.PAYPAL_CLIENT_ID;
 const password = process.env.PAYPAL_CLIENT_SECRET;
 const { v4: uuidv4 } = require("uuid");
@@ -15,25 +17,23 @@ const getToken = async () => {
 	params.append("grant_type", "client_credentials");
 	const {
 		data: { access_token },
-	} = await axios.post(
-		"https://api-m.sandbox.paypal.com/v1/oauth2/token",
-		params,
-		{
-			headers: {
-				"Content-Type": "application/x-www-form-urlencoded",
-			},
-			auth: {
-				username,
-				password,
-			},
+	} = await axios.post(`${apiUri}/v1/oauth2/token`, params, {
+		headers: {
+			"Content-Type": "application/x-www-form-urlencoded",
 		},
-	);
+		auth: {
+			username,
+			password,
+		},
+	});
 	return access_token;
 };
 
 const axios = require("axios");
 const createOrder = async (req = request, res = response, purchase_units) => {
 	try {
+		const tokenTutor = req.header("x-token");
+		const { Id:TutorId } = jwt.verify(tokenTutor, process.env.SECRETORPRIVATEKEY);
 		const { IdServicio, IdAlumno } = req.params;
 		const { VecesContratado = 1, Horario } = req.body;
 		const order = {
@@ -44,8 +44,8 @@ const createOrder = async (req = request, res = response, purchase_units) => {
 				locale: "es-MX",
 				user_action: "PAY_NOW",
 				landing_page: "LOGIN",
-				return_url: "http://localhost:8080/api/test-paypal/capture-order",
-				cancel_url: "http://localhost:8080/api/test-paypal/cancel-order",
+				return_url: `${host}/api/test-paypal/capture-order`,
+				cancel_url: `${host}/api/test-paypal/cancel-order`,
 			},
 		};
 		const token = await getToken();
@@ -59,6 +59,7 @@ const createOrder = async (req = request, res = response, purchase_units) => {
 		purchaseDetails.Horario = Horario;
 		purchaseDetails.IdServicio = IdServicio;
 		purchaseDetails.IdAlumno = IdAlumno;
+		purchaseDetails.TutorId = TutorId;
 		return links;
 	} catch (error) {
 		console.log(error);
@@ -81,9 +82,8 @@ const captureOrder = async (req = request, res = response) => {
 			},
 		},
 	);
-	console.log(resp.data);
-	if (resp.status === 201) {
-		const { VecesContratado, Horario, IdServicio, IdAlumno } = purchaseDetails;
+	 if (resp.status === 201) {
+		const { VecesContratado, Horario, IdServicio, IdAlumno, TutorId } = purchaseDetails;
 		const alumno = await prisma.alumno.findUnique({
 			where: {
 				Id: IdAlumno,
@@ -94,39 +94,51 @@ const captureOrder = async (req = request, res = response) => {
 				Id: IdServicio,
 			},
 		});
-		const { FechaExpiracion, diasRestantes } = calcularFechaExpiracion(
+
+		const { FechaExpiracion, diasRestantes } = calcularFechaExpiracion({
 			VecesContratado,
-			servicio.FrecuenciaDePago,
-		);
+			frecuencia: servicio.FrecuenciaDePago,
+			initialDate: new Date(),
+		});
 		for (const date of Horario) {
-			console.log({date});
-			 await prisma.horarioServicioAlumno.create({
-				data:{
+			console.log({ date });
+			await prisma.horarioServicioAlumno.create({
+				data: {
 					Id: uuidv4(),
 					AlumnoId: IdAlumno,
 					ServicioId: IdServicio,
 					Dia: date.Dia,
 					HoraInicio: date.Inicio,
 					HoraFin: date.Fin,
-				}
-			}); 
+				},
+			});
 		}
-		await prisma.serviciosDelAlumno.create({
-			data: {
-				Id: uuidv4(),
-				FechaContrato: new Date(),
-				FechaExpiracion,
-				AlumnoId: IdAlumno,
-				ServicioId: resp.data.purchase_units[0].reference_id,
-			}
-		});
+		const[servicioAlumno,pago] = await prisma.$transaction([
+
+			prisma.serviciosDelAlumno.create({
+				data: {
+					FechaContrato: new Date(),
+					FechaExpiracion,
+					AlumnoId: IdAlumno,
+					ServicioId: IdServicio,
+				},
+			}),
+			prisma.pago.create({
+				data:{
+					AlumnoId:IdAlumno,
+					Monto:( servicio.Costo * VecesContratado),
+					ServicioId: IdServicio,
+					TutorId
+				}
+			})
+		])
 		return res.json({
 			FechaExpiracion,
 			diasRestantes,
 			msg: `El alumno ${alumno.PrimerNombre} adquirio: ${servicio.Nombre}`,
 		});
 	}
-	return res.status(500).json({ msg: "algo salio mal" });
+	return res.status(500).json({ msg: "algo salio mal" }); 
 };
 
 module.exports = {
@@ -134,4 +146,3 @@ module.exports = {
 	cancelOrder,
 	captureOrder,
 };
-//https://api.sandbox.paypal.com/v2/checkout/orders/5NK27136CM838273K/capture

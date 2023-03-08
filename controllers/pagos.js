@@ -1,5 +1,6 @@
 const { response, request } = require("express");
 const { PrismaClient } = require("@prisma/client");
+const jwt = require("jsonwebtoken");
 const prisma = new PrismaClient();
 const getPagosById = async(req = request, res = response) => {
 	const { TutorId = '' } = req.params
@@ -27,26 +28,54 @@ const getPagosById = async(req = request, res = response) => {
 	}
 	return res.json(pagosFormat);
 }
+const getServiciosPendientesPorPagar = async () =>{
+	const token = req.header("x-token");
+	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+} 
 const getPagos = async (req = request, res = response) => {
-	const pagos = await prisma.pago.findMany();
-	const pagosFormat = []
+	const token = req.header("x-token");
+	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+	let pagos = await prisma.pago.findMany({
+		where:{
+			TutorId:Id
+		},
+		select:{
+			Servicio: {
+				select:{
+					Nombre:true
+				}
+			},
+			Monto:true,
+			Facturar:true,
+			AlumnoId:true,
+			Folio:true,
+			FechaPago:true,
+		}
+		
+	});
+	const totalPagos = []
 	for (const pago of pagos) {
-		const Servicio = await prisma.servicio.findUnique( {where: { Id: pago.ServicioId }, select: { Nombre:true }})
-		const Tutor = await prisma.Tutor.findUnique( {where: { Id: pago.TutorId }, select: { Nombres:true, ApellidoPaterno: true, ApellidoMaterno:true }})
-		const Alumno = await prisma.Alumno.findUnique( {where: { Id: pago.AlumnoId }, select: { Nombres:true, ApellidoPaterno: true, ApellidoMaterno:true }})
-		pagosFormat.push(
-			{
-				Folio: pago.Folio,
-				FechaPago: pago.FechaPago.toUTCString(), 
-				Tutor: `${Tutor.Nombres} ${Tutor.ApellidoPaterno} ${Tutor.ApellidoMaterno}`,
-				Alumno: `${Alumno.Nombres} ${Alumno.ApellidoPaterno} ${Alumno.ApellidoMaterno}`,
-				Servicio: `${Servicio.Nombre}`,
-				Monto: pago.Precio,
-				Facturar: pago.Facturar
+		const alumno = await prisma.alumno.findUnique({
+			where:{
+				Id: pago.AlumnoId
+			}, select:{
+				PrimerNombre:true,
+				SegundoNombre: true,
 			}
-		)
+		})
+		const p = {
+			folio: pago.Folio,
+			fechaPago: pago.FechaPago,
+			servicio: pago.Servicio.Nombre,
+			monto: pago.Monto,
+			facturado:pago.Facturar, 
+			alumno: `${alumno.PrimerNombre} ${alumno.SegundoNombre}` ,
+		}
+		
+		totalPagos.push(p)
 	}
-	return res.json(pagosFormat);
+	return res.json(totalPagos)
+	
 };
 const postPagos = async (req = request, res = response) => {
 	const { TutorId, ServicioId, AlumnoId, Facturar = false } = req.body;

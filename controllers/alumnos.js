@@ -168,6 +168,7 @@ const getServiciosDelAlumno = async (req = request, res = response) => {
 			FechaExpiracion: true,
 			Servicio: {
 				select: {
+					Id:true,
 					Nombre: true,
 					Costo: true,
 				},
@@ -175,6 +176,7 @@ const getServiciosDelAlumno = async (req = request, res = response) => {
 		},
 	});
 	const servicios = data.map( s => ({
+		Id: s.Servicio.Id,
 		Nombre: s.Servicio.Nombre,
 		Costo: s.Servicio.Costo,
 		Expirado: s.FechaExpiracion < new Date(),

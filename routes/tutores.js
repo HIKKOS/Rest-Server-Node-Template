@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const { check } = require("express-validator");
 const { verificarJWT } = require("../controllers/auth");
+const { getPagos } = require("../controllers/pagos");
 
 const {
 	tutoresGet,
@@ -58,7 +59,7 @@ router.put(
 		verifyAdminRole,
 		check("TutorId").custom( ExisteTutor ),
 		check("Correo", "debe ser un correo").isEmail(),
-		check("Correo",'errpr').custom( (Correo, { req } ) => ExisteCorreo(Correo, req) ),
+		check("Correo",'error').custom( (Correo, { req } ) => ExisteCorreo(Correo, req) ),
 		check("PrimerNombre", "no debe ser vacio").notEmpty(),
 		check("SegundoNombre", "Se requiere este campo").notEmpty(),
 		check("ApellidoMaterno", "Se requiere este campo").notEmpty(),
@@ -74,6 +75,7 @@ router.put(
 		validarJWT,
 		verifyUserRole,
 		check("Correo", "debe ser un correo").isEmail(),
+		check("Correo",'errpr').custom( (Correo, { req } ) => ExisteCorreo(Correo, req) ),
 		check("PrimerNombre", "no debe ser vacio").notEmpty(),
 		check("SegundoNombre", "Se requiere este campo").notEmpty(),
 		check("ApellidoMaterno", "Se requiere este campo").notEmpty(),
@@ -133,6 +135,8 @@ router.post(
 	],
 	tutoresPost,
 );
+router.get('/pagos',[validarJWT, validarCampos],getPagos)
+router.get('/servicios-por-pagar',[validarJWT, validarCampos],getPagos)
 router.delete(
 	"/:Id",
 	[validarJWT, check("Id", "se requiere este campo").notEmpty(), validarCampos],

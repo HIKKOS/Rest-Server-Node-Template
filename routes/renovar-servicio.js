@@ -1,16 +1,14 @@
 const { Router } = require("express");
 const { check } = require("express-validator");
 const { contratarServicio } = require("../controllers/contratar-servicio");
+const { renovarServicio } = require("../controllers/renovar-servicio");
 const {
 	ExisteServicio,
 	ExisteAlumno,
-	estaExpiradoServicioAlumno,
 } = require("../helpers/DataBaseValidator");
 const { VerificarHorario } = require("../helpers/verificarHorario");
 const {
-	validarPaginacion,
 	validarCampos,
-	genderCheck,
 	validarJWT,
 } = require("../middlewares");
 const { verifyUserRole } = require("../middlewares/verifyRole");
@@ -26,13 +24,8 @@ router.post(
 		check("IdAlumno").custom(ExisteAlumno),
 		check("IdAlumno", "es obligatorio").notEmpty(),
 		check("VecesContratado", "es obligatorio").notEmpty(),
-		check("Horario").custom(VerificarHorario),
-		check("IdAlumno",'error').custom(
-			(IdAlumno,{req}) =>
-				estaExpiradoServicioAlumno(IdAlumno, req),
-		),
 		validarCampos,
 	],
-	contratarServicio,
+	renovarServicio,
 );
 module.exports = router;
