@@ -110,10 +110,13 @@ router.put(
 	quitarTutorado,
 );
 router.post(
-	"/update-password",
+	"/actualizar-password",
 	[
 		validarJWT,
-		check("password", "se requiere este campo").notEmpty(),
+		verifyUserRole,
+		check("passwordActual", "se requiere este campo").notEmpty(),
+		check("nuevaPassword", "se requiere este campo").notEmpty(),
+		check("nuevaPassword", "debe ser de 8 caracteres").isLength({min:8}),
 		validarCampos,
 	],
 	solicitarCambioPassword,

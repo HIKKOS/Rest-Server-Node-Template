@@ -10,6 +10,7 @@ const ExisteServicio = async (Id) => {
 	}
 	return true;
 };
+
 const estaExpiradoServicioAlumno = async(AlumnoId, req) => {	
 	const { IdServicio: ServicioId, IdAlumno } = req.params
 
@@ -120,5 +121,4 @@ module.exports = {
 	ExistenAlumnos,
 	ExisteCorreo,
 	estaExpiradoServicioAlumno,
-	
 };

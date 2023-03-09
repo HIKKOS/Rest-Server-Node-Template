@@ -8,6 +8,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const cargarArchivo = async (req = require, res = response) => {
+	console.log(req.files);
 	const token = req.header("x-token");
 	const { Id: IdTutor } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
 	const tutor = await prisma.tutor.findUnique({ where: { Id: IdTutor } });

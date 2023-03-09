@@ -37,7 +37,7 @@ const getPagos = async (req = request, res = response) => {
 	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
 	let pagos = await prisma.pago.findMany({
 		where:{
-			TutorId:Id
+			TutorId: Id
 		},
 		select:{
 			Servicio: {

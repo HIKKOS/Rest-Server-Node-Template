@@ -19,6 +19,8 @@ const getTutorInfo = async (req = request, res = response) => {
 	if (!tutor.Foto) {
 		tutor.Foto = "";
 	}
+	
+	!tutor.SegundoNombre ?  (tutor.SegundoNombre = " ") : tutor.SegundoNombre = tutor.segundoNombre;
 	return res.json(tutor);
 };
 const tutoresGet = async (req = request, res = response) => {
@@ -50,15 +52,15 @@ const tutoresGet = async (req = request, res = response) => {
 };
 const tutoresPutForWeb = async (req = request, res = response) => {
 	const { TutorId } = req.params;
-	const data = req.body
+	const data = req.body;
 	console.log(data);
 	console.log(data.Correo);
 	await prisma.tutor.update({
-		where:{
-			Id: TutorId
+		where: {
+			Id: TutorId,
 		},
-		data
-	})
+		data,
+	});
 	return res.json(data);
 };
 const tutoresPutForMobile = async (req = request, res = response) => {
@@ -79,38 +81,26 @@ const tutoresPutForMobile = async (req = request, res = response) => {
 			.json({ msg: "error al actualizar los datos del tutor" });
 	}
 };
+
 const solicitarCambioPassword = async (req = request, res = response) => {
 	const token = req.header("x-token");
 	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
-	let testAccount = await nodemailer.createTestAccount();
-	const tutor = await prisma.tutor.findUnique({ where: { Id } });
-	// create reusable transporter object using the default SMTP transport
-	let transporter = nodemailer.createTransport({
-		host: "smtp.ethereal.email",
-		port: 587,
-		secure: false, // true for 465, false for other ports
-		auth: {
-			user: testAccount.user,
-			pass: testAccount.pass,
+	const { passwordActual, nuevaPassword } = req.body;
+	const tutor = await prisma.tutor.findUnique({
+		where: { Id },
+		select: {
+			PasswordTutor: true,
 		},
 	});
+	if (!bcryptjs.compareSync(passwordActual, tutor.PasswordTutor)) {
+		return res.status(401).json({msg:"La contraseñas no es coinciden"});
+	}
+	await prisma.tutor.update({
+		where: { Id },
+		data: { PasswordTutor: bcryptjs.hashSync(nuevaPassword, 10) },
+	});
 
-	// send mail with defined transport object
-	let info = await transporter.sendMail({
-		from: '"Fred Foo 👻" <foo@example.com>', // sender address
-		to: "noeparedes027@gmail.com", // list of receivers
-		subject: "Hello ✔", // Subject line
-		text: "Hello world?", // plain text body
-		html: "<b>Hello world?</b>", // html body
-	});
-	console.log("Message sent: %s", info.messageId);
-	/* const token = jwt.sign({ Id: tutor.Id }, process.env.SECRETORPRIVATEKEY, {
-		expiresIn: "1h",
-	}); */
-	return res.json({
-		msg: "se envio un correo para cambiar la contraseña",
-		token,
-	});
+	res.status(200).json({msg: "Contraseña actualizada con éxito"});
 };
 const tutorCambioPassword = async (req = request, res = response) => {
 	const token = req.header("x-token");
