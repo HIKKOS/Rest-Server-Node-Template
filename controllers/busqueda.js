@@ -131,40 +131,41 @@ const busquedaTutores = async (req = request, res = response) => {
 };
 const busquedaWeb = async (req = request, res = response) => {
 	console.log("busqueda web");
-	const { servicio: query = "" } = req.query;
+	const { Servicio: query = "" } = req.query;
 	console.log(query);
 	const { page, limit } = req.query;
 	try {
 		const { skip, limite } = await evaluarPagina(page, limit);
-		let allServicios = await prisma.servicio.findMany({
+		const allServicios = await prisma.servicio.findMany({
 			where: {
 				Nombre: {
 					startsWith: query,
 				},
 			},
+			select: {
+				Id: true,
+				Nombre: true,
+				Costo: true,
+				Cancelable: true,
+				Descripcion: true,
+				HorarioServicio: {
+					select: {
+						Dia: true,
+						Fin: true,
+						Inicio: true,
+					},
+				},
+			},
 			skip,
 			take: limite,
 		});
-		for (servicio of allServicios) {
-			servicio.Horario = await prisma.horarioServicio.findMany({
-				where: {
-					ServicioId: servicio.Id,
-				},
-				select: {
-					Dia: true,
-					HoraInicio: true,
-					HoraFin: true,
-				},
-			});
-		}
+
 		if (allServicios.length === 0) {
-			return res.json({
-				msg: `no se econtro ningun resultado para ${Servicio}`,
-			});
+			return res.json(allServicios);
 		}
 		res.json({
 			total: allServicios.length,
-			servicios:allServicios,
+			servicios: allServicios,
 		});
 	} catch (error) {
 		return res.status(400).json({
