@@ -70,7 +70,7 @@ const MostrarImagen = async (req = request, res = response) => {
 	const { Path } = img;
 
 	const pathImagen = path.join(__dirname, "../uploads/", ServicioId, Path);
-	if (!fs.existsSync(pathImagen)) {
+	if (!fs.existsSync(pathImagen) || Id === '404') {
 		const pathImagen = path.join(__dirname, "../assets/no-image.jpg");
 		return res.sendFile(pathImagen);
 	}
@@ -87,7 +87,7 @@ const deleteImagen = async (req = request, res = response) => {
             msg: "no existe la imagen"
         })
     }
-    let { Path } = uimg
+    const { Path } = uimg
 	const pathImagen = path.join(__dirname, "../uploads/", ServicioId, Path);
 
     if (fs.existsSync(pathImagen)) {

@@ -118,32 +118,44 @@ const serviciosGetWeb = async (req = request, res = response) => {
 			return res.json(Servicio);
 		}
 		const { skip, limite } = await evaluarPagina(page, limit);
-		const Servicios = await prisma.Servicio.findMany({
+		const Servicios = await prisma.servicio.findMany({
 			skip,
 			take: limite,
 			where: {
 				Activo: show === "active" ? true : false,
 			},
+			select: {
+				Id: true,
+				Nombre: true,
+				Cancelable: true,
+				Descripcion: true,
+				FechaPago: true,
+				Costo: true,
+				Activo: true,
+				FrecuenciaDePago: true,
+				ImgPaths: {
+					select: {
+						Id: true,
+					},
+				},
+				HorarioServicio: {
+					select: {
+						Dia: true,
+						HoraInicio: true,
+						HoraFin: true,
+					},
+				},
+			},
 		});
-		for (const Servicio of Servicios) {
-			const ServicioId = Servicio.Id;
-			const PathsArray = await prisma.ImgPaths.findMany({
-				where: { ServicioId },
-			});
-			const Id = PathsArray.map((p) => {
-				return p.Id;
-			});
-			Servicio.ImgIds = Id;
-			if (PathsArray.length >= 0) {
-				Servicios.ImgIds = "";
-			}
-			Servicios.ImgIds = Id;
-		}
+		const filtrado = Servicios.map((s) => {
+			s.ImgPaths = s.ImgPaths.flatMap((p) => Object.values(p));
+			return s;
+		});
 
 		const total = await prisma.Servicio.count();
 		res.json({
 			total,
-			Servicios,
+			Servicios: filtrado,
 		});
 	} catch (error) {
 		console.log(error);
@@ -153,43 +165,22 @@ const serviciosGetWeb = async (req = request, res = response) => {
 	}
 };
 const serviciosPost = async (req = request, res = response) => {
-	let { Nombre, Cancelable, Descripcion, FechaPago, Costo } = req.body;
-	const { Horarios } = req.body;
+	let { Nombre, Cancelable, Descripcion, FechaPago = 1, Costo } = req.body;
+	const { Horarios = [] } = req.body;
 	const horarioServicio = [];
 	horarioServicio.Cancelable = Boolean(Cancelable);
 	Costo = Number(Costo);
 	const Id = uuidv4();
-	const data = Horarios;
-	if (tieneDuplicados(data)) {
-		return res.status(400).json({ msg: "tiene valores duplicados" });
-	}
-	for (const horario of Horarios) {
-		if (horario.inicio >= horario.fin) {
-			return res.status(400).json({
-				msg: "La hora de inicio debe ser menor a la de fin se obtuvo:",
-				incio: horario.inicio,
-				fin: horario.fin,
-			});
-		}
+	const data = Horarios.map((h) => ({
+		Id: uuidv4(),
+		//	ServicioId: Id,
+		Dia: h.Dia,
+		HoraInicio: h.Inicio,
+		HoraFin: h.Fin,
+	}));
 
-		if (isNaN(horario.inicio || horario.fin)) {
-			return res.status(400).json({
-				msg: "deben ser numericos se obtuvo:",
-				incio: horario.inicio,
-				fin: horario.fin,
-			});
-		}
-
-		horarioServicio.push({
-			ServicioId: Id,
-			Id: uuidv4(),
-			Dia: horario.dia.toUpperCase(),
-			HoraInicio: Number(horario.inicio),
-			HoraFin: Number(horario.fin),
-		});
-	}
 	const [Servicio, Horario] = await prisma.$transaction([
-		prisma.Servicio.create({
+		prisma.servicio.create({
 			data: {
 				Id,
 				Nombre,
@@ -197,10 +188,12 @@ const serviciosPost = async (req = request, res = response) => {
 				Descripcion,
 				FechaPago,
 				Costo,
+				HorarioServicio: {
+					createMany: {
+						data,
+					},
+				},
 			},
-		}),
-		prisma.horarioServicio.createMany({
-			data: horarioServicio,
 		}),
 	]);
 
@@ -212,15 +205,33 @@ const serviciosPost = async (req = request, res = response) => {
 };
 const serviciosPut = async (req = request, res = response) => {
 	const { Id } = req.params;
-	const data = req.body;
+	const { HorarioServicio, ...data } = req.body;
+	console.log(HorarioServicio);
+	const dataHorario = HorarioServicio.map(h => ({
+		Id: uuidv4(),
+		ServicioId: Id,
+		Dia: h.Dia,
+		HoraFin: h.HoraFin,
+		HoraInicio: h.HoraInicio
+	}))
+	console.log(data);
 	data.Costo = Number(data.Costo);
 	data.Cancelable = Boolean(data.Cancelable);
-
-	const serv = await prisma.Servicio.update({
+	 const serv = await prisma.servicio.update({
 		data,
 		where: { Id },
-	});
-	return res.json({
+	}); 
+	const trans = await prisma.$transaction([
+		prisma.horarioServicio.deleteMany({where:{ServicioId:Id}}),
+		prisma.horarioServicio.createMany({data:dataHorario})
+	])
+	const hor = await prisma.horarioServicio.findMany({
+		where:{
+			ServicioId: Id
+		}
+	})
+	console.log(hor);
+	return res.status(200).json({
 		Servicio: serv,
 	});
 };

@@ -13,8 +13,8 @@ const VerificarHorario = (horario = []) => {
         if (date.Inicio >= date.Fin) {
             throw new Error ('la hora de inicio debe ser menor a la final');
         }
-        if (date.Inicio < 7 || date.Inicio > 18) {
-            throw new Error ('la hora de inicio debe ser mayor a 7 y menor a 18');
+        if (date.Inicio < 7 || date.Inicio > 16) {
+            throw new Error ('la hora de inicio debe ser mayor a 7 y menor a 16');
         }
         stackHorario.push(date.Dia)
     }

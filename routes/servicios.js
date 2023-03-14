@@ -12,6 +12,7 @@ const {
 } = require('../controllers/servicios')
 const { ExisteNombreServicio, validarColecciones, ExisteServicio } = require('../helpers/DataBaseValidator')
 const { verifyAdminRole } = require('../middlewares/verifyRole')
+const { VerificarHorario } = require('../helpers/verificarHorario')
 
 const router = Router()
 
@@ -34,7 +35,7 @@ router.post('/',[
     check('Nombre').custom( ExisteNombreServicio ).isLength({min:1}),
     check('Descripcion','Se requiere este campo').isLength({min:1}),
     check('Cancelable','De ser booleano (true/false 1/0)').isBoolean(),
-    check('Horarios','error de formato').isArray(),
+    check('Horarios').custom( VerificarHorario ),
     check('Costo','Debe ser numerico y mayor a 0').not().isIn([0]).isNumeric(),
     validarCampos,
 ] ,serviciosPost)
@@ -45,6 +46,8 @@ router.put('/:Id',[
     check('Descripcion','Se requiere este campo').notEmpty(),
     check(['Cancelable'],'De ser booleano (true/false 1/0)').isBoolean(),
     check('Costo','Debe ser numerico').isNumeric(),
+    check('Horarios').custom( VerificarHorario ),
+    check('FrecuenciaDePago','No es valido').isIn(["SEMANAL","MENSUAL" ,"BIMESTRAL", "SEMESTRAL", "ANUAL"]),
     check('Id','No existe').custom(  ExisteServicio ),
     validarCampos
 ],serviciosPut)

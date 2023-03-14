@@ -87,8 +87,8 @@ model HorarioServicio {
   Id         String      @id
   ServicioId String
   Dia        DiaSemana
-  HoraInicio Int
-  HoraFin    Int
+  Inicio Int
+  Fin    Int
   Servicio   Servicio @relation(fields: [ServicioId], references: [Id])
 }
 model ServiciosDelAlumno {
@@ -105,8 +105,8 @@ model HorarioServicioAlumno {
   AlumnoId    String
   ServicioId String
   Dia DiaSemana        
-  HoraInicio Int
-  HoraFin    Int
+  Inicio Int
+  Fin    Int
   Alumno      Alumno   @relation(fields: [AlumnoId], references: [Id])
 
 }

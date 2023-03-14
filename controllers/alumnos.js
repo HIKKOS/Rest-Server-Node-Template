@@ -125,7 +125,7 @@ const alumnosDelete = async (req = request, res = response) => {
 		alumno,
 	});
 };
-const getServiciosDelAlumnoForWeb = async(req = request, res = response)=>{
+const getServiciosDelAlumnoForWeb = async (req = request, res = response) => {
 	const { IdAlumno } = req.params;
 	const { page, limit } = req.query;
 	const { skip, limite } = await evaluarPagina(page, limit);
@@ -145,15 +145,18 @@ const getServiciosDelAlumnoForWeb = async(req = request, res = response)=>{
 			},
 		},
 	});
-	const servicios = data.map( s => ({
+	const servicios = data.map((s) => ({
 		Nombre: s.Servicio.Nombre,
 		Costo: s.Servicio.Costo,
 		Expirado: s.FechaExpiracion < new Date(),
 		FechaExpiracion: s.FechaExpiracion,
-		DiasRestantes: s.FechaExpiracion < new Date() ? 0 :Math.ceil((s.FechaExpiracion - new Date()) / (1000 * 60 * 60 * 24))
-	}))
-	res.status(200).json( {servicios} );
-}
+		DiasRestantes:
+			s.FechaExpiracion < new Date()
+				? 0
+				: Math.ceil((s.FechaExpiracion - new Date()) / (1000 * 60 * 60 * 24)),
+	}));
+	res.status(200).json({ servicios });
+};
 const getServiciosDelAlumno = async (req = request, res = response) => {
 	const { IdAlumno } = req.params;
 	const { page, limit } = req.query;
@@ -168,22 +171,25 @@ const getServiciosDelAlumno = async (req = request, res = response) => {
 			FechaExpiracion: true,
 			Servicio: {
 				select: {
-					Id:true,
+					Id: true,
 					Nombre: true,
 					Costo: true,
 				},
 			},
 		},
 	});
-	const servicios = data.map( s => ({
+	const servicios = data.map((s) => ({
 		Id: s.Servicio.Id,
 		Nombre: s.Servicio.Nombre,
 		Costo: s.Servicio.Costo,
 		Expirado: s.FechaExpiracion < new Date(),
 		FechaExpiracion: new Date(s.FechaExpiracion),
-		DiasRestantes: s.FechaExpiracion < new Date() ? 0 :Math.ceil((s.FechaExpiracion - new Date()) / (1000 * 60 * 60 * 24))
-	}))
-	res.status(200).json( {servicios} );
+		DiasRestantes:
+			s.FechaExpiracion < new Date()
+				? 0
+				: Math.ceil((s.FechaExpiracion - new Date()) / (1000 * 60 * 60 * 24)),
+	}));
+	res.status(200).json({ servicios });
 };
 const getHorarioServicioAlumno = async (req = request, res = response) => {
 	const servicio = await prisma.servicio.findUnique({
@@ -208,6 +214,25 @@ const getHorarioServicioAlumno = async (req = request, res = response) => {
 	});
 	return res.status(200).json({ servicio: servicio.Nombre, horario });
 };
+const deleteAlumnoServicios = async (req = request, res = response) => {
+	console.log('delel');
+	const { ServicioId, AlumnoId } = req.params;
+	console.log(ServicioId,AlumnoId);
+	await prisma.serviciosDelAlumno.delete({
+		where:{
+			AlumnoId_ServicioId:{
+				AlumnoId,
+				ServicioId
+			}
+		}
+	})
+	const servicios = await prisma.serviciosDelAlumno.findMany({
+		where:{
+			AlumnoId,
+		}
+	})
+	return res.json(servicios)
+};
 module.exports = {
 	alumnosGet,
 	alumnosPost,
@@ -215,4 +240,5 @@ module.exports = {
 	alumnosDelete,
 	getServiciosDelAlumno,
 	getHorarioServicioAlumno,
+	deleteAlumnoServicios
 };

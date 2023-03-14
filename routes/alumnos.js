@@ -8,9 +8,13 @@ const {
 	alumnosDelete,
 	getServiciosDelAlumno,
 	getHorarioServicioAlumno,
+	deleteAlumnoServicios,
 } = require("../controllers/alumnos");
 const { verificarJWT } = require("../controllers/auth");
-const { ExisteServicio, ExisteAlumno } = require("../helpers/DataBaseValidator");
+const {
+	ExisteServicio,
+	ExisteAlumno,
+} = require("../helpers/DataBaseValidator");
 const {
 	validarPaginacion,
 	validarCampos,
@@ -18,19 +22,24 @@ const {
 	validarJWT,
 } = require("../middlewares");
 const { gradeCheck } = require("../middlewares/gradeCheck");
-const { verifyUserRole } = require("../middlewares/verifyRole");
+const { verifyUserRole, verifyAdminRole } = require("../middlewares/verifyRole");
 
 const router = Router();
 
 router.get("/", [validarJWT, validarPaginacion, validarCampos], alumnosGet);
 router.get(
 	"/servicios/:IdAlumno",
-	[validarJWT,check("IdAlumno", "es obligatorio").notEmpty(), validarCampos],
+	[validarJWT, check("IdAlumno", "es obligatorio").notEmpty(), validarCampos],
 	getServiciosDelAlumno,
 );
 router.get(
 	"/horario/:AlumnoId/:ServicioId",
-	[validarJWT, validarCampos, check("ServicioId").custom(ExisteServicio), check("AlumnoId").custom(ExisteAlumno)],
+	[
+		validarJWT,
+		validarCampos,
+		check("ServicioId").custom(ExisteServicio),
+		check("AlumnoId").custom(ExisteAlumno),
+	],
 	getHorarioServicioAlumno,
 );
 router.put(
@@ -68,5 +77,16 @@ router.delete(
 	"/:Id",
 	[validarJWT, check("Id", "Debe ser numerico").isNumeric()],
 	alumnosDelete,
+);
+router.delete(
+	"/:ServicioId/:AlumnoId",
+	[
+		validarJWT,
+		verifyAdminRole,
+		check("AlumnoId").custom(ExisteAlumno),
+		check("ServicioId").custom(ExisteServicio),
+		validarCampos
+	],
+	deleteAlumnoServicios,
 );
 module.exports = router;
