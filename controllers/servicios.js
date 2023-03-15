@@ -141,8 +141,8 @@ const serviciosGetWeb = async (req = request, res = response) => {
 				HorarioServicio: {
 					select: {
 						Dia: true,
-						HoraInicio: true,
-						HoraFin: true,
+						Inicio: true,
+						Fin: true,
 					},
 				},
 			},
@@ -204,15 +204,15 @@ const serviciosPost = async (req = request, res = response) => {
 	});
 };
 const serviciosPut = async (req = request, res = response) => {
+	console.log(req.body);
 	const { Id } = req.params;
 	const { HorarioServicio, ...data } = req.body;
-	console.log(HorarioServicio);
+
+
 	const dataHorario = HorarioServicio.map(h => ({
 		Id: uuidv4(),
 		ServicioId: Id,
-		Dia: h.Dia,
-		HoraFin: h.HoraFin,
-		HoraInicio: h.HoraInicio
+		...h
 	}))
 	console.log(data);
 	data.Costo = Number(data.Costo);

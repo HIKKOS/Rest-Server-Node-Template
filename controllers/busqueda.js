@@ -17,9 +17,18 @@ const busquedaServicios = async (req = request, res = response) => {
 };
 
 const busquedaAlumnos = async (req = request, res = response) => {
-	const { page, limit, Grado, Grupo, Alumno: query = "" } = req.query;
+	const {
+		showOnly = "noTutor",
+		page,
+		limit,
+		Grado,
+		Grupo,
+		Alumno: query = "",
+	} = req.query;
+
 	const { skip, limite } = await evaluarPagina(page, limit);
-	let where = {
+
+	const where = {
 		AND: [],
 		OR: [
 			{
@@ -34,6 +43,12 @@ const busquedaAlumnos = async (req = request, res = response) => {
 			},
 		],
 	};
+	console.log(showOnly);
+	console.log(showOnly === "withTutor");
+	showOnly === "withTutor"
+		? where.AND.push({ TutorId: { not: null } })
+		: where.AND.push({ TutorId: null });
+	console.log(where);
 	if (
 		Grado &&
 		Grupo &&
@@ -53,15 +68,15 @@ const busquedaAlumnos = async (req = request, res = response) => {
 	if (!Grupo && Grado) {
 		where.AND.push({ Grado: Number(Grado) });
 	}
-	if (Grado && Grupo)
-		where.AND = [
-			{
-				Grupo: Grupo.charAt(0),
-			},
-			{
-				Grado: Number(Grado),
-			},
-		];
+	if (Grado && Grupo) {
+		where.AND.push({
+			Grupo: Grupo.charAt(0),
+		});
+		where.AND.push({
+			Grado: Number(Grado),
+		});
+	}
+
 	const alumnos = await prisma.alumno.findMany({
 		where,
 		skip,
@@ -136,6 +151,7 @@ const busquedaWeb = async (req = request, res = response) => {
 	const { page, limit } = req.query;
 	try {
 		const { skip, limite } = await evaluarPagina(page, limit);
+
 		const allServicios = await prisma.servicio.findMany({
 			where: {
 				Nombre: {

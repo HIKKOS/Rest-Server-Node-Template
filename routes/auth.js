@@ -9,6 +9,7 @@ const {
 } = require("../controllers/auth");
 const { validarCampos } = require("../middlewares/validadorCampos");
 const { validarJWT } = require("../middlewares/validarJWT");
+const { verifyAdminRole } = require("../middlewares/verifyRole");
 
 const router = Router();
 
@@ -21,7 +22,7 @@ router.post(
 	],
 	loginAdmin, 
 );
-router.get("/getAdminInfo", validarJWT, getAdminInfo);
+router.get("/getAdminInfo", validarJWT,verifyAdminRole, getAdminInfo);
 router.post("/jwt", verificarJWT);
 router.post(
 	"/Tutor",
