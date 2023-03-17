@@ -2,7 +2,6 @@ const { response, request } = require("express");
 const { v4: uuidv4 } = require("uuid");
 const { PrismaClient } = require("@prisma/client");
 const { evaluarPagina } = require("../helpers/paginacion");
-const { reduceName } = require("../helpers/reduceName");
 const prisma = new PrismaClient();
 const alumnosGet = async (req = request, res = response) => {
 	const { AlumnoId = "" } = req.query;

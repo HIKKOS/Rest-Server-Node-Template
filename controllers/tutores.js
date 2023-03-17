@@ -20,7 +20,7 @@ const getTutorInfo = async (req = request, res = response) => {
 		tutor.Foto = "";
 	}
 	
-	!tutor.SegundoNombre ?  (tutor.SegundoNombre = " ") : tutor.SegundoNombre = tutor.segundoNombre;
+	!tutor.SegundoNombre ?  (tutor.SegundoNombre = "nada") : tutor.SegundoNombre = tutor.SegundoNombre;
 	return res.json(tutor);
 };
 const tutoresGet = async (req = request, res = response) => {

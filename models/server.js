@@ -22,6 +22,7 @@ class Server {
 			suscripciones: "/api/contratar",
 			renovar: "/api/renovar",
 			paypal: "/api/test-paypal",
+			dashboard:"/api/dashboard"
 		};
 		//Middlewares
 		this.middlewares();
@@ -68,6 +69,7 @@ class Server {
 		this.app.use(this.paths.suscripciones, require("../routes/contratar-servicio"));
 		this.app.use(this.paths.renovar, require("../routes/renovar-servicio"));
 		this.app.use(this.paths.paypal, require("../routes/paypal-test"));
+		this.app.use(this.paths.dashboard, require("../routes/dashboard"));	
 	}
 	listen() {
 		this.app.listen(this.port, () => {
