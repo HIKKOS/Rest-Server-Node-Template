@@ -89,19 +89,26 @@ const alumnosPut = async (req = request, res = response) => {
 	});
 };
 const alumnosPost = async (req = request, res = response) => {
-	const { Nombres, ApellidoMaterno, ApellidoPaterno, Grado, Grupo, Genero } =
-		req.body;
+	const {
+		PrimerNombre,
+		SegundoNombre,
+		ApellidoMaterno,
+		ApellidoPaterno,
+		Grado,
+		Grupo,
+		Genero,
+	} = req.body;
 	const Id = uuidv4();
-	//! TODO: FUNCION PARA VALIDAR NOMBRES SIN ESPACIOS
 	const alumno = await prisma.alumno.create({
 		data: {
 			Id,
-			Nombres,
+			PrimerNombre,
+			SegundoNombre,
 			ApellidoPaterno,
 			ApellidoMaterno,
 			Grado: Number(Grado),
 			Grupo,
-			Genero: Genero === 0 ? 0 : "1",
+			Genero: (Genero) ? 0 : 1,
 		},
 	});
 	return res.json({
@@ -214,23 +221,23 @@ const getHorarioServicioAlumno = async (req = request, res = response) => {
 	return res.status(200).json({ servicio: servicio.Nombre, horario });
 };
 const deleteAlumnoServicios = async (req = request, res = response) => {
-	console.log('delel');
+	console.log("delel");
 	const { ServicioId, AlumnoId } = req.params;
-	console.log(ServicioId,AlumnoId);
+	console.log(ServicioId, AlumnoId);
 	await prisma.serviciosDelAlumno.delete({
-		where:{
-			AlumnoId_ServicioId:{
+		where: {
+			AlumnoId_ServicioId: {
 				AlumnoId,
-				ServicioId
-			}
-		}
-	})
+				ServicioId,
+			},
+		},
+	});
 	const servicios = await prisma.serviciosDelAlumno.findMany({
-		where:{
+		where: {
 			AlumnoId,
-		}
-	})
-	return res.json(servicios)
+		},
+	});
+	return res.json(servicios);
 };
 module.exports = {
 	alumnosGet,
@@ -239,5 +246,5 @@ module.exports = {
 	alumnosDelete,
 	getServiciosDelAlumno,
 	getHorarioServicioAlumno,
-	deleteAlumnoServicios
+	deleteAlumnoServicios,
 };

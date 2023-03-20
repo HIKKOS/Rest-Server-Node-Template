@@ -3,7 +3,7 @@ const { check } = require('express-validator')
 
 const { validarCampos } = require('../middlewares/validadorCampos')
 const { validarJWT } = require('../middlewares/validarJWT')
-const { getPagos, postPagos, getPagosById } = require('../controllers/pagos')
+const { getPagos, postPagos, getPagosById, getAllPagos } = require('../controllers/pagos')
 const { verifyUserRole,verifyAdminRole } = require('../middlewares/verifyRole')
 const { ExisteTutor, ExisteServicio, ExisteAlumno } = require('../helpers/DataBaseValidator')
 
@@ -28,4 +28,9 @@ router.post('/',[
     check('Facturar','se requiere este campo').isBoolean(),  
     validarCampos
 ], postPagos)
+router.get('/web',[
+    validarJWT,
+    verifyAdminRole,
+    validarCampos
+], getAllPagos)
 module.exports = router

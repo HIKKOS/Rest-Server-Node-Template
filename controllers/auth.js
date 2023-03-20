@@ -106,7 +106,6 @@ const verificarJWT = (req = request, res = response) =>{
 const getAdminInfo = async (req = request, res = response) => {
 	const token  = req.header('x-token')
 	const { Id,rol } = jwt.verify(token, process.env.SECRETORPRIVATEKEY)
-	console.log(rol);
 	const admin = await prisma.administrador.findUnique({
 		where: {
 			Id			

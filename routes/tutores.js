@@ -16,8 +16,15 @@ const {
 	solicitarCambioPassword,
 	agregarTutorados,
 	quitarTutorado,
+	solicitarCambioCorreo,
+	FinalizarCambioCorreo,
 } = require("../controllers/tutores");
-const { ExisteTutor, ExistenAlumnos, ExisteAlumno, ExisteCorreo } = require("../helpers/DataBaseValidator");
+const {
+	ExisteTutor,
+	ExistenAlumnos,
+	ExisteAlumno,
+	ExisteCorreo,
+} = require("../helpers/DataBaseValidator");
 const {
 	validarPaginacion,
 	validarCampos,
@@ -48,7 +55,12 @@ router.get(
 router.get(
 	"/tutorados/web/:TutorId",
 	//! roles verificar
-	[validarJWT, validarPaginacion,check('TutorId').custom(ExisteTutor), validarCampos],
+	[
+		validarJWT,
+		validarPaginacion,
+		check("TutorId").custom(ExisteTutor),
+		validarCampos,
+	],
 	getTutoradosWeb,
 );
 router.get("/getInfo", [validarJWT, verifyUserRole], getTutorInfo);
@@ -57,9 +69,11 @@ router.put(
 	[
 		validarJWT,
 		verifyAdminRole,
-		check("TutorId").custom( ExisteTutor ),
+		check("TutorId").custom(ExisteTutor),
 		check("Correo", "debe ser un correo").isEmail(),
-		check("Correo",'error').custom( (Correo, { req } ) => ExisteCorreo(Correo, req) ),
+		check("Correo", "error").custom((Correo, { req }) =>
+			ExisteCorreo(Correo, req),
+		),
 		check("PrimerNombre", "no debe ser vacio").notEmpty(),
 		check("SegundoNombre", "Se requiere este campo").notEmpty(),
 		check("ApellidoMaterno", "Se requiere este campo").notEmpty(),
@@ -75,7 +89,9 @@ router.put(
 		validarJWT,
 		verifyUserRole,
 		check("Correo", "debe ser un correo").isEmail(),
-		check("Correo",'errpr').custom( (Correo, { req } ) => ExisteCorreo(Correo, req) ),
+		check("Correo", "error").custom((Correo, { req }) =>
+			ExisteCorreo(Correo, req),
+		),
 		check("PrimerNombre", "no debe ser vacio").notEmpty(),
 		check("SegundoNombre", "Se requiere este campo").notEmpty(),
 		check("ApellidoMaterno", "Se requiere este campo").notEmpty(),
@@ -103,8 +119,8 @@ router.put(
 	[
 		validarJWT,
 		verifyAdminRole,
-		check('AlumnosIds').isArray(),
-		check('AlumnosIds').custom( ExistenAlumnos ),
+		check("AlumnosIds").isArray(),
+		check("AlumnosIds").custom(ExistenAlumnos),
 		validarCampos,
 	],
 	quitarTutorado,
@@ -116,7 +132,7 @@ router.post(
 		verifyUserRole,
 		check("passwordActual", "se requiere este campo").notEmpty(),
 		check("nuevaPassword", "se requiere este campo").notEmpty(),
-		check("nuevaPassword", "debe ser de 8 caracteres").isLength({min:8}),
+		check("nuevaPassword", "debe ser de 8 caracteres").isLength({ min: 8 }),
 		validarCampos,
 	],
 	solicitarCambioPassword,
@@ -138,8 +154,22 @@ router.post(
 	],
 	tutoresPost,
 );
-router.get('/pagos',[validarJWT, validarCampos],getPagos)
-router.get('/servicios-por-pagar',[validarJWT, validarCampos],getPagos)
+router.post(
+	"/solicitar-cambio-correo",
+	[
+		validarJWT,
+		verifyUserRole,
+		check("Correo", "debe ser un correo").isEmail(),
+		check("Correo", "error").custom((Correo, { req }) =>
+			ExisteCorreo(Correo, req),
+		),
+		validarCampos,
+	],
+	solicitarCambioCorreo,
+);
+router.get("/pagos", [validarJWT, validarCampos], getPagos);
+router.get("/confirmar-correo", FinalizarCambioCorreo);
+router.get("/servicios-por-pagar", [validarJWT, validarCampos], getPagos);
 router.delete(
 	"/:Id",
 	[validarJWT, check("Id", "se requiere este campo").notEmpty(), validarCampos],

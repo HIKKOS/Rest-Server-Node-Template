@@ -2,7 +2,7 @@ const { Router } = require('express')
 const { check } = require('express-validator')
 
 const { 
-    busquedaGet, busquedaServicios, busquedaAlumnos, busquedaTutores,
+    busquedaGet, busquedaServicios, busquedaAlumnos, busquedaTutores, busquedaPagos,
 } = require('../controllers/busqueda')
 const { validarPaginacion, validarCampos, validarJWT } = require('../middlewares')
 const { verifyAdminRole } = require('../middlewares/verifyRole')
@@ -25,6 +25,12 @@ router.get('/Tutores',[
     validarPaginacion, 
     validarCampos
 ],busquedaTutores )
+router.get('/Pagos',[
+    validarJWT,
+    verifyAdminRole,
+    validarPaginacion, 
+    validarCampos
+],busquedaPagos )
 
 module.exports = router
     

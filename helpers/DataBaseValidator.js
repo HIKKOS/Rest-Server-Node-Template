@@ -1,5 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const { request } = require("express");
+const jwt = require("jsonwebtoken");
 
 const prisma = new PrismaClient();
 
@@ -11,21 +12,21 @@ const ExisteServicio = async (Id) => {
 	return true;
 };
 
-const estaExpiradoServicioAlumno = async(AlumnoId, req) => {	
-	const { IdServicio: ServicioId, IdAlumno } = req.params
+const estaExpiradoServicioAlumno = async (AlumnoId, req) => {
+	const { IdServicio: ServicioId, IdAlumno } = req.params;
 
-		const servicioAlumno = await prisma.serviciosDelAlumno.findUnique({
-			where:{
-				AlumnoId_ServicioId:{
-					AlumnoId: IdAlumno, ServicioId
-				}
-			}
-		})
-		if(servicioAlumno){
-			throw new Error('ya esta contratado')
-		}
-	
-}
+	const servicioAlumno = await prisma.serviciosDelAlumno.findUnique({
+		where: {
+			AlumnoId_ServicioId: {
+				AlumnoId: IdAlumno,
+				ServicioId,
+			},
+		},
+	});
+	if (servicioAlumno) {
+		throw new Error("ya esta contratado");
+	}
+};
 const ExisteAlumno = async (Id) => {
 	const alumno = await prisma.alumno.findUnique({ where: { Id } });
 	if (!alumno) {
@@ -50,12 +51,12 @@ const ExisteTutor = async (IdTutor) => {
 const ExistenAlumnos = async (ids = []) => {
 	for (const id of ids) {
 		const a = await prisma.alumno.findUnique({
-			where:{Id: id}
-		})
-		if(!a){
+			where: { Id: id },
+		});
+		if (!a) {
 			throw new Error(`No existe el alumno con el Id: ${id}`);
 		}
-	}	
+	}
 	return true;
 };
 const ExisteNombreServicio = async (Nombre = "") => {
@@ -82,22 +83,30 @@ const ExisteImg = async (Id) => {
 	}
 	return true;
 };
-const ExisteCorreo = async ( Correo, req = request ) => {
-	const { TutorId } = req.params
-	const tutor = await prisma.tutor.findUnique({ where: { Id:TutorId } });
-	console.log(TutorId);
-	console.log(tutor);
-	console.log(Correo);
-	if ( tutor ) {
-		const correo = await prisma.tutor.findUnique({where: { Correo }})
-		if(!correo ){
-			return true
-		}
-		if(correo.Id !== tutor.Id){
-			throw new Error('ya existe ese correo')
-		}
+const ExisteCorreo = async (Correo, req = request) => {
+	if(!Correo){
+		throw new Error("No se recibio el correo")
 	}
-	return true;
+	try {
+		const token = req.header("x-token");
+		const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+		const tutor = await prisma.tutor.findUnique({ where: { Id } });
+		console.log(Correo);
+		if (tutor) {
+			const correo = await prisma.tutor.findUnique({
+				where: { Correo: Correo },
+			});
+			if (!correo) {
+				return true;
+			}
+			if (correo.Id !== tutor.Id) {
+				throw new Error("ya existe ese correo");
+			}
+		}
+		return true;
+	} catch (error) {
+		console.log(error);
+	}
 };
 const validarColecciones = async (coleccion = "", coleciones = []) => {
 	coleciones = await getColeciones();
