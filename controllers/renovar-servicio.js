@@ -3,8 +3,9 @@ const { PrismaClient } = require("@prisma/client");
 const { calcularFechaExpiracion, getDiasRestantes } = require("../helpers/calcular-fecha-expiracion");
 const prisma = new PrismaClient();
 const renovarServicio = async (req = request, res = response) => {
+    //!!Agregar cobro por paypal
 	const { IdServicio: ServicioId, IdAlumno: AlumnoId } = req.params;
-	const { VecesContratado = 1, Horario } = req.body;
+	const { VecesContratado = 1 } = req.body;
     const servicio = await prisma.servicio.findUnique({
         where:{
             Id: ServicioId
@@ -25,6 +26,7 @@ const renovarServicio = async (req = request, res = response) => {
             FechaContrato:true
         }
 	});
+    console.log(servicioAlumno);
     const {FechaExpiracion:nuevaFechaExpiracion} = calcularFechaExpiracion({VecesContratado,frecuencia: servicio.FrecuenciaDePago, initialDate: servicioAlumno.FechaExpiracion })
     const diasRestantes = getDiasRestantes({initialDate:servicioAlumno.FechaContrato,lastDate:nuevaFechaExpiracion})
 	servicioAlumno = await prisma.serviciosDelAlumno.update({
