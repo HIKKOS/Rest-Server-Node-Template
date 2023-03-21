@@ -75,7 +75,7 @@ router.put(
 		validarJWT,
 		verifyUserRole,
 		check("Correo", "debe ser un correo").isEmail(),
-		check("Correo",'errpr').custom( (Correo, { req } ) => ExisteCorreo(Correo, req) ),
+		check("Correo",'error').custom( (Correo, { req } ) => ExisteCorreo(Correo, req) ),
 		check("PrimerNombre", "no debe ser vacio").notEmpty(),
 		check("SegundoNombre", "Se requiere este campo").notEmpty(),
 		check("ApellidoMaterno", "Se requiere este campo").notEmpty(),
