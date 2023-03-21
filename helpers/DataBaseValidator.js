@@ -1,6 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const { request } = require("express");
 const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 
 const prisma = new PrismaClient();
 
@@ -14,7 +15,21 @@ const ExisteServicio = async (Id) => {
 
 const estaExpiradoServicioAlumno = async (AlumnoId, req) => {
 	const { IdServicio: ServicioId, IdAlumno } = req.params;
+const estaExpiradoServicioAlumno = async (AlumnoId, req) => {
+	const { IdServicio: ServicioId, IdAlumno } = req.params;
 
+	const servicioAlumno = await prisma.serviciosDelAlumno.findUnique({
+		where: {
+			AlumnoId_ServicioId: {
+				AlumnoId: IdAlumno,
+				ServicioId,
+			},
+		},
+	});
+	if (servicioAlumno) {
+		throw new Error("ya esta contratado");
+	}
+};
 	const servicioAlumno = await prisma.serviciosDelAlumno.findUnique({
 		where: {
 			AlumnoId_ServicioId: {
