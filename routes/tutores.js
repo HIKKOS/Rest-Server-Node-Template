@@ -169,6 +169,7 @@ router.post(
 );
 router.get("/pagos", [validarJWT, validarCampos], getPagos);
 router.get("/confirmar-correo", FinalizarCambioCorreo);
+router.get("/cambio-correo-v1", FinalizarCambioCorreo);
 router.get("/servicios-por-pagar", [validarJWT, validarCampos], getPagos);
 router.delete(
 	"/:Id",

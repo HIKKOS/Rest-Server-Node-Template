@@ -274,7 +274,7 @@ const cambioCorreo = ({oldMail, newMail, res}) => {
 		subject: "Cambio de correo",
 		html: `<h1>Se ha solicitado un cambio de correo</h1>
 		<p>Si no has solicitado este cambio, por favor ignora este correo</p>
-		<a href="${confirmUrl}"><button>Confirmar correo electrónico</button></a>		
+		token: <p>${token}<p>
 		`,
 	};
 	transporter.sendMail(mailOptions, (err, info) => {
@@ -297,6 +297,22 @@ const FinalizarCambioCorreo = async (req, res) => {
 		await prisma.tutor.update({
 			where: { Correo: oldMail },
 			data: { Correo: newMail },
+		});
+		return res.json({ msg: "correo cambiado correctamente" });
+	} catch (error) {
+		console.log(error);
+		return res.status(400).json({ msg: "error al cambiar el correo" });
+	}
+};
+const cambioCorreov1 = async (req, res) => {
+	const { Correo } = req.body;
+	const token = req.header("x-token");
+	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+	try {
+		console.log({oldMail, newMail});
+		await prisma.tutor.update({
+			where: { Id },
+			data: { Correo },
 		});
 		return res.json({ msg: "correo cambiado correctamente" });
 	} catch (error) {
