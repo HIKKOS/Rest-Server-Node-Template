@@ -103,13 +103,13 @@ const captureOrder = async (req = request, res = response) => {
 		for (const date of Horario) {
 			console.log({ date });
 			await prisma.horarioServicioAlumno.create({
-				data: {
+				data: { 
 					Id: uuidv4(),
 					AlumnoId: IdAlumno,
 					ServicioId: IdServicio,
 					Dia: date.Dia,
-					HoraInicio: date.Inicio,
-					HoraFin: date.Fin,
+					Inicio: date.Inicio,
+					Fin: date.Fin,
 				},
 			});
 		}
