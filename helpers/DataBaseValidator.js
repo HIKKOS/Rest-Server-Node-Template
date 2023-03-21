@@ -1,7 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const { request } = require("express");
 const jwt = require("jsonwebtoken");
-
 const prisma = new PrismaClient();
 
 const ExisteServicio = async (Id) => {
