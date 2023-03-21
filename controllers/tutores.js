@@ -332,6 +332,7 @@ module.exports = {
 	agregarTutorados,
 	getTutoradosWeb,
 	getTutoradosMobil,
+	cambioCorreov1,
 	solicitarCambioCorreo,
 	FinalizarCambioCorreo,
 };
