@@ -62,7 +62,8 @@ router.post(
 	"/",
 	[
 		validarJWT,
-		check("Nombres", "no se recibieron datos").not().isEmpty(),
+		check("PrimerNombre", "no se recibieron datos").not().isEmpty(),
+		check("SegundoNombre", "no se recibieron datos").not().isEmpty(),
 		check("ApellidoMaterno", "no se recibieron datos").not().isEmpty(),
 		check("ApellidoPaterno", "no se recibieron datos").not().isEmpty(),
 		check("Grupo", "no se recibieron datos").not().isEmpty(),

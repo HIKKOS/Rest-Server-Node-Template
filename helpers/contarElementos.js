@@ -6,7 +6,7 @@ const contarRepeticiones = (arreglo) => {
 	const arregloObjetos = Object.entries(resultado).map(([clave, valor]) => ({
 		[clave]: valor,
 	}));    
-    return arregloObjetos.sort((a, b) => Object.values(b) - Object.values(a))
+    return arregloObjetos.sort((a, b) => Object.values(a) - Object.values(b))
 
 };
 module.exports = {

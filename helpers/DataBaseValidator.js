@@ -1,6 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const { request } = require("express");
 const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 
 const prisma = new PrismaClient();
 
@@ -14,7 +15,21 @@ const ExisteServicio = async (Id) => {
 
 const estaExpiradoServicioAlumno = async (AlumnoId, req) => {
 	const { IdServicio: ServicioId, IdAlumno } = req.params;
+const estaExpiradoServicioAlumno = async (AlumnoId, req) => {
+	const { IdServicio: ServicioId, IdAlumno } = req.params;
 
+	const servicioAlumno = await prisma.serviciosDelAlumno.findUnique({
+		where: {
+			AlumnoId_ServicioId: {
+				AlumnoId: IdAlumno,
+				ServicioId,
+			},
+		},
+	});
+	if (servicioAlumno) {
+		throw new Error("ya esta contratado");
+	}
+};
 	const servicioAlumno = await prisma.serviciosDelAlumno.findUnique({
 		where: {
 			AlumnoId_ServicioId: {
@@ -84,19 +99,29 @@ const ExisteImg = async (Id) => {
 	return true;
 };
 const ExisteCorreo = async (Correo, req = request) => {
-	const token = req.header('x-token')
-	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
-
-	const tutor = await prisma.tutor.findUnique({ where: { Id } });
-	const correo = await prisma.tutor.findUnique({ where: { Correo } });
-	if (!correo) {
+	if(!Correo){
+		throw new Error("No se recibio el correo")
+	}
+	try {
+		const token = req.header("x-token");
+		const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+		const tutor = await prisma.tutor.findUnique({ where: { Id } });
+		console.log(Correo);
+		if (tutor) {
+			const correo = await prisma.tutor.findUnique({
+				where: { Correo: Correo },
+			});
+			if (!correo) {
+				return true;
+			}
+			if (correo.Id !== tutor.Id) {
+				throw new Error("ya existe ese correo");
+			}
+		}
 		return true;
+	} catch (error) {
+		console.log(error);
 	}
-	if (correo.Id !== tutor.Id) {
-		throw new Error("ya existe ese correo");
-	}
-
-	return true;
 };
 const validarColecciones = async (coleccion = "", coleciones = []) => {
 	coleciones = await getColeciones();

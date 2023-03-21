@@ -2,6 +2,7 @@ const { response, request } = require("express");
 const { v4: uuidv4 } = require("uuid");
 const nodemailer = require("nodemailer");
 const bcryptjs = require("bcryptjs");
+const HOST = process.env.HOST;
 const { PrismaClient } = require("@prisma/client");
 const { evaluarPagina } = require("../helpers/paginacion");
 const jwt = require("jsonwebtoken");
@@ -19,8 +20,10 @@ const getTutorInfo = async (req = request, res = response) => {
 	if (!tutor.Foto) {
 		tutor.Foto = "";
 	}
-	
-	!tutor.SegundoNombre ?  (tutor.SegundoNombre = "nada") : tutor.SegundoNombre = tutor.SegundoNombre;
+
+	!tutor.SegundoNombre
+		? (tutor.SegundoNombre = "nada")
+		: (tutor.SegundoNombre = tutor.SegundoNombre);
 	return res.json(tutor);
 };
 const tutoresGet = async (req = request, res = response) => {
@@ -92,14 +95,14 @@ const solicitarCambioPassword = async (req = request, res = response) => {
 		},
 	});
 	if (!bcryptjs.compareSync(passwordActual, tutor.PasswordTutor)) {
-		return res.status(401).json({msg:"La contraseñas no es coinciden"});
+		return res.status(401).json({ msg: "La contraseñas no es coinciden" });
 	}
 	await prisma.tutor.update({
 		where: { Id },
 		data: { PasswordTutor: bcryptjs.hashSync(nuevaPassword, 10) },
 	});
 
-	res.status(200).json({msg: "Contraseña actualizada con éxito"});
+	res.status(200).json({ msg: "Contraseña actualizada con éxito" });
 };
 const tutorCambioPassword = async (req = request, res = response) => {
 	const token = req.header("x-token");
@@ -234,6 +237,88 @@ const quitarTutorado = async (req, res) => {
 		return res.status(400).json({ msg: "error al remover el tutor" });
 	}
 };
+const solicitarCambioCorreo = async (req, res) => {
+	const { Correo } = req.body;
+	const token = req.header("x-token");
+	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+	const tutor = await prisma.tutor.findUnique({ where: { Id } });
+	if (tutor.Correo === Correo) {
+		return res.status(400).json({ msg: "El correo es el mismo" });
+	}
+	cambioCorreo({newMail: Correo, oldMail: tutor.Correo, res});
+};
+const cambioCorreo = ({oldMail, newMail, res}) => {
+	const email = process.env.EMAIL;
+	const password = process.env.PASSWORD;
+	console.log(email, password);
+	const transporter = nodemailer.createTransport({
+		host: "smtp.gmail.com",
+		port: 465,
+		secure: false,
+		service: "gmail",
+		authMethod: "PLAIN",		
+		auth: {
+			user: email,
+			pass: password,
+		},
+	});
+	const payload = { oldMail, newMail }
+	const token = jwt.sign(payload, process.env.SECRETORPRIVATEKEY, {
+		expiresIn: "1h",
+	});
+	const confirmUrl = `${HOST}/api/tutores/confirmar-correo?token=${token}`;
+	const mailOptions = {
+		from: email,
+		to: newMail,
+		subject: "Cambio de correo",
+		html: `<h1>Se ha solicitado un cambio de correo</h1>
+		<p>Si no has solicitado este cambio, por favor ignora este correo</p>
+		token: <p>${token}<p>
+		`,
+	};
+	transporter.sendMail(mailOptions, (err, info) => {
+		if (err) {
+			console.log(err);
+		} else {
+			console.log(`Email sent: ${info.response}`);
+		}
+	});
+	return res.json({ msg: `correo enviado correctamente al ${newMail}` });
+}
+const FinalizarCambioCorreo = async (req, res) => {
+	const { token = '' } = req.query;
+	if(token === ''){
+		return res.status(400).json({ msg: "no se ha enviado el token" });
+	}
+	const { oldMail, newMail } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);	
+	try {
+		console.log({oldMail, newMail});
+		await prisma.tutor.update({
+			where: { Correo: oldMail },
+			data: { Correo: newMail },
+		});
+		return res.json({ msg: "correo cambiado correctamente" });
+	} catch (error) {
+		console.log(error);
+		return res.status(400).json({ msg: "error al cambiar el correo" });
+	}
+};
+const cambioCorreov1 = async (req, res) => {
+	const { Correo } = req.body;
+	const token = req.header("x-token");
+	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+	try {
+		console.log({oldMail, newMail});
+		await prisma.tutor.update({
+			where: { Id },
+			data: { Correo },
+		});
+		return res.json({ msg: "correo cambiado correctamente" });
+	} catch (error) {
+		console.log(error);
+		return res.status(400).json({ msg: "error al cambiar el correo" });
+	}
+};
 module.exports = {
 	quitarTutorado,
 	tutoresGet,
@@ -246,4 +331,7 @@ module.exports = {
 	agregarTutorados,
 	getTutoradosWeb,
 	getTutoradosMobil,
+	cambioCorreov1,
+	solicitarCambioCorreo,
+	FinalizarCambioCorreo,
 };

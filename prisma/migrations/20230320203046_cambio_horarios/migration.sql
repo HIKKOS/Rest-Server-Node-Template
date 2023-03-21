@@ -85,8 +85,8 @@ CREATE TABLE `HorarioServicio` (
     `Id` VARCHAR(191) NOT NULL,
     `ServicioId` VARCHAR(191) NOT NULL,
     `Dia` ENUM('LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES') NOT NULL,
-    `HoraInicio` INTEGER NOT NULL,
-    `HoraFin` INTEGER NOT NULL,
+    `Inicio` INTEGER NOT NULL,
+    `Fin` INTEGER NOT NULL,
 
     PRIMARY KEY (`Id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -95,7 +95,8 @@ CREATE TABLE `HorarioServicio` (
 CREATE TABLE `ServiciosDelAlumno` (
     `AlumnoId` VARCHAR(191) NOT NULL,
     `ServicioId` VARCHAR(191) NOT NULL,
-    `DiasRestantes` INTEGER NOT NULL,
+    `FechaContrato` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `FechaExpiracion` DATETIME(3) NULL,
 
     PRIMARY KEY (`AlumnoId`, `ServicioId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -106,8 +107,8 @@ CREATE TABLE `HorarioServicioAlumno` (
     `AlumnoId` VARCHAR(191) NOT NULL,
     `ServicioId` VARCHAR(191) NOT NULL,
     `Dia` ENUM('LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES') NOT NULL,
-    `HoraInicio` INTEGER NOT NULL,
-    `HoraFin` INTEGER NOT NULL,
+    `Inicio` INTEGER NOT NULL,
+    `Fin` INTEGER NOT NULL,
 
     PRIMARY KEY (`Id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

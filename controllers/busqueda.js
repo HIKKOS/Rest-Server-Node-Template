@@ -189,6 +189,83 @@ const busquedaWeb = async (req = request, res = response) => {
 		});
 	}
 };
+const busquedaPagos = async (req = request, res = response) => {
+	const { Tutor: query = "" } = req.query;
+	const { page, limit } = req.query;
+	try {
+		const { skip, limite } = await evaluarPagina(page, limit);
+		const allPagos = await prisma.pago.findMany({
+			take: limite,
+			skip,
+			where: {
+				Tutor: {
+					OR: [
+						{
+							PrimerNombre: {
+								startsWith: query,
+							},
+						},
+						{
+							ApellidoPaterno: {
+								startsWith: query,
+							},
+						},
+					],
+				},
+			},
+			select: {
+				Servicio: {
+					select: {
+						Nombre: true,
+					},
+				},
+				Monto: true,
+				Tutor: {
+					select: {
+						PrimerNombre: true,
+						ApellidoPaterno: true,
+					},
+				},
+
+				Facturar: true,
+				AlumnoId: true,
+				Folio: true,
+				FechaPago: true,
+			},
+		});
+
+		const totalPagos = allPagos.map((pago) => ({
+			folio: pago.Folio,
+			fechaPago: pago.FechaPago,
+			servicio: pago.Servicio.Nombre,
+			monto: pago.Monto,
+			facturado: pago.Facturar,
+			Tutor: `${pago.Tutor.PrimerNombre} ${pago.Tutor.ApellidoPaterno}`,
+			AlumnoId: pago.AlumnoId,
+		}));
+		for (const pago of totalPagos) {
+			const alumno = await prisma.alumno.findUnique({
+				where: {
+					Id: pago.AlumnoId,
+				},
+				select: {
+					PrimerNombre: true,
+					ApellidoPaterno: true,
+				},
+			});
+			pago.alumno = `${alumno.PrimerNombre} ${alumno.ApellidoPaterno}`;
+			pago.AlumnoId = undefined;
+		}
+		res.json({
+			total: totalPagos.length,
+			pagos: totalPagos,
+		});
+	} catch (error) {
+		return res.status(400).json({
+			error,
+		});
+	}
+};
 const busquedaMobile = async (req = request, res = response) => {
 	console.log("busqueda mobile");
 	const { Servicio: query = "" } = req.query;
@@ -220,4 +297,5 @@ module.exports = {
 	busquedaServicios,
 	busquedaAlumnos,
 	busquedaTutores,
+	busquedaPagos,
 };
