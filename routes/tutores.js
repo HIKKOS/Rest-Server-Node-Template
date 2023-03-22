@@ -168,7 +168,7 @@ router.post(
 	],
 	solicitarCambioCorreo,
 );
-router.get("/pagos", [validarJWT, validarCampos], getPagos);
+router.get("/pagos", [validarJWT, verifyUserRole,validarCampos], getPagos);
 router.get("/confirmar-correo", FinalizarCambioCorreo);
 router.put("/cambio-correo-v1", cambioCorreov1);
 router.get("/servicios-por-pagar", [validarJWT, validarCampos], getPagos);
