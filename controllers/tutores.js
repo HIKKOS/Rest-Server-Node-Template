@@ -68,13 +68,12 @@ const tutoresPutForWeb = async (req = request, res = response) => {
 };
 const tutoresPutForMobile = async (req = request, res = response) => {
 	const token = req.header("x-token");
-	const { Id: id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
 	const data = req.body;
-	const Tutor = await prisma.tutor.update({ where: { Id: id } });
 	try {
 		await prisma.tutor.update({
-			where: { Id: id },
-			data,
+			where: { Id },
+			data: req.body,
 		});
 		return res.status(200).json({ msg: "datos actualizados correctamente" });
 	} catch (error) {
