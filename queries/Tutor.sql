@@ -1,7 +1,3 @@
-class UrlValue {
-  static const String baseUrl =
-      "https://rest-server-node-production-fada.up.railway.app/api";
-}
 insert into Tutor (PrimerNombre, ApellidoPaterno, ApellidoMaterno, Correo, Telefono, PasswordTutor, RFC, Direccion, Id) values ('Damaris', 'Preedy', 'Damaris', 'dpreedy0@va.gov', '722-360-1495', '$2a$10$rxtgGORfM6FA4VLEfL491OA.OfACZWdsTaCee6kAE5NqcXuNGkSi.', 'siO0LLzd', 'Suite 29', 'd3bf135c-c97e-494a-a2aa-9f4ce377f777');
 insert into Tutor (PrimerNombre, ApellidoPaterno, ApellidoMaterno, Correo, Telefono, PasswordTutor, RFC, Direccion, Id) values ('Ardis', 'Petrik', 'Ardis', 'apetrik1@google.co.uk', '698-304-5151', '$2a$10$rxtgGORfM6FA4VLEfL491OA.OfACZWdsTaCee6kAE5NqcXuNGkSi.', 'U2Qf6Tb', 'Apt 434', '95ef8520-2665-41b4-898e-74b2d2755810');
 insert into Tutor (PrimerNombre, ApellidoPaterno, ApellidoMaterno, Correo, Telefono, PasswordTutor, RFC, Direccion, Id) values ('Karlene', 'Mattedi', 'Karlene', 'kmattedi2@chicagotribune.com', '995-964-8771', '$2a$10$rxtgGORfM6FA4VLEfL491OA.OfACZWdsTaCee6kAE5NqcXuNGkSi.', '0Pu0sSNLIGp', 'Apt 1427', 'bc59a9ad-2629-4965-933b-b2420e5a3d29');
