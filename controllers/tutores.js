@@ -320,8 +320,81 @@ const cambioCorreov1 = async (req, res) => {
 		return res.status(400).json({ msg: "error al cambiar el correo" });
 	}
 };
+
+const getPagos = async (req = request, res = response) => {
+	const { page, limit } = req.query;
+	const token = req.header("x-token");
+	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+	const { skip, limite } = await evaluarPagina(page, limit);
+	const pagos = await prisma.pago.findMany({
+		where: {
+			TutorId: Id
+		},
+		orderBy: {
+			FechaPago: 'desc'
+		},
+		skip,
+		take: limite,
+		select: {
+			Servicio: {
+				select: {
+					Id: true,
+					Nombre: true,
+					ImgPaths: {
+						select: {
+							Id: true
+						}
+					}
+				}
+			},
+			Monto: true,
+			Facturar: true,
+			AlumnoId: true,
+			Folio: true,
+			FechaPago: true,
+			
+		}
+
+	});
+	const totalPagos = []
+	for (const pago of pagos) {
+		const alumno = await prisma.alumno.findUnique({
+			where: {
+				Id: pago.AlumnoId
+			}, select: {
+				PrimerNombre: true,
+				SegundoNombre: true,
+			}
+		})
+		
+		const imgPaths = pago.Servicio.ImgPaths.map((p) => {
+			const [path] = Object.values(p);
+			return path;
+		  });
+
+		const p = {
+			folio: pago.Folio,
+			fechaPago: pago.FechaPago,
+			servicio: pago.Servicio.Nombre,
+			servicioId: pago.Servicio.Id,
+			monto: pago.Monto,
+			facturado: pago.Facturar,
+			alumno: `${alumno.PrimerNombre} ${alumno.SegundoNombre}`,
+			imgPaths: imgPaths
+		}
+
+		totalPagos.push(p)
+	}
+	return res.json(
+		{
+			pagos: totalPagos
+		}
+	)
+};
+
 module.exports = {
 	quitarTutorado,
+	getPagos,
 	tutoresGet,
 	tutoresDelete,
 	tutoresPost,

@@ -151,6 +151,21 @@ const serviciosGetWeb = async (req = request, res = response) => {
 			s.ImgPaths = s.ImgPaths.flatMap((p) => Object.values(p));
 			return s;
 		});
+		for (const servicio of filtrado) {
+			const cantidad = await prisma.serviciosDelAlumno.findMany({
+				where: {
+					ServicioId: servicio.Id,
+					FechaExpiracion: {
+						gt: new Date(),
+					},
+				},
+				select: {
+					AlumnoId: true,
+				},
+			});
+			servicio.Cantidad = cantidad.length;
+			console.log(cantidad);
+		}
 
 		const total = await prisma.Servicio.count();
 		res.json({
@@ -208,28 +223,27 @@ const serviciosPut = async (req = request, res = response) => {
 	const { Id } = req.params;
 	const { HorarioServicio, ...data } = req.body;
 
-
-	const dataHorario = HorarioServicio.map(h => ({
+	const dataHorario = HorarioServicio.map((h) => ({
 		Id: uuidv4(),
 		ServicioId: Id,
-		...h
-	}))
+		...h,
+	}));
 	console.log(data);
 	data.Costo = Number(data.Costo);
 	data.Cancelable = Boolean(data.Cancelable);
-	 const serv = await prisma.servicio.update({
+	const serv = await prisma.servicio.update({
 		data,
 		where: { Id },
-	}); 
+	});
 	const trans = await prisma.$transaction([
-		prisma.horarioServicio.deleteMany({where:{ServicioId:Id}}),
-		prisma.horarioServicio.createMany({data:dataHorario})
-	])
+		prisma.horarioServicio.deleteMany({ where: { ServicioId: Id } }),
+		prisma.horarioServicio.createMany({ data: dataHorario }),
+	]);
 	const hor = await prisma.horarioServicio.findMany({
-		where:{
-			ServicioId: Id
-		}
-	})
+		where: {
+			ServicioId: Id,
+		},
+	});
 	console.log(hor);
 	return res.status(200).json({
 		Servicio: serv,
