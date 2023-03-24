@@ -138,6 +138,77 @@ const getPagos = async (req = request, res = response) => {
 	}
 	return res.json(totalPagos);
 };
+const busquedaPagos = async (req = request, res = response) => {
+	const { Servicio: query = "" } = req.query;
+	const token = req.header("x-token");
+	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+	const { page, limit } = req.query;
+	try {
+		const { skip, limite } = await evaluarPagina(page, limit);
+		const pagos = await prisma.pago.findMany({
+			where: {
+				TutorId: Id,
+				Servicio: {
+					Nombre: {
+						startsWith: query, 
+					}
+				}
+			},
+			skip,
+			take: limite,
+			select: {
+				Servicio: {
+					select: {
+						Id: true,
+						Nombre: true,
+						ImgPaths: {
+							select: {
+								Id: true
+							}
+						}
+					}
+				},
+				Monto: true,
+				Facturar: true,
+				AlumnoId: true,
+				Folio: true,
+				FechaPago: true,
+			}
+		});
+		const allPagos = []
+		for (const pago of pagos) {
+			const alumno = await prisma.alumno.findUnique({
+				where: {
+					Id: pago.AlumnoId
+				}, select: {
+					PrimerNombre: true,
+					SegundoNombre: true,
+				}
+			})
+			const imgPaths = pago.Servicio.ImgPaths.map((p) => {
+				const [path] = Object.values(p);
+				return path;
+			  });
+	
+			const p = {
+				folio: pago.Folio,
+				fechaPago: pago.FechaPago,
+				servicio: pago.Servicio.Nombre,
+				servicioId: pago.Servicio.Id,
+				monto: pago.Monto,
+				facturado: pago.Facturar,
+				alumno: `${alumno.PrimerNombre} ${alumno.SegundoNombre}`,
+				imgPaths: imgPaths
+			}
+
+			allPagos.push(p)
+		}
+		return res.json(allPagos);
+	} catch (err) {
+		console.log(err);
+	}
+};
+
 const postPagos = async (req = request, res = response) => {
 	const { TutorId, ServicioId, AlumnoId, Facturar = false } = req.body;
 	const Servicio = await prisma.servicio.findUnique({
@@ -180,5 +251,6 @@ module.exports = {
 	postPagos,
 	getPagosById,
 	getAllPagos,
+	busquedaPagos,
 };
 //9UnZsYebHxWp2sc
