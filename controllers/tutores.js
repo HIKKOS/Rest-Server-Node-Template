@@ -308,7 +308,6 @@ const cambioCorreov1 = async (req, res) => {
 	const token = req.header("x-token");
 	const { Id } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
 	try {
-		console.log({oldMail, newMail});
 		await prisma.tutor.update({
 			where: { Id },
 			data: { Correo },
