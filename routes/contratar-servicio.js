@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const { check } = require("express-validator");
 const { contratarServicio } = require("../controllers/contratar-servicio");
+const { getCorrectDateTime } = require("../helpers/getCorrectDateTime");
 const {
 	ExisteServicio,
 	ExisteAlumno,
@@ -17,19 +18,17 @@ const { verifyUserRole } = require("../middlewares/verifyRole");
 
 const router = Router();
 router.post(
-	"/:IdServicio/:IdAlumno",
+	"/:ServicioId/:AlumnoId",
 	[
 		validarJWT,
 		verifyUserRole,
-		check("IdServicio", "es obligatorio").notEmpty(),
-		check("IdServicio").custom(ExisteServicio),
-		check("IdAlumno").custom(ExisteAlumno),
-		check("IdAlumno", "es obligatorio").notEmpty(),
+		check("ServicioId", "es obligatorio").notEmpty(),
+		check("ServicioId").custom(ExisteServicio),
+		check("AlumnoId").custom(ExisteAlumno),
+		check("AlumnoId", "es obligatorio").notEmpty(),
 		check("VecesContratado", "es obligatorio").notEmpty(),
-		check("Horario").custom(VerificarHorario),
-		check("IdAlumno",'error').custom(
-			(IdAlumno,{req}) =>
-				estaExpiradoServicioAlumno(IdAlumno, req),
+		check("AlumnoId", "error").custom((AlumnoId, { req }) =>
+			estaExpiradoServicioAlumno(AlumnoId, req),
 		),
 		validarCampos,
 	],

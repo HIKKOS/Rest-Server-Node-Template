@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Notificación de pago exitoso</title>
+		<link rel="stylesheet" href="style.css" />
+		<script src="https://cdn.tailwindcss.com"></script>
+	</head>
+	<body class="container min-h-screen">
+		<div
+			class="px-4 flex flex-row min-h-screen items-center justify-center"
+		>
+			<div
+				class="w-full h-full bg-white rounded-lg shadow-lg overflow-hidden"
+			>
+				<div class="px-6 py-4">
+					<div class="text-center font-bold text-xl mb-2">
+						Pago exitoso
+					</div>
+
+					<p class="text-gray-700 text-base">
+						Le informamos que su pago de $<%= cantidadPagada %> MXN
+						fue procesado correctamente el <%= fechaHoraPago %>.
+					</p>
+					<p class="text-gray-700 text-base">
+						con el folio: <%= idTransaccion %>.
+					</p>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		{
+			console.log(new Date());
+		}
+	</script>
+</html>

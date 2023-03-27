@@ -12,26 +12,12 @@ const ExisteServicio = async (Id) => {
 };
 
 const estaExpiradoServicioAlumno = async (AlumnoId, req) => {
-	const { IdServicio: ServicioId, IdAlumno } = req.params;
-const estaExpiradoServicioAlumno = async (AlumnoId, req) => {
-	const { IdServicio: ServicioId, IdAlumno } = req.params;
-
+	console.log(AlumnoId);
+	const { ServicioId } = req.params;
 	const servicioAlumno = await prisma.serviciosDelAlumno.findUnique({
 		where: {
 			AlumnoId_ServicioId: {
-				AlumnoId: IdAlumno,
-				ServicioId,
-			},
-		},
-	});
-	if (servicioAlumno) {
-		throw new Error("ya esta contratado");
-	}
-};
-	const servicioAlumno = await prisma.serviciosDelAlumno.findUnique({
-		where: {
-			AlumnoId_ServicioId: {
-				AlumnoId: IdAlumno,
+				AlumnoId,
 				ServicioId,
 			},
 		},
@@ -97,8 +83,8 @@ const ExisteImg = async (Id) => {
 	return true;
 };
 const ExisteCorreo = async (Correo, req = request) => {
-	if(!Correo){
-		throw new Error("No se recibio el correo")
+	if (!Correo) {
+		throw new Error("No se recibio el correo");
 	}
 	try {
 		const token = req.header("x-token");

@@ -7,23 +7,20 @@ const {
 	ExisteAlumno,
 } = require("../helpers/DataBaseValidator");
 const { VerificarHorario } = require("../helpers/verificarHorario");
-const {
-	validarCampos,
-	validarJWT,
-} = require("../middlewares");
+const { validarCampos, validarJWT } = require("../middlewares");
 const { verifyUserRole } = require("../middlewares/verifyRole");
 
 const router = Router();
 router.post(
-	"/:IdServicio/:IdAlumno",
+	"/:ServicioId/:AlumnoId",
 	[
 		validarJWT,
 		verifyUserRole,
-		check("IdServicio", "es obligatorio").notEmpty(),
-		check("IdServicio").custom( ExisteServicio ),
-		check("IdAlumno").custom( ExisteAlumno ),
-		check("IdAlumno", "es obligatorio").notEmpty(),
-		check("VecesContratado", "es obligatorio").notEmpty(),
+		check("ServicioId", "es obligatorio").notEmpty(),
+		check("ServicioId").custom(ExisteServicio),
+		check("AlumnoId").custom(ExisteAlumno),
+		check("AlumnoId", "es obligatorio").notEmpty(),
+		check("VecesContratado", "es obligatorio").notEmpty().isNumeric({}),
 		validarCampos,
 	],
 	renovarServicio,

@@ -153,20 +153,16 @@ const tutoresPost = async (req, res = response) => {
 };
 const tutoresDelete = async (req = request, res = response) => {
 	const { Id } = req.params;
-	const tutor = await prisma.tutor.findUnique({ where: { Id: Number(Id) } });
-	if (!tutor) {
-		return res.status(404).json({ msg: `no existe el id: ${Id}` });
-	}
 	try {
 		await prisma.tutor.update({
-			where: { Id: Number(Id) },
+			where: { Id },
 			data: { Activo: false },
 		});
 		return res.json({
 			msg: "elimidado correctamente",
 		});
 	} catch (error) {
-		console.log(err);
+		console.log(error);
 	}
 };
 
@@ -245,9 +241,9 @@ const solicitarCambioCorreo = async (req, res) => {
 	if (tutor.Correo === Correo) {
 		return res.status(400).json({ msg: "El correo es el mismo" });
 	}
-	cambioCorreo({newMail: Correo, oldMail: tutor.Correo, res});
+	cambioCorreo({ newMail: Correo, oldMail: tutor.Correo, res });
 };
-const cambioCorreo = ({oldMail, newMail, res}) => {
+const cambioCorreo = ({ oldMail, newMail, res }) => {
 	const email = process.env.EMAIL;
 	const password = process.env.PASSWORD;
 	console.log(email, password);
@@ -256,13 +252,13 @@ const cambioCorreo = ({oldMail, newMail, res}) => {
 		port: 465,
 		secure: false,
 		service: "gmail",
-		authMethod: "PLAIN",		
+		authMethod: "PLAIN",
 		auth: {
 			user: email,
 			pass: password,
 		},
 	});
-	const payload = { oldMail, newMail }
+	const payload = { oldMail, newMail };
 	const token = jwt.sign(payload, process.env.SECRETORPRIVATEKEY, {
 		expiresIn: "1h",
 	});
@@ -284,15 +280,18 @@ const cambioCorreo = ({oldMail, newMail, res}) => {
 		}
 	});
 	return res.json({ msg: `correo enviado correctamente al ${newMail}` });
-}
+};
 const FinalizarCambioCorreo = async (req, res) => {
-	const { token = '' } = req.query;
-	if(token === ''){
+	const { token = "" } = req.query;
+	if (token === "") {
 		return res.status(400).json({ msg: "no se ha enviado el token" });
 	}
-	const { oldMail, newMail } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);	
+	const { oldMail, newMail } = jwt.verify(
+		token,
+		process.env.SECRETORPRIVATEKEY,
+	);
 	try {
-		console.log({oldMail, newMail});
+		console.log({ oldMail, newMail });
 		await prisma.tutor.update({
 			where: { Correo: oldMail },
 			data: { Correo: newMail },
@@ -326,10 +325,10 @@ const getPagos = async (req = request, res = response) => {
 	const { skip, limite } = await evaluarPagina(page, limit);
 	const pagos = await prisma.pago.findMany({
 		where: {
-			TutorId: Id
+			TutorId: Id,
 		},
 		orderBy: {
-			FechaPago: 'desc'
+			FechaPago: "desc",
 		},
 		skip,
 		take: limite,
@@ -340,35 +339,34 @@ const getPagos = async (req = request, res = response) => {
 					Nombre: true,
 					ImgPaths: {
 						select: {
-							Id: true
-						}
-					}
-				}
+							Id: true,
+						},
+					},
+				},
 			},
 			Monto: true,
 			Facturar: true,
 			AlumnoId: true,
 			Folio: true,
 			FechaPago: true,
-			
-		}
-
+		},
 	});
-	const totalPagos = []
+	const totalPagos = [];
 	for (const pago of pagos) {
 		const alumno = await prisma.alumno.findUnique({
 			where: {
-				Id: pago.AlumnoId
-			}, select: {
+				Id: pago.AlumnoId,
+			},
+			select: {
 				PrimerNombre: true,
 				SegundoNombre: true,
-			}
-		})
-		
+			},
+		});
+
 		const imgPaths = pago.Servicio.ImgPaths.map((p) => {
 			const [path] = Object.values(p);
 			return path;
-		  });
+		});
 
 		const p = {
 			folio: pago.Folio,
@@ -378,16 +376,14 @@ const getPagos = async (req = request, res = response) => {
 			monto: pago.Monto,
 			facturado: pago.Facturar,
 			alumno: `${alumno.PrimerNombre} ${alumno.SegundoNombre}`,
-			imgPaths: imgPaths
-		}
+			imgPaths: imgPaths,
+		};
 
-		totalPagos.push(p)
+		totalPagos.push(p);
 	}
-	return res.json(
-		{
-			pagos: totalPagos
-		}
-	)
+	return res.json({
+		pagos: totalPagos,
+	});
 };
 
 module.exports = {

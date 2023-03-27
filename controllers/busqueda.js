@@ -141,7 +141,7 @@ const busquedaTutores = async (req = request, res = response) => {
 	});
 	return res.json({
 		total: tutores.length,
-		tutores: tutores.length === 0 ? "sin resultados" : tutores,
+		tutores,
 	});
 };
 const busquedaWeb = async (req = request, res = response) => {

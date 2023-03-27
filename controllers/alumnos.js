@@ -108,7 +108,7 @@ const alumnosPost = async (req = request, res = response) => {
 			ApellidoMaterno,
 			Grado: Number(Grado),
 			Grupo,
-			Genero: (Genero) ? 0 : 1,
+			Genero: Genero ? 0 : 1,
 		},
 	});
 	return res.json({
@@ -116,26 +116,35 @@ const alumnosPost = async (req = request, res = response) => {
 	});
 };
 const alumnosDelete = async (req = request, res = response) => {
-	const { Id } = req.params;
-	const alumno = await prisma.alumno.findUnique({ where: { Id: Number(Id) } });
-	if (!alumno) {
-		return res.status(400).json({
-			msg: `no existe el Id ${Id}`,
+	try {
+		const { Id } = req.params;
+		const alumno = await prisma.alumno.findUnique({
+			where: { Id: Number(Id) },
+		});
+		if (!alumno) {
+			return res.status(400).json({
+				msg: `no existe el Id ${Id}`,
+			});
+		}
+		await prisma.alumno.update({
+			where: { Id: Number(Id) },
+			data: { Activo: false },
+		});
+		return res.json({
+			alumno,
+		});
+	} catch (error) {
+		console.log(error);
+		return res.status(500).json({
+			msg: "Error en el servidor",
 		});
 	}
-	await prisma.alumno.update({
-		where: { Id: Number(Id) },
-		data: { Activo: false },
-	});
-	return res.json({
-		alumno,
-	});
 };
 const getServiciosDelAlumnoForWeb = async (req = request, res = response) => {
 	const { IdAlumno } = req.params;
 	const { page, limit } = req.query;
 	const { skip, limite } = await evaluarPagina(page, limit);
-	let data = await prisma.serviciosDelAlumno.findMany({
+	const data = await prisma.serviciosDelAlumno.findMany({
 		skip,
 		take: limite,
 		where: {

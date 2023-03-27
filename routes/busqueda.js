@@ -5,7 +5,7 @@ const {
     busquedaGet, busquedaServicios, busquedaAlumnos, busquedaTutores, busquedaPagos,
 } = require('../controllers/busqueda')
 const { validarPaginacion, validarCampos, validarJWT } = require('../middlewares')
-const { verifyAdminRole } = require('../middlewares/verifyRole')
+const { verifyAdminRole, verifyUserRole } = require('../middlewares/verifyRole')
 
 const router = Router()
 router.get('/Servicios',[
@@ -27,7 +27,7 @@ router.get('/Tutores',[
 ],busquedaTutores )
 router.get('/Pagos',[
     validarJWT,
-    verifyAdminRole,
+    verifyUserRole,
     validarPaginacion, 
     validarCampos
 ],busquedaPagos )

@@ -164,7 +164,6 @@ const serviciosGetWeb = async (req = request, res = response) => {
 				},
 			});
 			servicio.Cantidad = cantidad.length;
-			console.log(cantidad);
 		}
 
 		const total = await prisma.Servicio.count();
@@ -219,7 +218,6 @@ const serviciosPost = async (req = request, res = response) => {
 	});
 };
 const serviciosPut = async (req = request, res = response) => {
-	console.log(req.body);
 	const { Id } = req.params;
 	const { HorarioServicio, ...data } = req.body;
 
@@ -228,7 +226,6 @@ const serviciosPut = async (req = request, res = response) => {
 		ServicioId: Id,
 		...h,
 	}));
-	console.log(data);
 	data.Costo = Number(data.Costo);
 	data.Cancelable = Boolean(data.Cancelable);
 	const serv = await prisma.servicio.update({
@@ -244,17 +241,26 @@ const serviciosPut = async (req = request, res = response) => {
 			ServicioId: Id,
 		},
 	});
-	console.log(hor);
 	return res.status(200).json({
 		Servicio: serv,
 	});
 };
 const serviciosDel = async (req = request, res = response) => {
-	const { Id } = req.params;
-	const Servicio = await prisma.Servicio.delete({ where: { Id: Number(Id) } });
-	return res.json({
-		msg: `el Servicio ${Servicio.Nombre} se ha dado de baja `,
-	});
+	try {
+		const { Id } = req.params;
+		const Servicio = await prisma.servicio.update({
+			where: { Id: Number(Id) },
+			data: { Activo: false },
+		});
+		return res.json({
+			msg: `el Servicio ${Servicio.Nombre} se ha dado de baja `,
+		});
+	} catch (err) {
+		console.log(err);
+		return res.status(400).json({
+			msg: "No se pudo dar de baja el servicio",
+		});
+	}
 };
 
 module.exports = {

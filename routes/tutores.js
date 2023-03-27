@@ -36,7 +36,17 @@ const {
 	verifyAdminRole,
 } = require("../middlewares/verifyRole");
 const router = Router();
-
+router.delete(
+	"/:Id",
+	[
+		validarJWT,
+		verifyAdminRole,
+		check("Id", "se requiere este campo").notEmpty(),
+		check("Id").custom(ExisteTutor),
+		validarCampos,
+	],
+	tutoresDelete,
+);
 router.get(
 	"/",
 	[
@@ -168,13 +178,9 @@ router.post(
 	],
 	solicitarCambioCorreo,
 );
-router.get("/pagos", [validarJWT, verifyUserRole,validarCampos], getPagos);
+router.get("/pagos", [validarJWT, verifyUserRole, validarCampos], getPagos);
 router.get("/confirmar-correo", FinalizarCambioCorreo);
 router.put("/cambio-correo-v1", cambioCorreov1);
 router.get("/servicios-por-pagar", [validarJWT, validarCampos], getPagos);
-router.delete(
-	"/:Id",
-	[validarJWT, check("Id", "se requiere este campo").notEmpty(), validarCampos],
-	tutoresDelete,
-);
+
 module.exports = router;
