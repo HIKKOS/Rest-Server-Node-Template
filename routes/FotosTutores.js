@@ -5,9 +5,7 @@ const {validarCampos, validarCargaArchivos, validarJWT} = require('../middleware
 const { verifyUserRole } = require('../middlewares/verifyRole')
 
 const router = Router()
-router.get('/',[
-    validarJWT,   
-],MostrarImagenTutor) 
+router.get('/',MostrarImagenTutor) 
 router.post('/',[
     validarJWT,
     verifyUserRole,

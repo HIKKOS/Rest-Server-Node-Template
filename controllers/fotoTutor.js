@@ -66,7 +66,7 @@ const MostrarImagenTutor = async (req = request, res = response) => {
 };
 const RemoveImagenTutor = async (req = request, res = response) => {
 	const { IdTutor } = req.params;
-	let tutor = await prisma.tutor.findUnique({ where: { Id: IdTutor } });
+	const tutor = await prisma.tutor.findUnique({ where: { Id: IdTutor } });
 	if (!tutor) {
 		return res.status(400).json({
 			msg: `No existe una el tutor con id ${IdTutor}`,
