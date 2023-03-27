@@ -44,14 +44,8 @@ const cargarArchivo = async (req = require, res = response) => {
 	}
 };
 const MostrarImagenTutor = async (req = request, res = response) => {
-	const token = req.header("x-token");
-	const { Id: IdTutor } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
-	const tutor = await prisma.tutor.findUnique({ where: { Id: IdTutor } });
-	if (!tutor) {
-		return res.status(400).json({
-			msg: `No existe una el tutor con id ${IdTutor}`,
-		});
-	}
+	const { TutorId } = req.params
+	const tutor = await prisma.tutor.findUnique({ where: { Id: TutorId } });
 	if (!tutor.Foto) {
 		const pathImagen = path.join(__dirname, "../assets/no-image.jpg");
 		return res.sendFile(pathImagen);
