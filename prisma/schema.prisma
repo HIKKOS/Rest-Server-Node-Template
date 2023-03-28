@@ -42,7 +42,7 @@ model ImgPaths {
   ServicioId             String
   Path                   String
   Servicio               Servicio              @relation(fields: [ServicioId], references: [Id], map: "ImgPaths_ServicioId_fkey")
-  ServicioNoCancelable   ServicioNoCancelable? @relation(fields: [servicioNoCancelableId], references: [Id])
+
   servicioNoCancelableId String?
 
   @@index([ServicioId], map: "ImgPaths_ServicioId_fkey")
@@ -67,7 +67,7 @@ model Pago {
   Monto                  Float
   Servicio               Servicio              @relation(fields: [ServicioId], references: [Id], map: "Pago_ServicioId_fkey")
   Tutor                  Tutor                 @relation(fields: [TutorId], references: [Id], map: "Pago_TutorId_fkey")
-  ServicioNoCancelable   ServicioNoCancelable? @relation(fields: [servicioNoCancelableId], references: [Id])
+
   servicioNoCancelableId String?
 
   @@index([ServicioId], map: "Pago_ServicioId_fkey")
@@ -80,6 +80,8 @@ model Servicio {
   Descripcion        String                    @db.VarChar(500)
   Costo              Float                     @default(0)
   Activo             Boolean                   @default(true)
+  FechaPago Int @default(1)
+  Cancelable Boolean @default(true)
   FrecuenciaDePago   Servicio_FrecuenciaDePago @default(MENSUAL)
   ImgPaths           ImgPaths[]
   Pago               Pago[]
@@ -87,19 +89,7 @@ model Servicio {
   HorarioServicio    HorarioServicio[]
 }
 
-model ServicioNoCancelable {
-  Id                 String                    @id
-  Nombre             String                    @db.VarChar(75)
-  Descripcion        String                    @db.VarChar(500)
-  FechaPago          Int
-  Costo              Float                     @default(0)
-  Activo             Boolean                   @default(true)
-  FrecuenciaDePago   Servicio_FrecuenciaDePago @default(MENSUAL)
-  ImgPaths           ImgPaths[]
-  Pago               Pago[]
-  ServiciosDelAlumno ServiciosDelAlumno[]
-  HorarioServicio    HorarioServicio[]
-}
+
 
 model HorarioServicio {
   Id                     String                @id
@@ -108,7 +98,7 @@ model HorarioServicio {
   Inicio                 Int
   Fin                    Int
   Servicio               Servicio              @relation(fields: [ServicioId], references: [Id])
-  ServicioNoCancelable   ServicioNoCancelable? @relation(fields: [servicioNoCancelableId], references: [Id])
+
   servicioNoCancelableId String?
 }
 
@@ -119,7 +109,7 @@ model ServiciosDelAlumno {
   FechaExpiracion        DateTime?
   Alumno                 Alumno                @relation(fields: [AlumnoId], references: [Id])
   Servicio               Servicio              @relation(fields: [ServicioId], references: [Id])
-  ServicioNoCancelable   ServicioNoCancelable? @relation(fields: [servicioNoCancelableId], references: [Id])
+
   servicioNoCancelableId String?
 
   @@id([AlumnoId, ServicioId])

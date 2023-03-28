@@ -8,7 +8,7 @@ const { getImgIdsFromService } = require("../helpers/obenterIdImagenes");
 const prisma = new PrismaClient();
 const getServicioById = async (req = request, res = response) => {
 	const { ServicioId } = req.params;
-	let Servicio = await prisma.servicio.findUnique({
+	const	 Servicio = await prisma.servicio.findUnique({
 		where: {
 			Id: ServicioId,
 		},
@@ -71,6 +71,11 @@ const serviciosGetMobile = async (req = request, res = response) => {
 						Id: true,
 					},
 				},
+				HorarioServicio:{
+					select:{Dia:true,
+					Inicio:true,
+					Fin:true}
+				}
 			},
 			where: {
 				Activo: show === "active" ? true : false,
@@ -78,9 +83,14 @@ const serviciosGetMobile = async (req = request, res = response) => {
 		});
 		Servicios = getImgIdsFromService(Servicios);
 		const total = await prisma.Servicio.count();
+		const allServicios = Servicios.map(s => {
+			s.Horario = s.HorarioServicio
+			s.HorarioServicio = undefined
+			return s
+		})
 		res.json({
 			total,
-			Servicios,
+			Servicios:allServicios,
 		});
 	} catch (error) {
 		console.log(error);
@@ -167,9 +177,14 @@ const serviciosGetWeb = async (req = request, res = response) => {
 		}
 
 		const total = await prisma.Servicio.count();
+		const allServicios= filtrado.map(s => {
+			s.Horario = s.HorarioServicio
+			s.HorarioServicio = undefined
+			return s
+		})
 		res.json({
 			total,
-			Servicios: filtrado,
+			Servicios: allServicios,
 		});
 	} catch (error) {
 		console.log(error);

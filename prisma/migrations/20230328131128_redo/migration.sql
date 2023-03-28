@@ -36,6 +36,7 @@ CREATE TABLE `ImgPaths` (
     `Id` VARCHAR(191) NOT NULL,
     `ServicioId` VARCHAR(191) NOT NULL,
     `Path` VARCHAR(191) NOT NULL,
+    `servicioNoCancelableId` VARCHAR(191) NULL,
 
     INDEX `ImgPaths_ServicioId_fkey`(`ServicioId`),
     PRIMARY KEY (`Id`)
@@ -60,6 +61,7 @@ CREATE TABLE `Pago` (
     `FechaPago` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `Facturar` BOOLEAN NOT NULL DEFAULT false,
     `Monto` DOUBLE NOT NULL,
+    `servicioNoCancelableId` VARCHAR(191) NULL,
 
     INDEX `Pago_ServicioId_fkey`(`ServicioId`),
     INDEX `Pago_TutorId_fkey`(`TutorId`),
@@ -70,11 +72,11 @@ CREATE TABLE `Pago` (
 CREATE TABLE `Servicio` (
     `Id` VARCHAR(191) NOT NULL,
     `Nombre` VARCHAR(75) NOT NULL,
-    `Cancelable` BOOLEAN NOT NULL DEFAULT true,
     `Descripcion` VARCHAR(500) NOT NULL,
-    `FechaPago` INTEGER NOT NULL,
     `Costo` DOUBLE NOT NULL DEFAULT 0,
     `Activo` BOOLEAN NOT NULL DEFAULT true,
+    `FechaPago` INTEGER NOT NULL DEFAULT 1,
+    `Cancelable` BOOLEAN NOT NULL DEFAULT true,
     `FrecuenciaDePago` ENUM('SEMANAL', 'MENSUAL', 'BIMESTRAL', 'SEMESTRAL', 'ANUAL') NOT NULL DEFAULT 'MENSUAL',
 
     PRIMARY KEY (`Id`)
@@ -87,6 +89,7 @@ CREATE TABLE `HorarioServicio` (
     `Dia` ENUM('LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES') NOT NULL,
     `Inicio` INTEGER NOT NULL,
     `Fin` INTEGER NOT NULL,
+    `servicioNoCancelableId` VARCHAR(191) NULL,
 
     PRIMARY KEY (`Id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -97,6 +100,7 @@ CREATE TABLE `ServiciosDelAlumno` (
     `ServicioId` VARCHAR(191) NOT NULL,
     `FechaContrato` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `FechaExpiracion` DATETIME(3) NULL,
+    `servicioNoCancelableId` VARCHAR(191) NULL,
 
     PRIMARY KEY (`AlumnoId`, `ServicioId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
