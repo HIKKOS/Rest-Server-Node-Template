@@ -44,9 +44,9 @@ const cargarArchivo = async (req = require, res = response) => {
 	}
 };
 const MostrarImagenTutor = async (req = request, res = response) => {
-	const { TutorId } = req.params
+	const { TutorId } = req.params;
 	const tutor = await prisma.tutor.findUnique({ where: { Id: TutorId } });
-	if (!tutor.Foto) {
+	if (!tutor?.Foto || tutor?.Foto == null) {
 		const pathImagen = path.join(__dirname, "../assets/no-image.jpg");
 		return res.sendFile(pathImagen);
 	}

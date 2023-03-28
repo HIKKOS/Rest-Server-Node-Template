@@ -9,8 +9,8 @@ datasource db {
 
 model Administrador {
   Id              String  @id
-  PrimerNombre             String               @db.VarChar(75)
-  SegundoNombre            String?              @db.VarChar(75)
+  PrimerNombre    String  @db.VarChar(75)
+  SegundoNombre   String? @db.VarChar(75)
   ApellidoMaterno String  @db.VarChar(75)
   ApellidoPaterno String? @db.VarChar(75)
   Correo          String  @unique(map: "Administrador_Correo_key") @db.VarChar(255)
@@ -19,29 +19,31 @@ model Administrador {
 }
 
 model Alumno {
-  Id                 String               @id
-  PrimerNombre             String               @db.VarChar(75)
-  SegundoNombre            String?              @db.VarChar(75)
-  ApellidoMaterno    String               @db.VarChar(75)
-  ApellidoPaterno    String?              @db.VarChar(75)
-  Grado              Int                  @default(1)
-  Grupo              String               @default("A") @db.VarChar(20)
-  Genero             Int
-  CreatedAt          DateTime             @default(now())
-  TutorId            String?
-  Activo             Boolean              @default(true)
-  Tutor              Tutor?               @relation(fields: [TutorId], references: [Id], map: "Alumno_TutorId_fkey")
-  Serviciosdelalumno ServiciosDelAlumno[]
-  
+  Id                    String                  @id
+  PrimerNombre          String                  @db.VarChar(75)
+  SegundoNombre         String?                 @db.VarChar(75)
+  ApellidoMaterno       String                  @db.VarChar(75)
+  ApellidoPaterno       String?                 @db.VarChar(75)
+  Grado                 Int                     @default(1)
+  Grupo                 String                  @default("A") @db.VarChar(20)
+  Genero                Int
+  CreatedAt             DateTime                @default(now())
+  TutorId               String?
+  Activo                Boolean                 @default(true)
+  Tutor                 Tutor?                  @relation(fields: [TutorId], references: [Id], map: "Alumno_TutorId_fkey")
+  Serviciosdelalumno    ServiciosDelAlumno[]
   HorarioServicioAlumno HorarioServicioAlumno[]
+
   @@index([TutorId], map: "Alumno_TutorId_fkey")
 }
 
 model ImgPaths {
-  Id         String      @id 
-  ServicioId String
-  Path       String
-  Servicio   Servicio @relation(fields: [ServicioId], references: [Id], map: "ImgPaths_ServicioId_fkey")
+  Id                     String                @id
+  ServicioId             String
+  Path                   String
+  Servicio               Servicio              @relation(fields: [ServicioId], references: [Id], map: "ImgPaths_ServicioId_fkey")
+  ServicioNoCancelable   ServicioNoCancelable? @relation(fields: [servicioNoCancelableId], references: [Id])
+  servicioNoCancelableId String?
 
   @@index([ServicioId], map: "ImgPaths_ServicioId_fkey")
 }
@@ -56,15 +58,18 @@ model Metodopago {
 }
 
 model Pago {
-  Folio      Int      @id @default(autoincrement())
-  ServicioId String
-  TutorId    String
-  AlumnoId   String
-  FechaPago  DateTime @default(now())
-  Facturar   Boolean  @default(false)
-  Monto      Float
-  Servicio   Servicio @relation(fields: [ServicioId], references: [Id], map: "Pago_ServicioId_fkey")
-  Tutor      Tutor    @relation(fields: [TutorId], references: [Id], map: "Pago_TutorId_fkey")
+  Folio                  Int                   @id @default(autoincrement())
+  ServicioId             String
+  TutorId                String
+  AlumnoId               String
+  FechaPago              DateTime              @default(now())
+  Facturar               Boolean               @default(false)
+  Monto                  Float
+  Servicio               Servicio              @relation(fields: [ServicioId], references: [Id], map: "Pago_ServicioId_fkey")
+  Tutor                  Tutor                 @relation(fields: [TutorId], references: [Id], map: "Pago_TutorId_fkey")
+  ServicioNoCancelable   ServicioNoCancelable? @relation(fields: [servicioNoCancelableId], references: [Id])
+  servicioNoCancelableId String?
+
   @@index([ServicioId], map: "Pago_ServicioId_fkey")
   @@index([TutorId], map: "Pago_TutorId_fkey")
 }
@@ -72,10 +77,8 @@ model Pago {
 model Servicio {
   Id                 String                    @id
   Nombre             String                    @db.VarChar(75)
-  Cancelable        Boolean                   @default(true)
   Descripcion        String                    @db.VarChar(500)
-  FechaPago          Int
-  Costo             Float                     @default(0)
+  Costo              Float                     @default(0)
   Activo             Boolean                   @default(true)
   FrecuenciaDePago   Servicio_FrecuenciaDePago @default(MENSUAL)
   ImgPaths           ImgPaths[]
@@ -83,38 +86,59 @@ model Servicio {
   ServiciosDelAlumno ServiciosDelAlumno[]
   HorarioServicio    HorarioServicio[]
 }
+
+model ServicioNoCancelable {
+  Id                 String                    @id
+  Nombre             String                    @db.VarChar(75)
+  Descripcion        String                    @db.VarChar(500)
+  FechaPago          Int
+  Costo              Float                     @default(0)
+  Activo             Boolean                   @default(true)
+  FrecuenciaDePago   Servicio_FrecuenciaDePago @default(MENSUAL)
+  ImgPaths           ImgPaths[]
+  Pago               Pago[]
+  ServiciosDelAlumno ServiciosDelAlumno[]
+  HorarioServicio    HorarioServicio[]
+}
+
 model HorarioServicio {
-  Id         String      @id
+  Id                     String                @id
+  ServicioId             String
+  Dia                    DiaSemana
+  Inicio                 Int
+  Fin                    Int
+  Servicio               Servicio              @relation(fields: [ServicioId], references: [Id])
+  ServicioNoCancelable   ServicioNoCancelable? @relation(fields: [servicioNoCancelableId], references: [Id])
+  servicioNoCancelableId String?
+}
+
+model ServiciosDelAlumno {
+  AlumnoId               String
+  ServicioId             String
+  FechaContrato          DateTime              @default(now())
+  FechaExpiracion        DateTime?
+  Alumno                 Alumno                @relation(fields: [AlumnoId], references: [Id])
+  Servicio               Servicio              @relation(fields: [ServicioId], references: [Id])
+  ServicioNoCancelable   ServicioNoCancelable? @relation(fields: [servicioNoCancelableId], references: [Id])
+  servicioNoCancelableId String?
+
+  @@id([AlumnoId, ServicioId])
+}
+
+model HorarioServicioAlumno {
+  Id         String    @id
+  AlumnoId   String
   ServicioId String
   Dia        DiaSemana
-  Inicio Int
-  Fin    Int
-  Servicio   Servicio @relation(fields: [ServicioId], references: [Id])
-}
-model ServiciosDelAlumno {
-  AlumnoId    String
-  ServicioId  String
-  FechaContrato DateTime @default(now())
-  FechaExpiracion DateTime?
-  Alumno      Alumno   @relation(fields: [AlumnoId], references: [Id])
-  Servicio    Servicio @relation(fields: [ServicioId], references: [Id])
-  @@id([AlumnoId,ServicioId])
-}
-model HorarioServicioAlumno {  
-  Id String @id
-  AlumnoId    String
-  ServicioId String
-  Dia DiaSemana        
-  Inicio Int
-  Fin    Int
-  Alumno      Alumno   @relation(fields: [AlumnoId], references: [Id])
-
+  Inicio     Int
+  Fin        Int
+  Alumno     Alumno    @relation(fields: [AlumnoId], references: [Id])
 }
 
 model Tutor {
   Id              String       @id
-  PrimerNombre             String               @db.VarChar(75)
-  SegundoNombre            String?              @db.VarChar(75)
+  PrimerNombre    String       @db.VarChar(75)
+  SegundoNombre   String?      @db.VarChar(75)
   ApellidoMaterno String       @db.VarChar(75)
   ApellidoPaterno String?      @db.VarChar(75)
   Foto            String?      @db.VarChar(75)
@@ -137,7 +161,8 @@ enum Servicio_FrecuenciaDePago {
   SEMESTRAL
   ANUAL
 }
-enum DiaSemana{
+
+enum DiaSemana {
   LUNES
   MARTES
   MIERCOLES

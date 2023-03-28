@@ -181,6 +181,11 @@ router.post(
 router.get("/pagos", [validarJWT, verifyUserRole, validarCampos], getPagos);
 router.get("/confirmar-correo", FinalizarCambioCorreo);
 router.put("/cambio-correo-v1", cambioCorreov1);
+router.put(
+	"/cambio-correo",
+	[check("Correo", "debe ser un correo").isEmail(), validarCampos],
+	solicitarCambioCorreo,
+);
 router.get("/servicios-por-pagar", [validarJWT, validarCampos], getPagos);
 
 module.exports = router;

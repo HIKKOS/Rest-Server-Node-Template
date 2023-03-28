@@ -1,4 +1,6 @@
 const { response, request } = require("express");
+const fs = require("fs");
+const ejs = require("ejs");
 const { v4: uuidv4 } = require("uuid");
 const nodemailer = require("nodemailer");
 const bcryptjs = require("bcryptjs");
@@ -147,9 +149,12 @@ const tutoresPost = async (req, res = response) => {
 			Direccion,
 		},
 	});
-	res.json({
-		tutor,
-	});
+	const mailOptions = {
+		mail: Correo,
+		password: pass,
+		nombreTutor: `${PrimerNombre} ${SegundoNombre} ${ApellidoPaterno} ${ApellidoMaterno}`,
+	};
+	sendMail(req, res, mailOptions);
 };
 const tutoresDelete = async (req = request, res = response) => {
 	const { Id } = req.params;
@@ -243,10 +248,42 @@ const solicitarCambioCorreo = async (req, res) => {
 	}
 	cambioCorreo({ newMail: Correo, oldMail: tutor.Correo, res });
 };
+const sendMail = async (req, res, mailInfo) => {
+	const { mail, password: PasswordTutor, nombreTutor } = mailInfo;
+	const email = process.env.EMAIL;
+	const password = process.env.PASSWORD;
+	const transporter = nodemailer.createTransport({
+		host: "smtp.gmail.com",
+		port: 465,
+		secure: false,
+		service: "gmail",
+		authMethod: "PLAIN",
+		auth: {
+			user: email,
+			pass: password,
+		},
+	});
+	const mailOptions = {
+		from: email,
+		to: mail,
+		subject: "Credenciales de acceso",
+		html: `<h1> Estimado ${nombreTutor}</h1>
+		<p>Por este medio le hacemos llegar las credenciales para poder acceder a la aplicación "PaySchool" </p>
+		<p>Correo: ${mail}</p>
+		<p>Contraseña: ${PasswordTutor}</p>
+		`,
+	};
+	transporter.sendMail(mailOptions, (err, info) => {
+		if (err) {
+			console.log(err);
+		}
+	});
+	return res.json({ msg: `correo enviado correctamente al ${mail}` });
+};
+
 const cambioCorreo = ({ oldMail, newMail, res }) => {
 	const email = process.env.EMAIL;
 	const password = process.env.PASSWORD;
-	console.log(email, password);
 	const transporter = nodemailer.createTransport({
 		host: "smtp.gmail.com",
 		port: 465,
@@ -269,7 +306,7 @@ const cambioCorreo = ({ oldMail, newMail, res }) => {
 		subject: "Cambio de correo",
 		html: `<h1>Se ha solicitado un cambio de correo</h1>
 		<p>Si no has solicitado este cambio, por favor ignora este correo</p>
-		token: <p>${token}<p>
+		<a href=${confirmUrl}><button>Confirmar email</button></a>
 		`,
 	};
 	transporter.sendMail(mailOptions, (err, info) => {
@@ -296,7 +333,18 @@ const FinalizarCambioCorreo = async (req, res) => {
 			where: { Correo: oldMail },
 			data: { Correo: newMail },
 		});
-		return res.json({ msg: "correo cambiado correctamente" });
+		fs.readFile("./templates/CambioCorreoExistoso.ejs", "utf8", (err, data) => {
+			if (err) {
+				console.log(err);
+				return res
+					.status(500)
+					.send("Ocurrió un error al procesar la solicitud.");
+			}
+			const html = ejs.render(data, {
+				correoNuevo: newMail,
+			});
+			return res.send(html);
+		});
 	} catch (error) {
 		console.log(error);
 		return res.status(400).json({ msg: "error al cambiar el correo" });

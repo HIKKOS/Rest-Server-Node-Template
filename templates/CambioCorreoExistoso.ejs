@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Cambio de correo</title>
+		<link rel="stylesheet" href="style.css" />
+		<script src="https://cdn.tailwindcss.com"></script>
+	</head>
+	<body class="container min-h-screen">
+		<div
+			class="px-4 flex flex-row min-h-screen items-center justify-center"
+		>
+			<div
+				class="w-full h-full bg-white rounded-lg shadow-lg overflow-hidden"
+			>
+				<div class="px-6 py-4">
+					<div class="text-center font-bold text-xl mb-2">
+						Cambio de correo exitoso
+					</div>
+
+					<p class="text-gray-700 text-base">
+						su solicitud se ha completado con éxito, su correo ahora
+						es: <%= correoNuevo %>
+					</p>
+					<p class="text-gray-700 text-base">
+						la contraseña de su cuenta no ha sufrido cambios
+					</p>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		{
+			console.log(new Date());
+		}
+	</script>
+</html>
