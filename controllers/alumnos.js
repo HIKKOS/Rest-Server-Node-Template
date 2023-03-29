@@ -118,16 +118,8 @@ const alumnosPost = async (req = request, res = response) => {
 const alumnosDelete = async (req = request, res = response) => {
 	try {
 		const { Id } = req.params;
-		const alumno = await prisma.alumno.findUnique({
-			where: { Id: Number(Id) },
-		});
-		if (!alumno) {
-			return res.status(400).json({
-				msg: `no existe el Id ${Id}`,
-			});
-		}
 		await prisma.alumno.update({
-			where: { Id: Number(Id) },
+			where: { Id },
 			data: { Activo: false },
 		});
 		return res.json({

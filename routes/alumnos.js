@@ -76,7 +76,7 @@ router.post(
 );
 router.delete(
 	"/:Id",
-	[validarJWT, check("Id", "Debe ser numerico").isNumeric()],
+	[validarJWT, check("Id", ).custom(ExisteAlumno)],
 	alumnosDelete,
 );
 router.delete(
