@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const model = require("../models/server");
 
 const prisma = new PrismaClient();
-const validarJWT = async (req = request, res = response, next) => {
+const validarJWT = async (req , res , next) => {
 	const token = req.header("x-token");
 	if (!token) {
 		return res.status(401).json({

@@ -323,11 +323,11 @@ const FinalizarCambioCorreo = async (req, res) => {
 	if (token === "") {
 		return res.status(400).json({ msg: "no se ha enviado el token" });
 	}
+	try {
 	const { oldMail, newMail } = jwt.verify(
 		token,
 		process.env.SECRETORPRIVATEKEY,
 	);
-	try {
 		console.log({ oldMail, newMail });
 		await prisma.tutor.update({
 			where: { Correo: oldMail },
