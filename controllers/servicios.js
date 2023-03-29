@@ -264,7 +264,7 @@ const serviciosDel = async (req = request, res = response) => {
 	try {
 		const { Id } = req.params;
 		const Servicio = await prisma.servicio.update({
-			where: { Id: Number(Id) },
+			where: { Id: Id },
 			data: { Activo: false },
 		});
 		return res.json({
