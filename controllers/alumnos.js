@@ -122,9 +122,7 @@ const alumnosDelete = async (req = request, res = response) => {
 			where: { Id },
 			data: { Activo: false },
 		});
-		return res.json({
-			alumno,
-		});
+		return res.json({msg:'eliminado con exito'})
 	} catch (error) {
 		console.log(error);
 		return res.status(500).json({
