@@ -16,6 +16,7 @@ datasource db {
 model User {
   id        String    @id @default(cuid())
   email     String    @unique
+  photo     String?
   name      String?
   password  String
   createdAt DateTime  @default(now())
@@ -33,7 +34,7 @@ model Post {
   updatedAt DateTime  @updatedAt
   author    User      @relation(fields: [authorId], references: [id])
   authorId  String
-  images    Image[]
+  image     String?   @db.LongText()
 }
 
 model Comment {
@@ -52,6 +53,6 @@ model Image {
   url       String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  post      Post     @relation(fields: [postId], references: [id])
-  postId    String
+
+  postId String
 }

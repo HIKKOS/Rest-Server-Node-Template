@@ -1,4 +1,5 @@
 const prismaClient = require("../helpers/prisma");
+const bcryptjs = require("bcryptjs");
 const PostModel = require("../models/blog");
 const UserModel = require("../models/user");
 
@@ -12,19 +13,22 @@ const getUsers = async (req, res) => {
 // Ruta POST para crear un nuevo blog
 const postUsers = async (req, res) => {
   try {
-    const post = new UserModel(req.body);
+    const user = new UserModel(req.body);
+    const salt = bcryptjs.genSaltSync(10);
+    const password = bcryptjs.hashSync(user.password, salt);
     const newPost = await prismaClient.user.create({
       data: {
-        name: post.name,
-        email: post.email,
-        password: post.password,
+        name: user.name,
+        email: user.email,
+        password: password,
+        photo: user.photo,
       },
     });
     res.json({
       newPost,
     });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       error: error.message,
     });
   }
