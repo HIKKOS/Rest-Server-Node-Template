@@ -44,7 +44,7 @@ const getBlogs = async (req, res) => {
 };
 
 // Ruta POST para crear un nuevo blog
-const || = async (req, res) => {
+const postBlogs = async (req, res) => {
   const file = req.file;
   console.log(file);
   return res.json({
