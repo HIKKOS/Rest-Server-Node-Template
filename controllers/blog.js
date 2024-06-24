@@ -3,6 +3,27 @@ const prismaClient = require("../helpers/prisma");
 const PostModel = require("../models/blog");
 const CommentModel = require("../models/comment");
 const router = express.Router();
+const getBlogById = async (req, res) => {
+  const id = req.params.id;
+  const findMany = await prismaClient.post.findUnique({
+    where: {
+      id: id,
+    },
+    include: {
+      comments: {
+        include: {
+          author: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+      author: true,
+    },
+  });
+
+  res.json(findMany);
+};
 const getBlogs = async (req, res) => {
   const findMany = await prismaClient.post.findMany({
     orderBy: {
@@ -18,14 +39,19 @@ const getBlogs = async (req, res) => {
       author: true,
     },
   });
+
   res.json(findMany);
 };
 
 // Ruta POST para crear un nuevo blog
-const postBlogs = async (req, res) => {
+const || = async (req, res) => {
+  const file = req.file;
+  console.log(file);
+  return res.json({
+    body: req.body,
+  });
+
   const post = new PostModel(req.body);
-
-
 
   const newPost = await prismaClient.post.create({
     data: {
@@ -36,7 +62,6 @@ const postBlogs = async (req, res) => {
     },
   });
 
-
   res.json({
     newPost,
   });
@@ -45,7 +70,6 @@ const postBlogs = async (req, res) => {
 
 // Ruta PUT para actualizar un blog existente
 const putBlogs = async (req, res) => {
-  const id = req.params.id;
   const comentario = new CommentModel(req.body);
 
   /* return res.json({
@@ -53,12 +77,13 @@ const putBlogs = async (req, res) => {
     }); */
   const post = await prismaClient.post.findUnique({
     where: {
-      id: id,
+      id: comentario.postId,
     },
     include: {
       comments: true,
     },
   });
+
   const newComment = await prismaClient.comment.create({
     data: {
       content: comentario.content,
@@ -69,7 +94,7 @@ const putBlogs = async (req, res) => {
 
   const updatedPost = await prismaClient.post.update({
     where: {
-      id: id,
+      id: comentario.postId,
     },
     data: {
       comments: {
@@ -77,9 +102,7 @@ const putBlogs = async (req, res) => {
       },
     },
   });
-  res.json(
-    newComment,
-  );
+  res.json(newComment);
 };
 
 // Ruta DELETE para eliminar un blog existente
@@ -100,4 +123,5 @@ module.exports = {
   postBlogs,
   putBlogs,
   deleteBlogs,
+  getBlogById,
 };
